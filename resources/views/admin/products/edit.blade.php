@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-6">Chỉnh sửa sản phẩm</h1>
@@ -15,6 +15,12 @@
             <label class="block font-semibold mb-1">Giá</label>
             <input type="number" name="price" value="{{ $product->price }}" class="w-full border px-3 py-2 rounded">
         </div>
+        <div class="mb-4">
+            <label for="description" class="block text-gray-700">Mô tả sản phẩm</label>
+            <textarea name="description" id="description" rows="4"
+                class="w-full border-gray-300 rounded shadow-sm">{{ old('description', $product->description ?? '') }}</textarea>
+        </div>
+
         <div>
             <label class="block font-semibold mb-1">Danh mục</label>
             <select name="category_id" class="w-full border px-3 py-2 rounded" required>

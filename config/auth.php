@@ -40,6 +40,23 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+
+        // Thêm guard client
+        'client' => [
+            'driver' => 'session',
+            'provider' => 'users', // dùng cùng bảng users
+        ],
+
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins', // nếu bạn tạo bảng admins riêng
+        ],
     ],
 
     /*
@@ -65,10 +82,10 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class, // nếu bạn dùng bảng admin riêng
+        ],
     ],
 
     /*
@@ -92,6 +109,10 @@ return [
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins', // provider mới
         ],
     ],
 

@@ -13,7 +13,7 @@ class ProductController extends Controller
     // Danh sách sản phẩm
     public function index()
     {
-        $products = Product::paginate(12);
+        $products = Product::orderBy('created_at', 'asc')->paginate(10);
         return view('admin.products.index', compact('products'));
     }
     // Form tạo mới

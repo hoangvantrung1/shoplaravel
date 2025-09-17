@@ -4,17 +4,17 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, Closure $next)
     {
-        if (auth()->check() && auth()->user()->isAdmin()) {
-            return $next($request);
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
+            return redirect('/')->with('error', 'Bạn không có quyền truy cập admin.');
         }
 
-        return redirect('/')->with('error', 'Bạn không có quyền truy cập trang này.');
+        return $next($request);
     }
 }
+

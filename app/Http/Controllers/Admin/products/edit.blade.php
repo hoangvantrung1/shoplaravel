@@ -1,3 +1,4 @@
+@extends('admin.dashboard')
 <form action="{{ isset($product) ? route('admin.products.update', $product->id) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @if(isset($product))

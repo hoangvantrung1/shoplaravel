@@ -3,56 +3,64 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Tổng số đơn
+        // Tổng số lượng
+        $totalProducts = Product::count();
         $totalOrders = Order::count();
+        $totalUsers = User::count();
 
-        // Tổng doanh thu
-        $totalRevenue = Order::sum('total');
+        // Tổng doanh thu - Sửa thành chữ thường 'completed'
+        $totalRevenue = (float) Order::sum('total');
 
-        // Thống kê trạng thái đơn
         $statusCounts = [
-            'pending' => Order::where('status','pending')->count(),
-            'processing' => Order::where('status','processing')->count(),
-            'completed' => Order::where('status','completed')->count(),
-            'cancelled' => Order::where('status','cancelled')->count(),
+            'pending' => Order::whereRaw('LOWER(status) = ?', ['pending'])->count(),
+            'processing' => Order::whereRaw('LOWER(status) = ?', ['processing'])->count(),
+            'completed' => Order::whereRaw('LOWER(status) = ?', ['completed'])->count(),
+            'cancelled' => Order::whereRaw('LOWER(status) = ?', ['cancelled'])->count(),
         ];
 
         // Doanh thu theo tháng
         $monthlyRevenue = Order::select(
-            DB::raw("MONTH(created_at) as month"),
-            DB::raw("SUM(total) as revenue")
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(total) as revenue')
         )
-        ->whereYear('created_at', date('Y'))
-        ->groupBy('month')
-        ->pluck('revenue','month')
-        ->toArray();
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('revenue', 'month')
+            ->toArray();
 
-        // Đảm bảo 12 tháng có dữ liệu
+        // Tạo mảng đầy đủ 12 tháng
+        $monthlyRevenue = Order::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(total) as revenue')
+        )
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('revenue', 'month')
+            ->toArray();
         $monthlyRevenueFull = [];
-        for($m=1; $m<=12; $m++){
-            $monthlyRevenueFull[$m] = $monthlyRevenue[$m] ?? 0;
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyRevenueFull[] = isset($monthlyRevenue[$i]) ? (float) $monthlyRevenue[$i] : 0;
         }
-
         // Top 5 sản phẩm bán chạy
-        $topProducts = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+        $topProducts = OrderItem::with('product')
+            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
             ->groupBy('product_id')
             ->orderByDesc('total_sold')
             ->take(5)
-            ->with('product')
-            ->get();
+            ->get();    
 
         return view('admin.dashboard', compact(
+            'totalProducts',
             'totalOrders',
+            'totalUsers',
             'totalRevenue',
             'statusCounts',
             'monthlyRevenueFull',

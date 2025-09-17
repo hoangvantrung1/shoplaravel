@@ -32,6 +32,11 @@
             <input type="number" name="price" value="{{ old('price') }}" class="w-full border px-3 py-2 rounded" required
                 min="0">
         </div>
+        <div class="mb-4">
+            <label for="description" class="block text-gray-700">Mô tả sản phẩm</label>
+            <textarea name="description" id="description" rows="4"
+                class="w-full border-gray-300 rounded shadow-sm">{{ old('description', $product->description ?? '') }}</textarea>
+        </div>
 
         {{-- Danh mục --}}
         <div>

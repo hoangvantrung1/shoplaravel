@@ -1,48 +1,82 @@
 <?php
 
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Client\AuthController as ClientAuthController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\OrderAdminController;
 
-// Trang chủ
+/*
+|--------------------------------------------------------------------------
+| Client Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
-// Chi tiết sản phẩm
-Route::get('/product/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
+// Login / Logout
+Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [ClientAuthController::class, 'login'])->name('login.submit');
+Route::post('/logout', [ClientAuthController::class, 'logout'])->name('client.logout');
+
+// Register
+Route::get('/register', [ClientAuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [ClientAuthController::class, 'register'])->name('register.submit');
 
 
-// Giỏ hàng
+// Cart
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+// Product detail
+Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
 
 // Checkout
-Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');
+Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('checkout.vnpay.return');
 
 
-//Backend
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    // Trang mặc định khi vào /admin
-    Route::get('/', function () {
-        return redirect()->route('admin.products.index');
-    })->name('dashboard');
-
-    // CRUD sản phẩm
-    Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
-
-    // Quản lý đơn hàng
-    Route::get('/orders', [App\Http\Controllers\Admin\OrderAdminController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [App\Http\Controllers\Admin\OrderAdminController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/status', [App\Http\Controllers\Admin\OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
+Route::middleware('auth')->group(function () {
+    Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
+    Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('client.orders.show');
 });
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin login/logout
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login.post');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-// Auth routes
-require __DIR__ . '/auth.php';
+    // Protected admin routes (guard 'admin')
+    Route::middleware(['auth:admin', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+        // Dashboard
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Quản lý users
+        Route::resource('users', \App\Http\Controllers\Admin\AdminUserController::class);
+
+        // Quản lý sản phẩm
+        Route::resource('products', AdminProductController::class);
+
+        // Quản lý đơn hàng
+        Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
+    });
+});
