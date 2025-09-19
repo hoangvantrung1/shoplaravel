@@ -45,7 +45,21 @@
                     </div>
                 </div>
 
-                <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Blog</a>
+            {{-- Search form (desktop) --}}
+            <form action="{{ route('products.index') }}" method="GET" class="relative">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ request('q') }}"
+                    placeholder="Tìm sản phẩm..."
+                    class="pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 w-64"
+                />
+                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </form>
+
+            <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Blog</a>
                 <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Liên hệ</a>
                 <a href="{{ route('cart.index') }}" class="nav-link text-gray-700 hover:text-purple-600 relative">
                     Giỏ hàng ({{ count(session('cart', [])) }})
@@ -117,6 +131,16 @@
 
     <nav class="flex flex-col p-4 space-y-2">
         <a href="{{ route('home') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">Trang chủ</a>
+        {{-- Search form (mobile) --}}
+        <form action="{{ route('products.index') }}" method="GET" class="px-4 py-2">
+            <div class="relative">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Tìm sản phẩm..."
+                    class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+        </form>
         <a href="{{ route('cart.index') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">
             Giỏ hàng ({{ count(session('cart', [])) }})
         </a>
