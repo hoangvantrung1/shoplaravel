@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\OrderAdminController;
 */
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
+// Alias /search -> products.index
+Route::get('/search', [ProductController::class, 'index'])->name('search');
 
 // Login / Logout
 Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
