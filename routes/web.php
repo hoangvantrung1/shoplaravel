@@ -38,8 +38,8 @@ Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-// Product detail
-Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+// Product detail (slug)
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 

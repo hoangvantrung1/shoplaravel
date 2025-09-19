@@ -17,7 +17,7 @@ class ProductController extends Controller
         $carouselProducts = Product::where('is_hot', 1)->take(8)->get();
         $newProducts = Product::latest()->take(4)->get();
         // Lọc theo danh mục (nếu có)
-        if ($request->has('category')) {
+        if ($request->filled('category')) {
             $category = Category::find($request->input('category'));
             if ($category) {
                 $query->where('category_id', $category->id);
@@ -26,7 +26,7 @@ class ProductController extends Controller
         }
 
         // Lọc theo thương hiệu (nếu có)
-        if ($request->has('brand_id')) {
+        if ($request->filled('brand_id')) {
             $brand = Brand::find($request->input('brand_id'));
             if ($brand) {
                 $query->where('brand_id', $brand->id);
@@ -34,13 +34,24 @@ class ProductController extends Controller
             }
         }
 
-        // Tìm kiếm theo từ khóa q (tên, mô tả)
+        // Tìm kiếm theo từ khóa q (nhiều từ): tên, mô tả, slug, brand, category
         $search = trim((string) $request->input('q'));
         if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
+            $terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($terms as $term) {
+                $like = "%{$term}%";
+                $query->where(function ($sub) use ($like) {
+                    $sub->where('name', 'like', $like)
+                        ->orWhere('description', 'like', $like)
+                        ->orWhere('slug', 'like', $like)
+                        ->orWhereHas('brand', function ($b) use ($like) {
+                            $b->where('name', 'like', $like);
+                        })
+                        ->orWhereHas('category', function ($c) use ($like) {
+                            $c->where('name', 'like', $like);
+                        });
+                });
+            }
         }
 
         $products = $query->paginate(12)->withQueryString();
