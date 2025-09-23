@@ -37,17 +37,28 @@
         <div class="bg-white p-6 rounded shadow">
             <h2 class="text-xl font-semibold mb-4">Sản phẩm</h2>
             <div class="space-y-4">
-                @foreach($order->items as $item)
+                @forelse($order->orderItems as $item)
                     <div class="flex justify-between items-center pb-2">
-                        <div>{{ $item->product->name ?? 'Sản phẩm' }} x{{ $item->quantity }}</div>
+                        <div>
+                            <span class="font-medium">{{ $item->product->name ?? 'Sản phẩm đã xóa' }}</span>
+                            × {{ $item->quantity }}
+                        </div>
+                        <div class="text-gray-600">
+                            {{ number_format($item->price * $item->quantity, 0, ',', '.') }} đ
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <div>{{ $item->product->description }}</div>
+                    <div class="flex justify-between items-center border-b pb-2 text-sm text-gray-500">
+                        <div>{{ $item->product->description ?? '' }}</div>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-gray-500">Không có sản phẩm nào trong đơn hàng.</p>
+                @endforelse
             </div>
-            <div class="text-right font-bold text-lg mt-4">Tổng: {{ number_format($order->total) }} đ</div>
+            <div class="text-right font-bold text-lg mt-4">
+                Tổng: {{ number_format($order->total, 0, ',', '.') }} đ
+            </div>
         </div>
+
     </div>
 
     <a href="{{ route('admin.orders.index') }}"

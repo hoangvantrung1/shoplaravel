@@ -20,7 +20,22 @@
             <textarea name="description" id="description" rows="4"
                 class="w-full border-gray-300 rounded shadow-sm">{{ old('description', $product->description ?? '') }}</textarea>
         </div>
-
+        <div>
+            <label class="block font-semibold mb-2">Số lượng tồn kho</label>
+            <input type="number" name="stock" value="{{ old('stock', $product->stock) }}"
+                class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required min="0" placeholder="0">
+        </div>
+        <div class="mb-3">
+            <label for="brand_id">Thương hiệu</label>
+            <select name="brand_id" id="brand_id" class="form-control">
+                @foreach($brands as $brand)
+                    <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
+                        {{ $brand->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <div>
             <label class="block font-semibold mb-1">Danh mục</label>
             <select name="category_id" class="w-full border px-3 py-2 rounded" required>

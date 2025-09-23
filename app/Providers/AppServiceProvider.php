@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Support\ServiceProvider;
 use View;
@@ -25,9 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('*', function ($view) {
+        // Chia sẻ biến categories và brands với tất cả các view
+        view()->composer('*', function ($view) {
             $categories = Category::all();
-            $view->with('categories', $categories);
+            $brands = Brand::all();
+            $view->with(compact('categories', 'brands'));
         });
     }
 }

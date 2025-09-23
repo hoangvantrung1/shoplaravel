@@ -11,7 +11,7 @@ class AdminUserController extends Controller
     // Hiển thị danh sách user
     public function index()
     {
-        $users = User::orderBy('id', 'desc')->paginate(10);
+        $users = User::orderBy('id', 'asc')->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -26,7 +26,7 @@ class AdminUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -45,19 +45,28 @@ class AdminUserController extends Controller
     {
         return view('admin.users.edit', compact('user'));
     }
-
     // Cập nhật user
     public function update(Request $request, User $user)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6', // để trống nếu không đổi
         ]);
 
-        $user->update($request->only('name','email'));
+        // Lấy name và email
+        $data = $request->only('name', 'email');
+
+        // Nếu có nhập mật khẩu thì thêm vào mảng $data
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user->update($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Cập nhật user thành công!');
     }
+
 
     // Xóa user
     public function destroy(User $user)

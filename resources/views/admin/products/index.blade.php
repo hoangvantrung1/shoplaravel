@@ -19,6 +19,7 @@
                     </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Giá</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Danh mục</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Thương hiệu</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Mô tả</th>
                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">Hành động
                     </th>
@@ -43,7 +44,9 @@
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                             {{ $product->category ? $product->category->name : 'Chưa có danh mục' }}
                         </td>
-
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                            {{ $product->brand ? $product->brand->name : 'Chưa có thương hiệu' }}
+                        </td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ $product->description }}</td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-center space-x-2 flex justify-center">
                             <a href="{{ route('admin.products.edit', $product->id) }}"

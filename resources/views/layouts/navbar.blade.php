@@ -45,10 +45,32 @@
                     </div>
                 </div>
 
+                {{-- Dropdown thương hiệu --}}
+                <div class="relative group">
+                    <button class="nav-link flex items-center text-gray-700 hover:text-purple-600 transition-all">
+                        Thương hiệu
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 ml-1 transition-transform group-hover:rotate-180" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div
+                        class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50 border border-gray-100">
+                        @foreach($brands as $brand)
+                            <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-purple-600 transition-colors">
+                                {{ $brand->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
                 <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Blog</a>
                 <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Liên hệ</a>
                 <a href="{{ route('cart.index') }}" class="nav-link text-gray-700 hover:text-purple-600 relative">
-                    Giỏ hàng ({{ count(session('cart', [])) }})
+                    <i class="fas fa-shopping-cart mr-1"></i>Giỏ hàng ({{ count(session('cart', [])) }})
                 </a>
 
                 {{-- Login / Logout --}}
@@ -69,10 +91,26 @@
 
                         <div
                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <a href="{{ route('client.orders.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-shopping-bag mr-2"></i>Đơn hàng của tôi
+                            </a>
+                            <a href="{{ route('profile.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-user mr-2"></i>Thông tin cá nhân
+                            </a>
+                            <a href="{{ route('addresses.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Địa chỉ
+                            </a>
+
+                            <div class="border-t border-gray-200 my-1"></div>
                             <form action="{{ route('client.logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
-                                    xuất</button>
+                                <button type="submit"
+                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -89,24 +127,6 @@
     </div>
 </header>
 
-{{-- Flash Messages: Di chuyển ra ngoài, ngay sau header --}}
-@if(session('success') || session('error'))
-    <div id="flash-message" class="fixed top-16 left-0 right-0 z-40 p-4 transform transition-all duration-500 ease-out"
-        style="transform: translateY(-100%); opacity: 0;">
-        <div class="flex justify-end">
-            @if(session('success'))
-                <div class="bg-fuchsia-500 rounded-lg shadow-lg px-6 py-3 text-white">
-                    <p>{{ session('success') }}</p>
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="bg-red-500 rounded-lg shadow-lg px-6 py-3 text-white">
-                    <p>{{ session('error') }}</p>
-                </div>
-            @endif
-        </div>
-    </div>
-@endif
 {{-- Mobile menu --}}
 <div id="mobile-menu"
     class="fixed inset-0 z-50 hidden bg-white/95 backdrop-blur-md overflow-y-auto transition-transform transform -translate-x-full">
@@ -117,15 +137,41 @@
 
     <nav class="flex flex-col p-4 space-y-2">
         <a href="{{ route('home') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">Trang chủ</a>
+        <form action="{{ route('products.index') }}" method="GET" class="px-4 py-2">
+            + <div class="relative">
+                + <input type="text" name="q" value="{{ request('q') }}" placeholder="Tìm sản phẩm..." +
+                    class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                + <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    +
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    +
+                </svg>
+                + </div>
+            + </form>
         <a href="{{ route('cart.index') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">
-            Giỏ hàng ({{ count(session('cart', [])) }})
+            <i class="fas fa-shopping-cart mr-2"></i>Giỏ hàng ({{ count(session('cart', [])) }})
         </a>
+
+        {{-- Danh mục trong mobile menu --}}
+        <div class="px-4 py-2 font-semibold text-gray-700">Danh mục</div>
         @foreach($categories as $category)
             <a href="{{ route('products.index', ['category' => $category->id]) }}"
                 class="block px-6 py-2 rounded hover:bg-gray-100 transition-colors">
                 {{ $category->name }}
             </a>
         @endforeach
+
+        {{-- Thương hiệu trong mobile menu --}}
+        <div class="px-4 py-2 font-semibold text-gray-700">Thương hiệu</div>
+        @foreach($brands as $brand)
+            <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}"
+                class="block px-6 py-2 rounded hover:bg-gray-100 transition-colors">
+                {{ $brand->name }}
+            </a>
+        @endforeach
+
         <a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">Blog</a>
         <a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">Liên hệ</a>
 
@@ -144,7 +190,7 @@
     </nav>
 </div>
 
-{{-- Script --}}
+{{-- Flash Messages --}}
 @if(session('success') || session('error'))
     <div id="flash-message" class="fixed top-16 left-0 right-0 z-40 p-4 transform transition-all duration-500 ease-out"
         style="transform: translateY(-100%); opacity: 0;">
@@ -171,7 +217,7 @@
             setTimeout(() => {
                 flashMessage.style.transform = 'translateY(0)';
                 flashMessage.style.opacity = '1';
-            }, 10); // Thêm một độ trễ nhỏ để đảm bảo hiệu ứng chạy
+            }, 10);
 
             // Tự động ẩn thông báo sau 3 giây
             setTimeout(() => {
@@ -181,7 +227,7 @@
                 // Xóa hoàn toàn thẻ khỏi DOM sau khi hiệu ứng kết thúc
                 setTimeout(() => {
                     flashMessage.remove();
-                }, 500); // Tương ứng với duration-500
+                }, 500);
             }, 3000);
         }
     });

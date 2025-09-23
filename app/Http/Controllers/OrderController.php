@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
@@ -23,6 +24,30 @@ class OrderController extends Controller
             abort(403);
         }
         return view('client.orders.show', compact('order'));
+    }
+
+    // Hủy đơn hàng (chỉ khi đang unpaid/pending/processing tùy quy định)
+    public function cancel(Order $order)
+    {
+        if ($order->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        if (!in_array($order->status, ['unpaid', 'pending', 'processing'])) {
+            return back()->with('error', 'Đơn hàng không thể hủy ở trạng thái hiện tại.');
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        // Hoàn tồn kho
+        foreach ($order->items as $item) {
+            $product = Product::find($item->product_id);
+            if ($product && isset($product->stock)) {
+                $product->increment('stock', (int)$item->quantity);
+            }
+        }
+
+        return back()->with('success', 'Đã hủy đơn hàng thành công.');
     }
 
     public function checkout()

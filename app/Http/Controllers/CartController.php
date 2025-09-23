@@ -19,20 +19,25 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($request->id);
         $cart = session()->get('cart', []);
+        $quantity = max(1, (int) $request->quantity);
 
         if (isset($cart[$request->id])) {
-            $cart[$request->id]['quantity']++;
+            $cart[$request->id]['quantity'] += $quantity;
         } else {
             $cart[$request->id] = [
                 "id" => $product->id,
                 "name" => $product->name,
-                "quantity" => 1,
+                "quantity" => $quantity,
                 "price" => $product->price,
                 "image" => $product->image
             ];
         }
+        if (isset($product->stock)) {
+            $cart[$request->id]['quantity'] = min($cart[$request->id]['quantity'], max(0, (int) $product->stock));
+        }
 
         session()->put('cart', $cart);
+        session()->forget('coupon');
         return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào giỏ hàng!');
     }
 
@@ -43,14 +48,18 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
 
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] = max(1, $quantity);
+            $product = Product::find($id);
+            $newQuantity = max(1, (int) $quantity);
+            if ($product && isset($product->stock)) {
+                $newQuantity = min($newQuantity, max(0, (int) $product->stock));
+            }
+            $cart[$id]['quantity'] = $newQuantity;
             session(['cart' => $cart]);
         }
-
+        session()->forget('coupon');
         return redirect()->back()->with('success', 'Cập nhật giỏ hàng thành công!');
     }
 
-    // Xóa sản phẩm khỏi giỏ
     public function remove($id)
     {
         $cart = session()->get('cart', []);
@@ -59,7 +68,52 @@ class CartController extends Controller
             unset($cart[$id]);
             session(['cart' => $cart]);
         }
-
+        session()->forget('coupon');
         return redirect()->back()->with('success', 'Đã xóa sản phẩm!');
+    }
+
+    // Áp dụng mã giảm giá
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string'
+        ]);
+
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Giỏ hàng trống!');
+        }
+
+        $grandTotal = 0;
+        foreach ($cart as $item) {
+            $grandTotal += ($item['price'] ?? 0) * ($item['quantity'] ?? 1);
+        }
+        \Log::info('Apply Coupon Debug', [
+            'input_code' => $request->code,
+            'grand_total' => $grandTotal,
+            'cart_items' => count($cart)
+        ]);
+        $coupon = \App\Models\Coupon::where('code', strtoupper($request->code))->first();
+        if (!$coupon || !$coupon->isValidForTotal($grandTotal)) {
+            return back()->with('error', 'Mã giảm giá không hợp lệ hoặc không áp dụng được.');
+
+        }
+
+        $discount = $coupon->calculateDiscount($grandTotal);
+        session([
+            'coupon' => [
+                'code' => $coupon->code,
+                'discount' => $discount,
+                'type' => $coupon->type,
+                'value' => $coupon->value,
+            ]
+        ]);
+
+        return back()->with('success', 'Áp dụng mã giảm giá thành công!');
+    }
+    public function removeCoupon()
+    {
+        session()->forget('coupon');
+        return back()->with('success', 'Đã gỡ mã giảm giá.');
     }
 }

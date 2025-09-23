@@ -1,3 +1,5 @@
+<script src="https://kit.fontawesome.com/bdc6329ab7.js" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <aside x-data="{ open: true } class=" bg-white shadow flex flex-col transition-all duration-300"
     :class="open ? 'w-64' : 'w-16'">
     <div class="p-6 flex justify-between items-center border-b">
@@ -29,6 +31,35 @@
             <span class="material-icons">account_circle</span>
             <span x-show="open" class="ml-2">Quản lý tài khoản</span>
         </a>
-
+        <a href="{{ route('admin.categories.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.categories.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">
+                category
+            </span>
+            <span x-show="open" class="ml-2">Quản lý danh mục</span>
+        </a>
+        <a href="{{ route('admin.brands.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.brands.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">
+                shopping_bag
+            </span>
+            <span x-show="open" class="ml-2">Quản lý thương hiệu</span>
+        </a>
+        <a href="{{ route('admin.reports.sales') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.reports.sales.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">
+                account_balance
+            </span>
+            <span x-show="open" class="ml-2">Quản lý doanh thu</span>
+        </a>
+        <a href="{{ route('admin.coupons.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.coupons.index.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">
+                <span class="material-symbols-outlined">
+                    confirmation_number
+                </span>
+            </span>
+            <span x-show="open" class="ml-2">Quản lý phiếu giảm giá</span>
+        </a>
     </nav>
 </aside>
