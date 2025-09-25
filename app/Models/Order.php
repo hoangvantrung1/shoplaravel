@@ -24,7 +24,14 @@ class Order extends Model
         'updated_at',
         'user_id',
     ];
-
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
@@ -36,12 +43,31 @@ class Order extends Model
             'unpaid' => 'Chưa thanh toán', // THÊM TRẠNG THÁI NÀY
             'pending' => 'Chờ xử lý',
             'processing' => 'Đang xử lý',
-            'completed' => 'Đã hoàn thành',
+            'completed' => 'Giao thành công',
             'cancelled' => 'Đã hủy',
             'paid' => 'Đã thanh toán',     // THÊM TRẠNG THÁI NÀY
             'failed' => 'Thanh toán thất bại' // THÊM TRẠNG THÁI NÀY
         ];
         return $map[$this->status] ?? $this->status;
+    }
+    public function getCanCancelAttribute()
+    {
+        return in_array($this->status, ['pending', 'unpaid']);
+    }
+
+    // Thêm accessor để hiển thị màu sắc trạng thái
+    public function getStatusColorAttribute()
+    {
+        $colors = [
+            'unpaid' => 'bg-yellow-100 text-yellow-800',
+            'pending' => 'bg-blue-100 text-blue-800',
+            'processing' => 'bg-purple-100 text-purple-800',
+            'completed' => 'bg-green-100 text-green-800',
+            'cancelled' => 'bg-red-100 text-red-800',
+            'paid' => 'bg-green-100 text-green-800',
+            'failed' => 'bg-red-100 text-red-800'
+        ];
+        return $colors[$this->status] ?? 'bg-gray-100 text-gray-800';
     }
     protected static function boot()
     {

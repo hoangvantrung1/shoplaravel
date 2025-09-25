@@ -25,27 +25,27 @@
 </script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
+
     body {
         font-family: 'Inter', sans-serif;
         background-color: #f5f7fb;
     }
-    
+
     .card {
         transition: all 0.3s ease;
         border-radius: 12px;
         overflow: hidden;
     }
-    
+
     .card:hover {
         transform: translateY(-5px);
         box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.15);
     }
-    
+
     .stats-card {
         position: relative;
     }
-    
+
     .stats-card::before {
         content: '';
         position: absolute;
@@ -55,11 +55,11 @@
         height: 4px;
         background: linear-gradient(90deg, #4361ee, #4cc9f0);
     }
-    
+
     .progress-bar {
         transition: width 1s ease-in-out;
     }
-    
+
     .chart-container {
         position: relative;
         height: 300px;
@@ -68,7 +68,7 @@
 
 @section('content')
     <div class="">
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Thống kê tổng quan -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="card stats-card bg-white p-6 rounded-lg shadow">
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card stats-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
                         <div class="p-3 rounded-lg bg-green-100 text-green-600">
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card stats-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
                         <div class="p-3 rounded-lg bg-yellow-100 text-yellow-600">
@@ -124,7 +124,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card stats-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center">
                         <div class="p-3 rounded-lg bg-purple-100 text-purple-600">
@@ -150,12 +150,14 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-900">Doanh thu theo tháng</h2>
                         <div class="relative">
-                            <select class="block appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm">
+                            <select
+                                class="block appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm">
                                 <option>12 tháng gần nhất</option>
                                 <option>6 tháng gần nhất</option>
                                 <option>Năm 2023</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </div>
                         </div>
@@ -181,9 +183,15 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tháng</th>
-                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doanh thu (VNĐ)</th>
-                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỷ lệ</th>
+                                    <th
+                                        class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tháng</th>
+                                    <th
+                                        class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Doanh thu (VNĐ)</th>
+                                    <th
+                                        class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tỷ lệ</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -192,20 +200,24 @@
                                     $monthlyData = isset($monthlyRevenueFull) ? $monthlyRevenueFull : $monthlyRevenue;
                                     $maxRevenue = max($monthlyData) > 0 ? max($monthlyData) : 1; // Tránh chia cho 0
                                 @endphp
-                                
+
                                 @foreach($monthlyData as $i => $revenue)
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tháng {{ $i + 1 }}</td>
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($revenue) }} đ</td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tháng
+                                            {{ $i + 1 }}</td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ number_format($revenue) }} đ</td>
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
                                                     @php
                                                         $width = ($revenue / $maxRevenue) * 100;
                                                     @endphp
-                                                    <div class="bg-primary h-2 rounded-full progress-bar" style="width: {{ $width }}%"></div>
+                                                    <div class="bg-primary h-2 rounded-full progress-bar"
+                                                        style="width: {{ $width }}%"></div>
                                                 </div>
-                                                <span class="text-xs text-gray-500 whitespace-nowrap">{{ number_format($width, 1) }}%</span>
+                                                <span
+                                                    class="text-xs text-gray-500 whitespace-nowrap">{{ number_format($width, 1) }}%</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -223,30 +235,39 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead>
                                     <tr>
-                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
-                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng bán</th>
-                                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỷ lệ</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Sản phẩm</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Số lượng bán</th>
+                                        <th
+                                            class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tỷ lệ</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @php
                                         $maxSold = $topProducts->max('total_sold') > 0 ? $topProducts->max('total_sold') : 1;
                                     @endphp
-                                    
+
                                     @foreach($topProducts as $item)
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center">
+                                                    <div
+                                                        class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center">
                                                         <i class="fas fa-box text-gray-500"></i>
                                                     </div>
                                                     <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">{{ $item->product->name ?? 'Sản phẩm đã xóa' }}</div>
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ $item->product->name ?? 'Sản phẩm đã xóa' }}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap">
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     {{ $item->total_sold }} sản phẩm
                                                 </span>
                                             </td>
@@ -256,9 +277,11 @@
                                                         @php
                                                             $width = ($item->total_sold / $maxSold) * 100;
                                                         @endphp
-                                                        <div class="bg-success h-2 rounded-full progress-bar" style="width: {{ $width }}%"></div>
+                                                        <div class="bg-success h-2 rounded-full progress-bar"
+                                                            style="width: {{ $width }}%"></div>
                                                     </div>
-                                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ number_format($width, 1) }}%</span>
+                                                    <span
+                                                        class="text-xs text-gray-500 whitespace-nowrap">{{ number_format($width, 1) }}%</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -290,7 +313,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
                         <div class="flex items-center">
                             <div class="p-2 rounded-lg bg-purple-100 text-purple-600 mr-3">
@@ -302,7 +325,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-green-50 p-4 rounded-lg border border-green-100">
                         <div class="flex items-center">
                             <div class="p-2 rounded-lg bg-green-100 text-green-600 mr-3">
@@ -314,7 +337,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-red-50 p-4 rounded-lg border border-red-100">
                         <div class="flex items-center">
                             <div class="p-2 rounded-lg bg-red-100 text-red-600 mr-3">
@@ -337,7 +360,7 @@
             if (ctxRevenue) {
                 // Sử dụng biến đúng từ controller
                 const monthlyData = @json(isset($monthlyRevenueFull) ? $monthlyRevenueFull : $monthlyRevenue);
-                
+
                 new Chart(ctxRevenue, {
                     type: 'line',
                     data: {
@@ -394,9 +417,9 @@
                         labels: ['Chờ xử lý', 'Đang xử lý', 'Hoàn thành', 'Đã hủy'],
                         datasets: [{
                             data: [
-                                {{ $statusCounts['pending'] }},
-                                {{ $statusCounts['processing'] }},
-                                {{ $statusCounts['completed'] }},
+                                    {{ $statusCounts['pending'] }},
+                                    {{ $statusCounts['processing'] }},
+                                    {{ $statusCounts['completed'] }},
                                 {{ $statusCounts['cancelled'] }}
                             ],
                             backgroundColor: [
@@ -425,7 +448,7 @@
                     }
                 });
             }
-            setTimeout(function() {
+            setTimeout(function () {
                 document.querySelectorAll('.progress-bar').forEach(bar => {
                     bar.style.transition = 'width 1.5s ease-in-out';
                 });

@@ -50,7 +50,9 @@ class ProductController extends Controller
         }
 
         // Phân trang
-        $products = $query->paginate(12)->withQueryString();
+        $products = $query->orderBy('id', 'asc')->paginate(12)->withQueryString();
+
+        // $products = $query->paginate(12)->withQueryString();
 
         // Xác định tên danh mục và thương hiệu để hiển thị
         $categoryName = null;
@@ -113,7 +115,9 @@ class ProductController extends Controller
 
         $averageRating = round($product->reviews->avg('rating'), 1);
 
-        $relatedProducts = Product::where('category_id', $product->category_id)
+        $relatedProducts = Product::withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('stock', '>', 0)
             ->limit(4)

@@ -13,33 +13,33 @@
     {{-- Carousel Track --}}
     <div class="overflow-hidden">
         <div id="carouselTrack" class="flex transition-transform duration-300 ease-in-out gap-4">
-            @foreach($newProducts as $product)
+            @foreach($newProducts as $newProduct)
                 <div class="flex-shrink-0 w-64">
-                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full">
-                        <a href="{{ route('product.show', $product->id) }}">
-                            <div class="h-48 w-full relative">
-                                <img src="{{ $product->image }}" alt="{{ $product->name }}"
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-50">
+                        <a href="{{ route('product.show', $newProduct->id) }}">
+                            <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+                                <img src="{{ $newProduct->image }}" alt="{{ $newProduct->name }}"
                                     class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
-                                @if($product->discount > 0)
+                                @if($newProduct->discount > 0)
                                     <span
                                         class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                                        -{{ $product->discount }}%
+                                        -{{ $newProduct->discount }}%
                                     </span>
                                 @endif
                             </div>
                             <div class="p-4 flex-1 flex flex-col justify-between">
-                                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">{{ $product->name }}</h3>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">{{ $newProduct->name }}</h3>
                                 <div class="flex items-center mb-2">
                                     <div class="flex text-yellow-400">
                                         @for($i = 1; $i <= 5; $i++)
-                                            @if($i <= round($product->reviews_avg_rating ?? 0))
+                                            @if($i <= round($newProduct->reviews_avg_rating ?? 0))
                                                 <i class="fas fa-star"></i>
                                             @else
                                                 <i class="far fa-star"></i>
                                             @endif
                                         @endfor
                                     </div>
-                                    <span class="text-gray-500 text-sm ml-2">({{ $product->reviews_count ?? 0 }})</span>
+                                    <span class="text-gray-500 text-sm ml-2">({{ $newProduct->reviews_count ?? 0 }})</span>
 
                                 </div>
                                 <div class="flex items-center justify-between mt-2">

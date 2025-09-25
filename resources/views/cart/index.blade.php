@@ -4,7 +4,8 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-10 max-w-7xl">
-        <h1 class="text-4xl font-extrabold mb-8 text-gray-900 text-center mt-10"> Giỏ Hàng</h1>
+        <h1 class="text-4xl font-extrabold mb-8 text-gray-900 text-center mt-10">Giỏ Hàng</h1>
+
         @if($cart && count($cart) > 0)
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
@@ -70,18 +71,29 @@
                 <div class="w-full md:w-1/2">
                     <form action="{{ route('cart.coupon.apply') }}" method="POST" class="flex gap-2">
                         @csrf
-                        <input type="text" name="code" placeholder="Nhập mã giảm giá" class="flex-1 border rounded px-3 py-2"
+                        <input type="text" name="code" placeholder="Nhập mã giảm giá" 
+                            value="{{ old('code') }}" 
+                            class="flex-1 border rounded px-3 py-2 @error('code') border-red-500 @enderror"
                             required>
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Áp dụng</button>
+                        <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Áp dụng</button>
                     </form>
+                    
+                    @error('code')
+                        <div class="mt-2 text-red-600 text-sm">{{ $message }}</div>
+                    @enderror
+                    
                     @if(session('coupon'))
-                        <div class="mt-3 text-sm text-gray-700 flex items-center gap-3">
-                            <span>Mã áp dụng: <strong>{{ session('coupon.code') }}</strong> (Giảm
-                                {{ number_format(session('coupon.discount')) }} đ)</span>
-                            <form action="{{ route('cart.coupon.remove') }}" method="POST" class="inline-block">
-                                @csrf
-                                <button class="text-red-600 hover:underline">Gỡ mã</button>
-                            </form>
+                        <div class="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="font-semibold text-purple-700">Mã áp dụng: {{ session('coupon.code') }}</span>
+                                    <span class="text-purple-600 ml-2">(-{{ number_format(session('coupon.discount')) }} đ)</span>
+                                </div>
+                                <form action="{{ route('cart.coupon.remove') }}" method="POST" class="inline-block">
+                                    @csrf
+                                    <button type="submit" class="text-red-600 hover:underline text-sm">Gỡ mã</button>
+                                </form>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -98,12 +110,14 @@
                             <span>Tạm tính:</span>
                             <span class="font-medium">{{ number_format($grandTotal, 0, ',', '.') }} đ</span>
                         </div>
+                        @if($discount > 0)
                         <div class="flex justify-between text-green-600">
                             <span>Giảm giá:</span>
                             <span>-{{ number_format($discount, 0, ',', '.') }} đ</span>
                         </div>
+                        @endif
                         <div class="flex justify-between text-lg font-bold text-purple-600 border-t pt-2">
-                            <span>Thanh toán : {{ number_format($payable, 0, ',', '.') }} đ</span>
+                            <span>Tổng thanh toán : {{ number_format($payable, 0, ',', '.') }} đ</span>
                         </div>
                     </div>
 
@@ -124,7 +138,6 @@
                         @endif
                     </div>
                 </div>
-
             </div>
         @else
             <div class="text-center p-12 bg-white rounded-2xl shadow-xl">

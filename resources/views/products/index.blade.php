@@ -100,7 +100,7 @@
                     @foreach($products as $product)
                         <div class="bg-white rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300">
                             <a href="{{ route('product.show', $product->id) }}">
-                                <div class="w-full h-40 bg-gray-100 overflow-hidden">
+                                <div class="w-full aspect-square bg-gray-100 overflow-hidden">
                                     <img src="{{ $product->image }}" alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
                                 </div>
@@ -205,7 +205,7 @@
                     @foreach($products as $product)
                         <div class="bg-white rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300">
                             <a href="{{ route('product.show', $product->id) }}">
-                                <div class="w-full h-40 bg-gray-100 overflow-hidden">
+                                <div class="w-full aspect-square bg-gray-100 overflow-hidden">
                                     <img src="{{ $product->image }}" alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
                                 </div>
@@ -226,7 +226,6 @@
                 <div class="flex justify-center mt-8">
                     {{ $products->onEachSide(1)->links('components.pagination') }}
                 </div>
-
             </section>
         @else
             <div class="text-center py-10 text-gray-500">

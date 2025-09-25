@@ -14,6 +14,21 @@ class AdminUserController extends Controller
         $users = User::orderBy('id', 'asc')->paginate(10);
         return view('admin.users.index', compact('users'));
     }
+    public function show(User $user)
+    {
+        $user->load(['orders', 'addresses']);
+        $totalSpent = $user->orders
+            ->where('status', 'completed')
+            ->sum(function ($order) {
+                return $order->total_amount
+                    ?? $order->total
+                    ?? $order->amount
+                    ?? $order->grand_total
+                    ?? 0;
+            });
+
+        return view('admin.users.show', compact('user', 'totalSpent'));
+    }
 
     // Form tạo user mới
     public function create()
@@ -52,10 +67,11 @@ class AdminUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6', // để trống nếu không đổi
+            'is_active' => 'required|boolean',
         ]);
 
-        // Lấy name và email
-        $data = $request->only('name', 'email');
+        // Lấy name và email ,is_active
+        $data = $request->only('name', 'email', 'is_active');
 
         // Nếu có nhập mật khẩu thì thêm vào mảng $data
         if ($request->filled('password')) {

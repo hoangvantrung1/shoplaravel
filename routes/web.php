@@ -5,6 +5,7 @@ use App\Http\Controllers\Client\AuthController as ClientAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\SocialController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
@@ -73,10 +74,15 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.s
 Route::get('/checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('checkout.vnpay.return');
 Route::post('/checkout/vnpay-ipn', [CheckoutController::class, 'vnpayIpn'])->name('checkout.vnpay.ipn');
 
+Route::post('/cart/coupon/apply', [CouponController::class, 'apply'])->name('cart.coupon.apply');
+Route::post('/cart/coupon/remove', [CouponController::class, 'remove'])->name('cart.coupon.remove');
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('client.orders.show');
     Route::post('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
+    
 
     // Profile
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');

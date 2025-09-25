@@ -124,16 +124,16 @@
                         {{-- Stock --}}
                         <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                             @if($product->stock > 10)
-                                <i class="fas fa-check-circle text-xl text-green-600"></i>
-                                <span class="text-lg font-semibold text-green-600">Còn hàng</span>
+                                <i class="fas fa-check-circle text-1xl text-green-600"></i>
+                                <span class="text-1lg font-semibold text-green-600">Còn hàng</span>
                                 <span class="text-gray-600">({{ $product->stock }} sản phẩm)</span>
                             @elseif($product->stock > 0)
-                                <i class="fas fa-exclamation-triangle text-xl text-yellow-600"></i>
-                                <span class="text-lg font-semibold text-yellow-600">Sắp hết hàng</span>
+                                <i class="fas fa-exclamation-triangle text-1xl text-yellow-600"></i>
+                                <span class="text-1lg font-semibold text-yellow-600">Sắp hết hàng</span>
                                 <span class="text-gray-600">(Chỉ còn {{ $product->stock }} sản phẩm)</span>
                             @else
-                                <i class="fas fa-times-circle text-xl text-red-600"></i>
-                                <span class="text-lg font-semibold text-red-600">Tạm hết hàng</span>
+                                <i class="fas fa-times-circle text-1xl text-red-600"></i>
+                                <span class="text-1lg font-semibold text-red-600">Tạm hết hàng</span>
                                 <span class="text-gray-600">(Liên hệ để đặt trước)</span>
                             @endif
                         </div>
@@ -231,17 +231,17 @@
                 <div id="description" class="tab-content active">
                     <div class="prose max-w-none">
                         {!! $product->full_description ?? '
-                                                                                                                                                    <p>Sản phẩm này được thiết kế với chất lượng cao, bền bỉ và sang trọng. Thích hợp cho mọi nhu cầu sử dụng hàng ngày và chuyên nghiệp.</p>
-                                                                                                                                                    <h3>Đặc điểm nổi bật:</h3>
-                                                                                                                                                    <ul>
-                                                                                                                                                        <li>Chất liệu: Cao cấp, bền bỉ với thời gian</li>
-                                                                                                                                                        <li>Màu sắc: Nhiều lựa chọn phong phú</li>
-                                                                                                                                                        <li>Thiết kế: Hiện đại, tinh tế</li>
-                                                                                                                                                        <li>Thời gian bảo hành: 12 tháng</li>
-                                                                                                                                                        <li>Xuất xứ: Việt Nam</li>
-                                                                                                                                                    </ul>
-                                                                                                                                                    <h3>Hướng dẫn sử dụng:</h3>
-                                                                                                                                                    <p>Vệ sinh thường xuyên bằng khăn mềm, tránh tiếp xúc với hóa chất mạnh. Bảo quản nơi khô ráo, thoáng mát.</p>' !!}
+                                                                                                                                                        <p>Sản phẩm này được thiết kế với chất lượng cao, bền bỉ và sang trọng. Thích hợp cho mọi nhu cầu sử dụng hàng ngày và chuyên nghiệp.</p>
+                                                                                                                                                        <h3>Đặc điểm nổi bật:</h3>
+                                                                                                                                                        <ul>
+                                                                                                                                                            <li>Chất liệu: Cao cấp, bền bỉ với thời gian</li>
+                                                                                                                                                            <li>Màu sắc: Nhiều lựa chọn phong phú</li>
+                                                                                                                                                            <li>Thiết kế: Hiện đại, tinh tế</li>
+                                                                                                                                                            <li>Thời gian bảo hành: 12 tháng</li>
+                                                                                                                                                            <li>Xuất xứ: Việt Nam</li>
+                                                                                                                                                        </ul>
+                                                                                                                                                        <h3>Hướng dẫn sử dụng:</h3>
+                                                                                                                                                        <p>Vệ sinh thường xuyên bằng khăn mềm, tránh tiếp xúc với hóa chất mạnh. Bảo quản nơi khô ráo, thoáng mát.</p>' !!}
                     </div>
                 </div>
 
@@ -250,26 +250,26 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <tbody class="bg-white divide-y divide-gray-200">
                                 {!! $product->specs ?? '
-                                                                                                                                                            <tr>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-1/3">Kích thước</td>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">25 x 15 x 10 cm</td>
-                                                                                                                                                            </tr>
-                                                                                                                                                            <tr>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Trọng lượng</td>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">500g</td>
-                                                                                                                                                            </tr>
-                                                                                                                                                            <tr>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Chất liệu</td>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Nhựa ABS cao cấp + Kim loại</td>
-                                                                                                                                                            </tr>
-                                                                                                                                                            <tr>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Màu sắc</td>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Đen, Trắng, Xám</td>
-                                                                                                                                                            </tr>
-                                                                                                                                                            <tr>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Xuất xứ</td>
-                                                                                                                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Việt Nam</td>
-                                                                                                                                                            </tr>' !!}
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-1/3">Kích thước</td>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">25 x 15 x 10 cm</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Trọng lượng</td>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">500g</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Chất liệu</td>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Nhựa ABS cao cấp + Kim loại</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Màu sắc</td>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Đen, Trắng, Xám</td>
+                                                                                                                                                                </tr>
+                                                                                                                                                                <tr>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Xuất xứ</td>
+                                                                                                                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Việt Nam</td>
+                                                                                                                                                                </tr>' !!}
                             </tbody>
                         </table>
                     </div>
@@ -286,7 +286,11 @@
                                         <div class="flex items-center mb-2">
                                             <div class="star-rating flex mr-2">
                                                 @for($i = 1; $i <= 5; $i++)
-                                                    <i class="{{ $i <= $review->rating ? 'fas fa-star' : 'far fa-star' }}"></i>
+                                                    @if($i <= ($review->rating ?? 0))
+                                                        <i class="fas fa-star text-yellow-400"></i>
+                                                    @else
+                                                        <i class="far fa-star text-gray-300"></i>
+                                                    @endif
                                                 @endfor
                                             </div>
                                             <span class="font-semibold">{{ $review->user->name ?? 'Khách' }}</span>
@@ -391,7 +395,7 @@
                                     <div class="flex items-center mt-2">
                                         <div class="flex text-yellow-400 text-sm">
                                             @for($i = 1; $i <= 5; $i++)
-                                                @if($i <= round($item->reviews_avg_rating ?? 0))
+                                                @if($i <= round($product->reviews_avg_rating ?? 0))
                                                     <i class="fas fa-star"></i>
                                                 @else
                                                     <i class="far fa-star"></i>
@@ -498,11 +502,11 @@
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
             toast.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
 
             document.body.appendChild(toast);
 

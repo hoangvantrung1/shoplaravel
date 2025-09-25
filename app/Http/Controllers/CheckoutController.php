@@ -86,6 +86,12 @@ class CheckoutController extends Controller
         }
 
         if ($request->payment_method === 'cod') {
+            $order->update([
+                'payment_date' => now('Asia/Ho_Chi_Minh'),
+                'transaction_id' => 'COD-' . $order->id . '-' . date('YmdHis'),
+                'bank_code' => 'COD',
+                'payment_note' => 'Thanh toán khi nhận hàng'
+            ]);
             session()->forget('cart');
             if ($couponSession && isset($couponSession['code'])) {
                 $coupon = Coupon::where('code', $couponSession['code'])->first();
