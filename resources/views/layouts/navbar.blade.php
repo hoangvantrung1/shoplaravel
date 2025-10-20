@@ -67,8 +67,11 @@
                     </div>
                 </div>
 
-                <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Blog</a>
-                <a href="#" class="nav-link text-gray-700 hover:text-purple-600">Liên hệ</a>
+                <a href="{{ route('blog') }}"
+                    class="nav-link text-gray-700 hover:text-purple-600 {{ request()->routeIs('blog*') ? 'text-purple-600 font-semibold' : '' }}">Blog</a>
+                <a href="{{ route('contact') }}"
+                    class="nav-link text-gray-700 hover:text-purple-600 {{ request()->routeIs('contact') ? 'text-purple-600 font-semibold' : '' }}">Liên
+                    hệ</a>
                 <a href="{{ route('cart.index') }}" class="nav-link text-gray-700 hover:text-purple-600 relative">
                     <i class="fas fa-shopping-cart mr-1"></i>Giỏ hàng ({{ count(session('cart', [])) }})
                 </a>

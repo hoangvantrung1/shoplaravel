@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
@@ -14,6 +15,7 @@ class ProductController extends Controller
         $categories = Category::all();
         $brands = Brand::all();
         $query = Product::query();
+        $posts = Post::latest()->paginate(6);
 
         // Lọc theo tìm kiếm
         if ($request->filled('q')) {
@@ -98,7 +100,8 @@ class ProductController extends Controller
             'categoryName',
             'brandName',
             'isHomePage',
-            'stockStats'
+            'stockStats',
+            'posts'
         ));
     }
 

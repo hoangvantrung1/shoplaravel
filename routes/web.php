@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -50,6 +52,9 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->
 Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 
+//chatbot
+Route::post('/chat/send', [ChatController::class, 'store'])->name('chat.send');
+
 // Social login
 Route::get('/auth/google/redirect', [SocialController::class, 'redirectToGoogle'])->name('social.google.redirect');
 Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('social.google.callback');
@@ -77,12 +82,20 @@ Route::post('/checkout/vnpay-ipn', [CheckoutController::class, 'vnpayIpn'])->nam
 Route::post('/cart/coupon/apply', [CouponController::class, 'apply'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CouponController::class, 'remove'])->name('cart.coupon.remove');
 
+// Trang Blog/Tin tức
+Route::get('/blog', [PageController::class, 'blog'])->name('blog');
+Route::get('/blog/{slug}', [PageController::class, 'blogDetail'])->name('blog.detail');
+
+// Trang Liên hệ
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [PageController::class, 'contactSubmit'])->name('contact.submit');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('client.orders.show');
     Route::post('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
-    
+
 
     // Profile
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
