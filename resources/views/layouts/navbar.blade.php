@@ -72,8 +72,13 @@
                 <a href="{{ route('contact') }}"
                     class="nav-link text-gray-700 hover:text-purple-600 {{ request()->routeIs('contact') ? 'text-purple-600 font-semibold' : '' }}">Liên
                     hệ</a>
-                <a href="{{ route('cart.index') }}" class="nav-link text-gray-700 hover:text-purple-600 relative">
-                    <i class="fas fa-shopping-cart mr-1"></i>Giỏ hàng ({{ count(session('cart', [])) }})
+                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center text-gray-700 hover:text-purple-600">
+                    <i class="fas fa-shopping-cart text-lg"></i>
+                    @php $cartCount = count(session('cart', [])); @endphp
+                    @if($cartCount > 0)
+                        <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ $cartCount }}</span>
+                    @endif
+                    <span class="ml-2 hidden lg:inline">Giỏ hàng</span>
                 </a>
 
                 {{-- Login / Logout --}}
@@ -141,18 +146,14 @@
     <nav class="flex flex-col p-4 space-y-2">
         <a href="{{ route('home') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">Trang chủ</a>
         <form action="{{ route('products.index') }}" method="GET" class="px-4 py-2">
-            + <div class="relative">
-                + <input type="text" name="q" value="{{ request('q') }}" placeholder="Tìm sản phẩm..." +
+            <div class="relative">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Tìm sản phẩm..."
                     class="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
-                + <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    +
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    +
+                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                + </div>
-            + </form>
+            </div>
+        </form>
         <a href="{{ route('cart.index') }}" class="block px-4 py-2 rounded hover:bg-gray-100 transition-colors">
             <i class="fas fa-shopping-cart mr-2"></i>Giỏ hàng ({{ count(session('cart', [])) }})
         </a>
@@ -215,6 +216,11 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const flashMessage = document.getElementById('flash-message');
+        const openBtn = document.getElementById('menu-btn');
+        const closeBtn = document.getElementById('mobile-menu-close');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const body = document.body;
+
         if (flashMessage) {
             // Hiển thị thông báo bằng cách dịch chuyển và làm mờ
             setTimeout(() => {
@@ -233,5 +239,29 @@
                 }, 500);
             }, 3000);
         }
+
+        // Mobile menu behavior
+        function openMenu(){
+            if(!mobileMenu) return;
+            mobileMenu.classList.remove('hidden');
+            setTimeout(()=>{
+                mobileMenu.classList.remove('-translate-x-full');
+            }, 10);
+            body.style.overflow = 'hidden';
+        }
+        function closeMenu(){
+            if(!mobileMenu) return;
+            mobileMenu.classList.add('-translate-x-full');
+            setTimeout(()=>{
+                mobileMenu.classList.add('hidden');
+                body.style.overflow = '';
+            }, 250);
+        }
+
+        openBtn?.addEventListener('click', openMenu);
+        closeBtn?.addEventListener('click', closeMenu);
+        mobileMenu?.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) closeMenu();
+        });
     });
 </script>
