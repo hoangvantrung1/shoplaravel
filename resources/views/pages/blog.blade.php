@@ -21,9 +21,18 @@
 
     {{-- Danh sách bài viết --}}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="max-w-xl mx-auto mb-8" data-aos="fade-up">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="blogSearch">Tìm kiếm bài viết</label>
+            <div class="relative">
+                <input id="blogSearch" type="text" placeholder="Nhập từ khóa..." class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+        <div id="blog-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse ($posts as $post)
-                <article class="bg-white rounded-xl shadow-md overflow-hidden transform transition duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                <article class="blog-card bg-white rounded-xl shadow-md overflow-hidden transform transition duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                         data-title="{{ Str::lower($post->title) }}"
+                         data-excerpt="{{ Str::lower(Str::limit(strip_tags($post->excerpt ?: $post->content), 130)) }}"
                          data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                     <a href="{{ route('blog.detail', $post->slug) }}" class="block group">
                         <div class="relative h-52 overflow-hidden">
@@ -104,6 +113,22 @@
 
                 btn.addEventListener('click', () => {
                     window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+                });
+            })();
+
+            // Client-side blog search filter
+            (function(){
+                const input = document.getElementById('blogSearch');
+                if(!input) return;
+                const cards = Array.from(document.querySelectorAll('.blog-card'));
+                input.addEventListener('input', function(){
+                    const q = this.value.trim().toLowerCase();
+                    cards.forEach(card => {
+                        const title = card.getAttribute('data-title') || '';
+                        const excerpt = card.getAttribute('data-excerpt') || '';
+                        const match = !q || title.includes(q) || excerpt.includes(q);
+                        card.style.display = match ? '' : 'none';
+                    });
                 });
             })();
         </script>

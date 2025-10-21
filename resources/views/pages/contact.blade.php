@@ -1,5 +1,7 @@
 @extends('layouts.client')
 
+@include('components.toast')
+
 @section('title', 'Liên hệ - Hỗ trợ khách hàng 24/7')
 
 @section('meta')
@@ -116,6 +118,12 @@
                             Tôi đồng ý với <a href="#" class="text-purple-600 hover:underline">chính sách bảo mật</a> và 
                             <a href="#" class="text-purple-600 hover:underline">điều khoản sử dụng</a>
                         </label>
+                    </div>
+
+                    <!-- Honeypot field (bots will fill this) -->
+                    <div class="hidden" aria-hidden="true">
+                        <label for="hp_company" class="sr-only">Company</label>
+                        <input type="text" id="hp_company" name="company" tabindex="-1" autocomplete="off">
                     </div>
 
                     <button type="submit" id="submitBtn"
@@ -279,6 +287,8 @@
                 disable: prefersReducedMotion
             });
 
+            // Use global toast manager
+
             // Form validation and interactions
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('contactForm');
@@ -287,6 +297,7 @@
                 const loadingText = document.getElementById('loadingText');
                 const messageTextarea = document.getElementById('message');
                 const charCount = document.getElementById('charCount');
+                const honeypot = document.getElementById('hp_company');
 
                 // Character counter for message
                 messageTextarea.addEventListener('input', function() {
@@ -388,6 +399,13 @@
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
+                    // Honeypot check
+                    if (honeypot && honeypot.value.trim() !== '') {
+                        // silently drop or show generic error
+                        toastManager.error('Có lỗi xảy ra. Vui lòng thử lại.');
+                        return;
+                    }
+
                     if (validateForm()) {
                         // Show loading state
                         submitBtn.disabled = true;
@@ -434,6 +452,12 @@
                         }
                     });
                 });
+
+                // Convert server flash success into toast (if exists in DOM)
+                const serverSuccess = {!! json_encode(session('success')) !!};
+                if (serverSuccess) {
+                    toastManager.success(serverSuccess);
+                }
             });
         </script>
     @endpush

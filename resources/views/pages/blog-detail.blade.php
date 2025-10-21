@@ -84,7 +84,12 @@
                 </div>
 
                 <!-- Tiêu đề -->
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">{{ $post->title }}</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ $post->title }}</h1>
+                @php
+                    $words = str_word_count(strip_tags($post->content));
+                    $readingMinutes = max(1, (int) ceil($words / 200));
+                @endphp
+                <p class="text-sm text-gray-500 mb-6">⏱ Thời gian đọc khoảng {{ $readingMinutes }} phút</p>
 
                 <!-- Excerpt -->
                 @if($post->excerpt)
@@ -94,7 +99,7 @@
                 @endif
 
                 <!-- Nội dung -->
-                <div class="prose max-w-none text-gray-700 text-lg leading-relaxed">
+                <div class="prose max-w-none text-gray-700 text-lg leading-relaxed" id="blog-content">
                     {!! $post->content !!}
                 </div>
 
@@ -219,6 +224,24 @@
     </style>
 
     @push('scripts')
+        <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "{{ addslashes($post->title) }}",
+              "datePublished": "{{ optional($post->published_at)->toIso8601String() }}",
+              "dateModified": "{{ optional($post->updated_at)->toIso8601String() }}",
+              "author": {
+                "@type": "Organization",
+                "name": "ShopLaravel"
+              },
+              "image": "{{ $post->featured_image ?: url('/images/default-blog.jpg') }}",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "{{ request()->url() }}"
+              }
+            }
+        </script>
         <script>
             // Reduced motion respect for any upcoming animations here (no AOS on detail currently)
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -245,6 +268,55 @@
                 btn.addEventListener('click', () => {
                     window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
                 });
+            })();
+
+            // Table of Contents Generator
+            (function(){
+                const content = document.getElementById('blog-content');
+                const tocContainer = document.getElementById('toc-container');
+                const tocNav = document.getElementById('toc-nav');
+                
+                if (!content || !tocContainer || !tocNav) return;
+
+                const headings = content.querySelectorAll('h2, h3, h4');
+                if (headings.length === 0) {
+                    tocContainer.style.display = 'none';
+                    return;
+                }
+
+                // Generate TOC
+                headings.forEach((heading, index) => {
+                    const id = `heading-${index}`;
+                    heading.id = id;
+                    
+                    const level = parseInt(heading.tagName.charAt(1));
+                    const indent = (level - 2) * 12; // 12px per level
+                    
+                    const tocItem = document.createElement('a');
+                    tocItem.href = `#${id}`;
+                    tocItem.textContent = heading.textContent;
+                    tocItem.className = 'block py-1 text-gray-600 hover:text-purple-600 transition-colors';
+                    tocItem.style.paddingLeft = `${indent}px`;
+                    
+                    tocNav.appendChild(tocItem);
+                });
+
+                // Highlight current section
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.id;
+                            tocNav.querySelectorAll('a').forEach(link => {
+                                link.classList.remove('text-purple-600', 'font-semibold');
+                                if (link.getAttribute('href') === `#${id}`) {
+                                    link.classList.add('text-purple-600', 'font-semibold');
+                                }
+                            });
+                        }
+                    });
+                }, { rootMargin: '-20% 0px -70% 0px' });
+
+                headings.forEach(heading => observer.observe(heading));
             })();
         </script>
     @endpush
