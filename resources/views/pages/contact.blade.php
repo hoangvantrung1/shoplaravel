@@ -52,7 +52,7 @@
                         <input type="text" name="name" id="name" value="{{ old('name') }}"
                                class="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-3 py-2 transition-all duration-200"
                                placeholder="Nhập họ và tên của bạn" required>
-                        <div class="error-message text-red-600 text-sm mt-1 hidden"></div>
+                        <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
                         @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -64,7 +64,7 @@
                             <input type="email" name="email" id="email" value="{{ old('email') }}"
                                    class="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-3 py-2 transition-all duration-200"
                                    placeholder="example@email.com" required>
-                            <div class="error-message text-red-600 text-sm mt-1 hidden"></div>
+                            <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
                             @error('email')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                         </div>
                         <div>
@@ -74,7 +74,7 @@
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
                                    class="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-3 py-2 transition-all duration-200"
                                    placeholder="0123 456 789" required>
-                            <div class="error-message text-red-600 text-sm mt-1 hidden"></div>
+                            <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
                             @error('phone')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                             <option value="Đề xuất" {{ old('subject') == 'Đề xuất' ? 'selected' : '' }}>Đề xuất</option>
                             <option value="Khác" {{ old('subject') == 'Khác' ? 'selected' : '' }}>Khác</option>
                         </select>
-                        <div class="error-message text-red-600 text-sm mt-1 hidden"></div>
+                        <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
                         @error('subject')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -104,7 +104,7 @@
                                   class="w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-3 py-2 transition-all duration-200 resize-none"
                                   placeholder="Mô tả chi tiết vấn đề hoặc câu hỏi của bạn..." required>{{ old('message') }}</textarea>
                         <div class="flex justify-between items-center mt-1">
-                            <div class="error-message text-red-600 text-sm hidden"></div>
+                            <div class="error-message text-red-600 text-sm hidden" role="alert" aria-live="polite"></div>
                             <span class="text-gray-400 text-xs" id="charCount">0/500 ký tự</span>
                         </div>
                         @error('message')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
@@ -121,7 +121,7 @@
                     <button type="submit" id="submitBtn"
                             class="w-full inline-flex items-center justify-center bg-purple-600 text-white px-5 py-3 rounded-xl hover:bg-purple-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span id="submitText">
-                            <i class="fas fa-paper-plane mr-2"></i>Gửi liên hệ
+                        <i class="fas fa-paper-plane mr-2"></i>Gửi liên hệ
                         </span>
                         <span id="loadingText" class="hidden">
                             <i class="fas fa-spinner fa-spin mr-2"></i>Đang gửi...
@@ -224,41 +224,41 @@
         
         <div class="space-y-4">
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200" aria-expanded="false" aria-controls="faq-panel-1">
                     <span class="font-medium text-gray-800">Làm thế nào để đặt hàng?</span>
                     <i class="fas fa-chevron-down transition-transform duration-200"></i>
                 </button>
-                <div class="faq-content hidden px-6 pb-4">
+                <div id="faq-panel-1" class="faq-content hidden px-6 pb-4">
                     <p class="text-gray-600">Bạn có thể đặt hàng trực tiếp trên website bằng cách thêm sản phẩm vào giỏ hàng và tiến hành thanh toán. Chúng tôi hỗ trợ nhiều phương thức thanh toán an toàn.</p>
                 </div>
             </div>
             
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200" aria-expanded="false" aria-controls="faq-panel-2">
                     <span class="font-medium text-gray-800">Thời gian giao hàng là bao lâu?</span>
                     <i class="fas fa-chevron-down transition-transform duration-200"></i>
                 </button>
-                <div class="faq-content hidden px-6 pb-4">
+                <div id="faq-panel-2" class="faq-content hidden px-6 pb-4">
                     <p class="text-gray-600">Thời gian giao hàng từ 1-3 ngày làm việc đối với nội thành TP.HCM và 3-7 ngày đối với các tỉnh thành khác. Chúng tôi sẽ thông báo cụ thể khi đơn hàng được xác nhận.</p>
                 </div>
             </div>
             
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200" aria-expanded="false" aria-controls="faq-panel-3">
                     <span class="font-medium text-gray-800">Có thể đổi trả sản phẩm không?</span>
                     <i class="fas fa-chevron-down transition-transform duration-200"></i>
                 </button>
-                <div class="faq-content hidden px-6 pb-4">
+                <div id="faq-panel-3" class="faq-content hidden px-6 pb-4">
                     <p class="text-gray-600">Chúng tôi hỗ trợ đổi trả sản phẩm trong vòng 7 ngày kể từ ngày nhận hàng với điều kiện sản phẩm còn nguyên vẹn và có hóa đơn mua hàng.</p>
                 </div>
             </div>
             
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition duration-200" aria-expanded="false" aria-controls="faq-panel-4">
                     <span class="font-medium text-gray-800">Làm sao để theo dõi đơn hàng?</span>
                     <i class="fas fa-chevron-down transition-transform duration-200"></i>
                 </button>
-                <div class="faq-content hidden px-6 pb-4">
+                <div id="faq-panel-4" class="faq-content hidden px-6 pb-4">
                     <p class="text-gray-600">Bạn có thể theo dõi đơn hàng bằng mã đơn hàng hoặc đăng nhập vào tài khoản để xem lịch sử đơn hàng. Chúng tôi cũng sẽ gửi SMS/Email cập nhật trạng thái đơn hàng.</p>
                 </div>
             </div>
@@ -270,11 +270,13 @@
         <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
         <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
         <script>
-            // Initialize AOS
+            // Initialize AOS with reduced-motion support
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             AOS.init({
-                duration: 900,
+                duration: prefersReducedMotion ? 0 : 900,
                 once: true,
-                offset: 120,
+                offset: prefersReducedMotion ? 0 : 120,
+                disable: prefersReducedMotion
             });
 
             // Form validation and interactions
@@ -405,13 +407,16 @@
                     toggle.addEventListener('click', function() {
                         const content = this.nextElementSibling;
                         const icon = this.querySelector('i');
+                        const isExpanded = this.getAttribute('aria-expanded') === 'true';
                         
                         if (content.classList.contains('hidden')) {
                             content.classList.remove('hidden');
                             icon.style.transform = 'rotate(180deg)';
+                            this.setAttribute('aria-expanded', 'true');
                         } else {
                             content.classList.add('hidden');
                             icon.style.transform = 'rotate(0deg)';
+                            this.setAttribute('aria-expanded', 'false');
                         }
                     });
                 });

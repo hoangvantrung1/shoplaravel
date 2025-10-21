@@ -1,6 +1,13 @@
 @extends('layouts.client')
 
-@section('title', 'Blog & Tin tức')
+@section('title', 'Blog & Tin tức - Mẹo công nghệ, review sản phẩm')
+
+@section('meta')
+    <meta name="description" content="Blog công nghệ: mẹo sử dụng, review sản phẩm, tin tức mới nhất. Cập nhật mỗi ngày tại ShopLaravel.">
+    <meta property="og:title" content="Blog & Tin tức - ShopLaravel">
+    <meta property="og:description" content="Mẹo công nghệ, review sản phẩm, cập nhật xu hướng mới nhất.">
+    <meta property="og:type" content="website">
+@endsection
 
 @section('content')
     {{-- Section tiêu đề --}}
@@ -22,7 +29,8 @@
                         <div class="relative h-52 overflow-hidden">
                             <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}"
                                  alt="{{ $post->title }}"
-                                 class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                 class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                                 loading="lazy" decoding="async">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                         </div>
                     </a>
@@ -67,11 +75,37 @@
         <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
         <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
         <script>
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             AOS.init({
-                duration: 800,
+                duration: prefersReducedMotion ? 0 : 800,
                 once: true,
-                offset: 100,
+                offset: prefersReducedMotion ? 0 : 100,
+                disable: prefersReducedMotion
             });
+
+            // Back to top button
+            (function(){
+                const btn = document.createElement('button');
+                btn.id = 'backToTop';
+                btn.setAttribute('aria-label', 'Lên đầu trang');
+                btn.className = 'fixed bottom-6 right-6 z-50 bg-purple-600 text-white w-10 h-10 rounded-full shadow-lg hover:bg-purple-700 transition hidden md:flex items-center justify-center';
+                btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                document.body.appendChild(btn);
+
+                const toggle = () => {
+                    if (window.scrollY > 400) {
+                        btn.classList.remove('hidden');
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                };
+                window.addEventListener('scroll', toggle, { passive: true });
+                toggle();
+
+                btn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+                });
+            })();
         </script>
     @endpush
 @endsection

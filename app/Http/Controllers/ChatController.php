@@ -90,15 +90,19 @@ class ChatController extends Controller
                 }
             });
 
-            // sắp xếp theo mức độ khớp đơn giản (đếm token xuất hiện)
-            $scoreExprParts = [];
+            // sắp xếp theo mức độ khớp đơn giản (đếm token xuất hiện) - dùng bindings an toàn
+            $scoreExprPieces = [];
+            $scoreBindings = [];
             foreach ($tokens as $t) {
-                $tEsc = str_replace(['%', '_'], ['\\%', '\\_'], $t);
-                $scoreExprParts[] = "(CASE WHEN name LIKE '%$tEsc%' THEN 1 ELSE 0 END)";
+                $scoreExprPieces[] = '(CASE WHEN name LIKE ? THEN 1 ELSE 0 END)';
+                $scoreBindings[] = '%' . $t . '%';
             }
-            if (!empty($scoreExprParts)) {
-                $scoreExpr = implode(' + ', $scoreExprParts);
-                $productQuery->select('*')->selectRaw("($scoreExpr) as match_score")->orderByDesc('match_score');
+            if (!empty($scoreExprPieces)) {
+                $scoreExpr = implode(' + ', $scoreExprPieces);
+                $productQuery
+                    ->select('*')
+                    ->selectRaw("($scoreExpr) as match_score", $scoreBindings)
+                    ->orderByDesc('match_score');
             }
         }
         // fallback: nguyên bản user message

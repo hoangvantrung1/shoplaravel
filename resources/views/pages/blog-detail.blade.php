@@ -2,6 +2,13 @@
 
 @section('title', $post->title . ' - ShopLaravel')
 
+@section('meta')
+    <meta name="description" content="{{ Str::limit(strip_tags($post->excerpt ?: $post->content), 150) }}">
+    <meta property="og:title" content="{{ $post->title }} - ShopLaravel">
+    <meta property="og:description" content="{{ Str::limit(strip_tags($post->excerpt ?: $post->content), 150) }}">
+    <meta property="og:type" content="article">
+@endsection
+
 @section('content')
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-10">
         <!-- Breadcrumb -->
@@ -35,7 +42,7 @@
             <!-- Ảnh cover -->
             <div class="aspect-w-16 aspect-h-9 overflow-hidden">
                 <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}" alt="{{ $post->title }}"
-                    class="w-full h-50 object-cover items-center mx-auto">
+                    class="w-full h-50 object-cover items-center mx-auto" loading="lazy" decoding="async">
             </div>
 
             <!-- Nội dung bài viết -->
@@ -134,7 +141,7 @@
                         <div class="h-48 overflow-hidden">
                             <img src="{{ $relatedPost->featured_image ?: '/images/default-blog.jpg' }}"
                                 alt="{{ $relatedPost->title }}"
-                                class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                class="w-full h-full object-cover hover:scale-105 transition duration-300" loading="lazy" decoding="async">
                         </div>
                         <div class="p-4">
                             <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-purple-600 transition">
@@ -167,6 +174,8 @@
     </div>
 
     <style>
+        /* Back to top positioning compatibility */
+        #backToTop{ position: fixed; }
         .prose {
             line-height: 1.8;
         }
@@ -208,4 +217,35 @@
             margin: 1em 0;
         }
     </style>
+
+    @push('scripts')
+        <script>
+            // Reduced motion respect for any upcoming animations here (no AOS on detail currently)
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Back to top button
+            (function(){
+                const btn = document.createElement('button');
+                btn.id = 'backToTop';
+                btn.setAttribute('aria-label', 'Lên đầu trang');
+                btn.className = 'fixed bottom-6 right-6 z-50 bg-purple-600 text-white w-10 h-10 rounded-full shadow-lg hover:bg-purple-700 transition hidden md:flex items-center justify-center';
+                btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                document.body.appendChild(btn);
+
+                const toggle = () => {
+                    if (window.scrollY > 400) {
+                        btn.classList.remove('hidden');
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                };
+                window.addEventListener('scroll', toggle, { passive: true });
+                toggle();
+
+                btn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+                });
+            })();
+        </script>
+    @endpush
 @endsection
