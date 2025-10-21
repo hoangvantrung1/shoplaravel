@@ -96,20 +96,40 @@
         {{-- Hiển thị sản phẩm theo danh mục/thương hiệu --}}
         @if($products->count() > 0)
             <section class="mb-12">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     @foreach($products as $product)
-                        <div class="bg-white rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300">
-                            <a href="{{ route('product.show', $product->id) }}">
-                                <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+                        @php
+                            $hasSale = isset($product->sale_price) && (float) $product->sale_price > 0 && (float) $product->sale_price < (float) $product->price;
+                            $finalPrice = $hasSale ? (float) $product->sale_price : (float) $product->price;
+                            $discount = $hasSale && (float) $product->price > 0 ? max(0, min(99, round((1 - $product->sale_price / $product->price) * 100))) : null;
+                        @endphp
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl overflow-hidden transition duration-300 group">
+                            <a href="{{ route('product.show', $product->id) }}" class="block">
+                                <div class="relative w-full aspect-square bg-gray-50 overflow-hidden">
                                     <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                         loading="lazy" decoding="async">
+                                    @if($hasSale)
+                                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-{{ $discount }}%</span>
+                                    @endif
+                                    @php $isHot = isset($product->is_hot) ? (bool)$product->is_hot : (isset($product->hot) ? (bool)$product->hot : false); @endphp
+                                    @if($isHot)
+                                        <span class="absolute top-2 right-2 bg-orange-500 text-white text-[11px] font-semibold px-2 py-1 rounded">HOT</span>
+                                    @endif
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="text-gray-800 font-semibold mb-1 line-clamp-1">{{ $product->name }}</h3>
-                                    <p class="text-purple-600 font-bold mb-2">{{ number_format($product->price, 0, ',', '.') }}₫</p>
+                                <div class="p-3 md:p-4">
+                                    <h3 class="text-gray-900 font-semibold mb-1 line-clamp-1">{{ $product->name }}</h3>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-purple-600 font-bold">{{ number_format($finalPrice, 0, ',', '.') }}₫</span>
+                                        @if($hasSale)
+                                            <span class="text-gray-400 line-through text-sm">{{ number_format($product->price, 0, ',', '.') }}₫</span>
+                                        @endif
+                                    </div>
                                     <p class="text-gray-500 text-sm line-clamp-2">{{ $product->description }}</p>
                                     @if($product->brand)
-                                        <p class="text-xs text-gray-400 mt-1">{{ $product->brand->name }}</p>
+                                        <div class="mt-2">
+                                            <span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{{ $product->brand->name }}</span>
+                                        </div>
                                     @endif
                                 </div>
                             </a>
@@ -201,20 +221,40 @@
 
         @if($products->count() > 0)
             <section class="mb-12">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     @foreach($products as $product)
-                        <div class="bg-white rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300">
-                            <a href="{{ route('product.show', $product->id) }}">
-                                <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+                        @php
+                            $hasSale = isset($product->sale_price) && (float) $product->sale_price > 0 && (float) $product->sale_price < (float) $product->price;
+                            $finalPrice = $hasSale ? (float) $product->sale_price : (float) $product->price;
+                            $discount = $hasSale && (float) $product->price > 0 ? max(0, min(99, round((1 - $product->sale_price / $product->price) * 100))) : null;
+                        @endphp
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl overflow-hidden transition duration-300 group">
+                            <a href="{{ route('product.show', $product->id) }}" class="block">
+                                <div class="relative w-full aspect-square bg-gray-50 overflow-hidden">
                                     <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                         loading="lazy" decoding="async">
+                                    @if($hasSale)
+                                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-{{ $discount }}%</span>
+                                    @endif
+                                    @php $isHot = isset($product->is_hot) ? (bool)$product->is_hot : (isset($product->hot) ? (bool)$product->hot : false); @endphp
+                                    @if($isHot)
+                                        <span class="absolute top-2 right-2 bg-orange-500 text-white text-[11px] font-semibold px-2 py-1 rounded">HOT</span>
+                                    @endif
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="text-gray-800 font-semibold mb-1 line-clamp-1">{{ $product->name }}</h3>
-                                    <p class="text-purple-600 font-bold mb-2">{{ number_format($product->price, 0, ',', '.') }}₫</p>
+                                <div class="p-3 md:p-4">
+                                    <h3 class="text-gray-900 font-semibold mb-1 line-clamp-1">{{ $product->name }}</h3>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-purple-600 font-bold">{{ number_format($finalPrice, 0, ',', '.') }}₫</span>
+                                        @if($hasSale)
+                                            <span class="text-gray-400 line-through text-sm">{{ number_format($product->price, 0, ',', '.') }}₫</span>
+                                        @endif
+                                    </div>
                                     <p class="text-gray-500 text-sm line-clamp-2">{{ $product->description }}</p>
                                     @if($product->brand)
-                                        <p class="text-xs text-gray-400 mt-1">{{ $product->brand->name }}</p>
+                                        <div class="mt-2">
+                                            <span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{{ $product->brand->name }}</span>
+                                        </div>
                                     @endif
                                 </div>
                             </a>
