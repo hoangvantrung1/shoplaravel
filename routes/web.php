@@ -114,8 +114,8 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Admin login/logout
-    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login.post');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login'); // hiển thị form
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');  // xử lý đăng nhập
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     // Protected admin routes (guard 'admin')
