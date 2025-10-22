@@ -63,8 +63,19 @@
                         <tbody>
                             @foreach($order->orderItems as $item)
                                 <tr class="hover:bg-indigo-50 transition-colors">
-                                    <td class="px-6 py-4 border-b border-gray-300 align-middle font-medium text-gray-800">
-                                        {{ $item->product->name ?? 'Sản phẩm đã bị xóa' }}
+                                    <td class="px-6 py-4 border-b border-gray-300 align-middle">
+                                        <div class="flex items-center gap-3">
+                                            @if(!empty($item->product->image))
+                                                <img src="{{ asset($item->product->image) }}"
+                                                    alt="{{ $item->product->name ?? 'Không có ảnh' }}"
+                                                    class="w-16 h-16 object-cover rounded-md border">
+                                            @else
+                                                <div class="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-md border text-gray-400 text-sm">
+                                                    N/A
+                                                </div>
+                                            @endif
+                                            <span class="font-medium text-gray-800">{{ $item->product->name ?? 'Sản phẩm đã bị xóa' }}</span>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 border-b border-gray-300 text-gray-600">
                                         {{ number_format($item->price, 0, ',', '.') }} đ
@@ -91,11 +102,19 @@
                     </div>
                 </div>
             </div>
-            {{-- Nút hủy đơn hàng --}}
-            @if($order->can_cancel)
-                <div class="flex items-end justify-end">
+            {{-- Nút hành động --}}
+            <div class="flex justify-end space-x-3 mt-6">
+                <a href="{{ route('client.orders.index') }}"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12.707 15.707a1 1 0 01-1.414 0L6.586 11l4.707-4.707a1 1 0 111.414 1.414L9.414 11l3.293 3.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Quay lại
+                </a>
+
+                @if($order->can_cancel)
                     <button type="button" onclick="openCancelModal()"
-                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center">
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-md flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
@@ -103,8 +122,8 @@
                         </svg>
                         Hủy đơn hàng
                     </button>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
 

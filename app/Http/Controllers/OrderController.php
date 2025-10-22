@@ -11,9 +11,25 @@ use App\Models\Product;
 class OrderController extends Controller
 {
     // Hiển thị checkout
-    public function index()
+    public function index(Request $request)
     {
-        $orders = auth()->user()->orders()->latest()->get();
+
+        $query = auth()->user()->orders()->with(['orderItems.product']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('month')) {
+            [$year, $month] = explode('-', $request->month);
+            $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        $orders = $query->latest()->paginate(6)->appends($request->query());
+
         return view('client.orders.index', compact('orders'));
     }
 
