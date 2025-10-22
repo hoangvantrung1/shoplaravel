@@ -94,7 +94,7 @@ Route::post('/contact', [PageController::class, 'contactSubmit'])->name('contact
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('client.orders.show');
-    Route::post('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
+    Route::put('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
 
 
     // Profile

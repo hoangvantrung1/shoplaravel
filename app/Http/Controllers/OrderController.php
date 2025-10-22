@@ -43,42 +43,44 @@ class OrderController extends Controller
     }
 
     // Hủy đơn hàng (chỉ khi đang unpaid/pending/processing tùy quy định)
-    public function cancel(Order $order)
-    {
-        if ($order->user_id != auth()->id()) {
-            abort(403);
-        }
-        if ($order->status === 'completed') {
-            return back()->with('error', 'Không thể hủy đơn hàng đã hoàn thành!');
-        }
-        if ($order->status === 'cancelled') {
-            return back()->with('error', 'Đơn hàng đã được hủy trước đó!');
-        }
-
-        $allowedStatuses = ['pending', 'unpaid'];
-        if (!in_array($order->status, $allowedStatuses)) {
-            return redirect()->back()
-                ->with('error', 'Không thể hủy đơn hàng. Đơn hàng đã được xử lý.');
-        }
-
-
-        $order->update(['status' => 'cancelled']);
-
-
-        $orderItems = $order->items ?? [];
-
-        // Hoàn tồn kho
-        foreach ($orderItems as $item) {
-            $product = Product::find($item->product_id);
-            if ($product && isset($product->stock)) {
-                $product->increment('stock', (int) $item->quantity);
+        public function cancel(Order $order)
+        {
+            if ($order->user_id != auth()->id()) {
+                abort(403);
             }
+
+            if ($order->status === 'completed') {
+                return back()->with('error', 'Không thể hủy đơn hàng đã hoàn thành!');
+            }
+
+            if ($order->status === 'cancelled') {
+                return back()->with('error', 'Đơn hàng đã được hủy trước đó!');
+            }
+
+            // Cho phép hủy ở 2 trạng thái: pending và processing
+            $allowedStatuses = ['pending', 'processing'];
+            if (!in_array($order->status, $allowedStatuses)) {
+                return redirect()->back()
+                    ->with('error', 'Không thể hủy đơn hàng. Đơn hàng đã được xử lý hoặc thanh toán.');
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            $order->update(['status' => 'cancelled']);
+
+            // Lấy danh sách sản phẩm trong đơn (chú ý đúng tên quan hệ)
+            $orderItems = $order->orderItems ?? [];
+
+            // Hoàn lại tồn kho
+            foreach ($orderItems as $item) {
+                $product = Product::find($item->product_id);
+                if ($product && isset($product->stock)) {
+                    $product->increment('stock', (int) $item->quantity);
+                }
+            }
+
+            return redirect()->route('client.orders.show', $order)
+                ->with('success', 'Đơn hàng đã được hủy thành công.');
         }
-
-        return redirect()->route('client.orders.show', $order)
-            ->with('success', 'Đơn hàng đã được hủy thành công.');
-    }
-
     public function checkout()
     {
         // Kiểm tra xem user đã đăng nhập chưa
