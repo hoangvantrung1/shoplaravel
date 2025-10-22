@@ -113,11 +113,27 @@
                 </a>
 
             @if(in_array($order->status, ['pending', 'processing']))
-                <form action="{{ route('client.orders.cancel', $order->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?')">
-                    @csrf
-                    @method('PUT')
-                    <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
-                </form>
+            <form action="{{ route('client.orders.cancel', $order->id) }}" 
+                method="POST" 
+                onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?')" 
+                class="inline-block">
+                @csrf
+                @method('PUT')
+                <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 
+                        text-white font-semibold rounded-lg shadow-sm transition duration-200 
+                        focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="h-5 w-5 mr-2" 
+                        viewBox="0 0 20 20" 
+                        fill="currentColor">
+                        <path fill-rule="evenodd" 
+                            d="M9 2a1 1 0 011 1v1h4a1 1 0 010 2H6a1 1 0 010-2h4V3a1 1 0 011-1zm-3 7a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm6 0a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1z" 
+                            clip-rule="evenodd" />
+                    </svg>
+                    Hủy đơn hàng
+                </button>
+            </form>
             @endif
             </div>
         </div>
