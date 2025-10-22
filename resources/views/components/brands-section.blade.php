@@ -9,7 +9,7 @@
 
             <a href="{{ route('products.index', ['brand_id' => 2]) }}"
                class="brand-logo bg-white p-6 rounded-xl shadow-sm flex items-center justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg" alt="Samsung" class="h-10">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Samsung_old_logo_before_year_2015.svg/2560px-Samsung_old_logo_before_year_2015.svg.png" alt="Samsung" class="h-10">
             </a>
 
             <a href="{{ route('products.index', ['brand_id' => 3]) }}"
