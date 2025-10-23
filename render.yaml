@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: shoplaravel-php
+    runtime: php
+    plan: free
+    region: oregon
+    repo: https://github.com/hoangvantrung1/shoplaravel
+    branch: main
+    buildCommand: |
+      composer install --optimize-autoloader --no-dev
+      touch database/database.sqlite
+      php artisan migrate --force
+      php artisan ziggy:generate
+      npm install
+      npm run build
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_NAME
+        value: Laravel
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: false
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /opt/render/project/src/database/database.sqlite
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_DRIVER
+        value: file
