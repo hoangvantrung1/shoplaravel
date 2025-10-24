@@ -116,7 +116,10 @@ class ProductController extends Controller
                 $query->where('is_approved', true)->with('user');
             }
         ])->findOrFail($id);
-        $reviewsCount = $product->reviews->count();
+        // Lấy reviews từ product và gán vào biến riêng
+        $reviews = $product->reviews;
+
+        $reviewsCount = $reviews->count();
 
         $averageRating = round($product->reviews->avg('rating'), 1);
 
@@ -136,7 +139,8 @@ class ProductController extends Controller
             'categories',
             'brands',
             'reviewsCount',
-            'averageRating'
+            'averageRating',
+            'reviews'
         ));
     }
 }
