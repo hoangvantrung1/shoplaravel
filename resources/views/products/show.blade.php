@@ -60,7 +60,7 @@
     }
 </style>
 @section('content')
-    <div class="container mx-auto px-4 py-8 max-w-7xl space-y-12">
+    <div class="container mx-auto px-4 py-8 max-w-7xl space-y-12 mt-10">
         <nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
