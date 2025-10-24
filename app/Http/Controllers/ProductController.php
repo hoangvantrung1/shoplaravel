@@ -33,12 +33,14 @@ class ProductController extends Controller
         if ($request->filled('brand_id')) {
             $query->where('brand_id', $request->get('brand_id'));
         }
-        // Lọc theo giá
+        // Lọc theo giá - FIXED
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->get('min_price'));
+            $minPrice = (float) $request->min_price;
+            $query->where('price', '>=', $minPrice);
         }
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->get('max_price'));
+            $maxPrice = (float) $request->max_price;
+            $query->where('price', '<=', $maxPrice);
         }
         // Sắp xếp
         $sortBy = $request->get('sort_by', 'created_at');
