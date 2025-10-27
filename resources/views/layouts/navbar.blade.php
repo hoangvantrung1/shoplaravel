@@ -109,6 +109,10 @@
                                 class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
                                 <i class="fas fa-shopping-bag mr-2"></i>Đơn hàng của tôi
                             </a>
+                            <a href="{{ route('wishlist.index') }}"
+                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-heart mr-2"></i>Yêu thích
+                            </a>
                             <a href="{{ route('profile.index') }}"
                                 class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
                                 <i class="fas fa-user mr-2"></i>Thông tin cá nhân

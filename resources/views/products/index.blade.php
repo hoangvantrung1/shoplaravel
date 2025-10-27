@@ -176,14 +176,18 @@
                                 </a>
 
                                 {{-- Quick Actions --}}
-                                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
-                                    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 mb-2">
-                                        <i class="fas fa-heart text-sm"></i>
-                                    </button>
-                                    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
-                                        <i class="fas fa-eye text-sm"></i>
-                                    </button>
-                                </div>
+<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+    {{-- Wishlist Button --}}
+    <button onclick="toggleWishlist({{ $product->id }}, this)" 
+            class="wishlist-btn bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 mb-2 {{ auth()->check() && $product->isInWishlist() ? 'text-red-500' : '' }}">
+        <i class="fas fa-heart text-sm"></i>
+    </button>
+    
+    {{-- Quick View Button --}}
+    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
+        <i class="fas fa-eye text-sm"></i>
+    </button>
+</div>
                             </div>
 
                             {{-- Product Info --}}
@@ -417,6 +421,89 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
+    // Wishlist functionality
+    window.toggleWishlist = async function(productId, button) {
+        console.log('Toggle wishlist called for product:', productId);
+        const icon = button.querySelector('i');
+        const isInWishlist = icon.classList.contains('text-red-500');
+        
+        try {
+            const response = await fetch(`/wishlist/${productId}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+
+            const data = await response.json();
+            console.log('Response:', data);
+            
+            if (data.success) {
+                if (data.action === 'added') {
+                    icon.classList.add('text-red-500');
+                    showNotification('Đã thêm vào danh sách yêu thích', 'success');
+                } else {
+                    icon.classList.remove('text-red-500');
+                    showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
+                }
+                
+                // Update wishlist count in header
+                if (typeof updateWishlistCount === 'function') {
+                    updateWishlistCount(data.wishlist_count);
+                }
+            } else {
+                if (response.status === 401) {
+                    showNotification('Vui lòng đăng nhập để sử dụng tính năng yêu thích', 'error');
+                    // Redirect to login page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '{{ route("login") }}';
+                    }, 2000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Có lỗi xảy ra khi kết nối', 'error');
+        }
+    };
+
+    // Show notification function
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+            type === 'success' ? 'bg-purple-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            type === 'info' ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                              type === 'error' ? 'fa-exclamation-circle' : 
+                              type === 'info' ? 'fa-info-circle' : 'fa-bell'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Hiệu ứng xuất hiện
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Tự động xóa sau 4 giây
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
+    }
+
     // Add to cart functionality với hiển thị thông báo
     const addToCartButtons = document.querySelectorAll('form[action*="cart.add"] button');
     
@@ -443,37 +530,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Hiển thị thông báo từ session
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
-            type === 'success' ? 'bg-purple-500 text-white' : 'bg-red-500 text-white'
-        }`;
-        notification.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Hiệu ứng xuất hiện
-        setTimeout(() => {
-            notification.classList.remove('translate-x-full');
-        }, 100);
-        
-        // Tự động xóa sau 4 giây
-        setTimeout(() => {
-            notification.classList.add('translate-x-full');
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 4000);
-    }
-
-    // Kiểm tra và hiển thị thông báo từ session
     @if(session('success'))
         showNotification("{{ session('success') }}", 'success');
     @endif

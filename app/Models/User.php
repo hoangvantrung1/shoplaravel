@@ -32,5 +32,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Address::class);
     }
+    public function wishlists()
+{
+    return $this->hasMany(Wishlist::class);
+}
 
+public function wishlistProducts()
+{
+    return $this->belongsToMany(Product::class, 'wishlists')
+                ->withTimestamps();
+}
+
+public function getWishlistCountAttribute()
+{
+    return $this->wishlists()->count();
+}
 }

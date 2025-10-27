@@ -28,7 +28,19 @@ class Product extends Model
     {
         return $this->hasMany(Review::class);
     }
+    public function wishlists()
+{
+    return $this->hasMany(Wishlist::class);
+}
 
+public function isInWishlist($userId = null)
+{
+    if (!$userId && auth()->check()) {
+        $userId = auth()->id();
+    }
+    
+    return $userId ? $this->wishlists()->where('user_id', $userId)->exists() : false;
+}
 
 }
 
