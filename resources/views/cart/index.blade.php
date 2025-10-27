@@ -125,7 +125,7 @@
                         @if(!auth()->check())
                             <div class="bg-yellow-50 border border-yellow-300 text-yellow-800 rounded-lg p-4 text-sm">
                                 Vui lòng
-                                <a href="{{ route('client.login') }}" class="font-semibold underline hover:text-yellow-600">
+                                <a href="{{ route('login') }}" class="font-semibold underline hover:text-yellow-600">
                                     đăng nhập
                                 </a>
                                 để tiếp tục thanh toán.
