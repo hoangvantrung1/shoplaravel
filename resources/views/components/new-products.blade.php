@@ -43,14 +43,16 @@
                                 </span>
 
                                 {{-- Quick Actions Overlay --}}
-                                <div class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                                <div class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 flex items-end justify-end p-4 opacity-0 hover:opacity-100">
                                     <div class="flex space-x-2 transform translate-y-4 hover:translate-y-0 transition-transform duration-300">
-                                        <button class="bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
-                                            <i class="fas fa-heart text-purple-600"></i>
+                                        <button onclick="toggleWishlist({{ $newProduct->id }}, this)" 
+                                                class="wishlist-btn bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 {{ auth()->check() && $newProduct->isInWishlist() ? 'text-red-500' : '' }}">
+                                            <i class="fas fa-heart text-sm"></i>
                                         </button>
-                                        <button class="bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
-                                            <i class="fas fa-eye text-blue-600"></i>
-                                        </button>
+                                        <a href="{{ route('product.show', $newProduct->id) }}"
+                                        class="bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 inline-block">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

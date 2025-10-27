@@ -184,9 +184,10 @@
                                     </button>
                                     
                                     {{-- Quick View Button --}}
-                                    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
-                                        <i class="fas fa-eye text-sm"></i>
-                                    </button>
+                                        <button onclick="window.location.href='{{ route('product.show', $product->id) }}'"
+                                                class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </button>
                                 </div>
                             </div>
 
