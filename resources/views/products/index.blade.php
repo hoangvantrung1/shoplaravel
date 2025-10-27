@@ -176,18 +176,18 @@
                                 </a>
 
                                 {{-- Quick Actions --}}
-<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
-    {{-- Wishlist Button --}}
-    <button onclick="toggleWishlist({{ $product->id }}, this)" 
-            class="wishlist-btn bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 mb-2 {{ auth()->check() && $product->isInWishlist() ? 'text-red-500' : '' }}">
-        <i class="fas fa-heart text-sm"></i>
-    </button>
-    
-    {{-- Quick View Button --}}
-    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
-        <i class="fas fa-eye text-sm"></i>
-    </button>
-</div>
+                                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+                                    {{-- Wishlist Button --}}
+                                    <button onclick="toggleWishlist({{ $product->id }}, this)" 
+                                            class="wishlist-btn bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 mb-2 {{ auth()->check() && $product->isInWishlist() ? 'text-red-500' : '' }}">
+                                        <i class="fas fa-heart text-sm"></i>
+                                    </button>
+                                    
+                                    {{-- Quick View Button --}}
+                                    <button class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             {{-- Product Info --}}
