@@ -95,5 +95,35 @@
             <span class="material-icons">confirmation_number</span>
             <span x-show="open" class="ml-2">Quản lý phiếu giảm giá</span>
         </a>
+        <a href="{{ route('admin.reviews.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.reviews.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">reviews</span>
+            <span x-show="open" class="ml-2">Quản lý đánh giá</span>
+        </a>
+        <a href="{{ route('admin.posts.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.posts.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">article</span>
+            <span x-show="open" class="ml-2">Quản lý bài viết</span>
+        </a>
+        <a href="{{ route('admin.contacts.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.contacts.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">contact_mail</span>
+            <span x-show="open" class="ml-2">Quản lý liên hệ</span>
+        </a>
+        <a href="{{ route('admin.addresses.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.addresses.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">location_on</span>
+            <span x-show="open" class="ml-2">Quản lý địa chỉ</span>
+        </a>
+        <a href="{{ route('admin.chat-messages.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.chat-messages.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">chat</span>
+            <span x-show="open" class="ml-2">Tin nhắn</span>
+        </a>
+        <a href="{{ route('admin.wishlists.index') }}"
+            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.wishlists.*') ? 'bg-green-100' : '' }}">
+            <span class="material-icons">favorite</span>
+            <span x-show="open" class="ml-2">Sản phẩm yêu thích</span>
+        </a>
     </nav>
 </aside>

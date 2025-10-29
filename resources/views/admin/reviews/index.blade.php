@@ -1,0 +1,93 @@
+@extends('layouts.admin')
+
+@section('title', 'Quản lý Đánh giá')
+
+@section('content')
+<div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b">
+        <h2 class="text-2xl font-bold text-gray-800">Quản lý Đánh giá</h2>
+        <p class="text-gray-600">Quản lý và xem đánh giá từ khách hàng</p>
+    </div>
+
+    <div class="p-6">
+        @if($reviews->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-4 py-3 text-left">ID</th>
+                        <th class="px-4 py-3 text-left">Sản phẩm</th>
+                        <th class="px-4 py-3 text-left">Người dùng</th>
+                        <th class="px-4 py-3 text-left">Đánh giá</th>
+                        <th class="px-4 py-3 text-left">Sao</th>
+                        <th class="px-4 py-3 text-left">Ngày tạo</th>
+                        <th class="px-4 py-3 text-left">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($reviews as $review)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">{{ $review->id }}</td>
+                        <td class="px-4 py-3">
+                            @if($review->product)
+                            {{ $review->product->name }}
+                            @else
+                            <span class="text-red-500">Đã xóa</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($review->user)
+                            {{ $review->user->name }}
+                            @else
+                            <span class="text-red-500">Đã xóa</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="max-w-xs truncate">{{ $review->comment }}</div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex text-yellow-400">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $review->rating)
+                                    <span class="material-icons text-sm">star</span>
+                                    @else
+                                    <span class="material-icons text-sm">star_border</span>
+                                    @endif
+                                @endfor
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">{{ $review->created_at->format('d/m/Y') }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex space-x-2">
+                                <a href="{{ route('admin.reviews.show', $review) }}" 
+                                   class="text-blue-600 hover:text-blue-800">
+                                    <span class="material-icons text-sm">visibility</span>
+                                </a>
+                                <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" 
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-800">
+                                        <span class="material-icons text-sm">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4">
+            {{ $reviews->links() }}
+        </div>
+        @else
+        <div class="text-center py-8">
+            <span class="material-icons text-6xl text-gray-400">reviews</span>
+            <p class="mt-4 text-gray-500">Chưa có đánh giá nào</p>
+        </div>
+        @endif
+    </div>
+</div>
+@endsection

@@ -9,5 +9,11 @@ class Admin extends Authenticatable
     protected $table = 'admins';
     protected $fillable = ['name', 'email', 'password', 'is_admin'];
     protected $hidden = ['password', 'remember_token'];
+
+    // Relationship với posts (nếu có)
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'author_id');
+    }
 }
 

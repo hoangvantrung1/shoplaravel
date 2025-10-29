@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\ChatMessageController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\ReviewController; // THÊM DÒNG NÀY
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
@@ -13,7 +17,7 @@ use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewController as ClientReviewController; // ĐỔI TÊN CHO CLIENT
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
@@ -33,11 +37,8 @@ use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
-// Products routes - FIXED: Đảm bảo route products.index xử lý tất cả các tham số
+// Products routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-
-// Search route - REMOVED: Không cần route riêng cho search vì đã tích hợp vào products.index
-// Route::get('/search', [ProductController::class, 'index'])->name('search');
 
 // Login / Logout
 Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
@@ -73,7 +74,8 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 // Product detail
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
 
-Route::middleware('auth')->post('/product/{id}/reviews', [ReviewController::class, 'store'])->name('product.reviews.store');
+// SỬA DÒNG NÀY - sử dụng ClientReviewController
+Route::middleware('auth')->post('/product/{id}/reviews', [ClientReviewController::class, 'store'])->name('product.reviews.store');
 
 // Checkout
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
@@ -120,8 +122,8 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Admin login/logout
-    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login'); // hiển thị form
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');  // xử lý đăng nhập
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     // Protected admin routes (guard 'admin')
@@ -156,10 +158,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Báo cáo
         Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
 
+        // SỬA DÒNG NÀY - sử dụng Admin ReviewController
+        Route::resource('reviews', ReviewController::class);
+
+        // Quản lý bài viết
+        Route::resource('posts', PostController::class);
+
+        // Các quản lý khác
+        Route::resource('contacts', ContactController::class);
+
+        // Địa chỉ
+        Route::resource('addresses', \App\Http\Controllers\Admin\AddressController::class);
+
+        // Chat messages
+        Route::resource('chat-messages', ChatMessageController::class);
+
+        // Wishlists
+        Route::resource('wishlists', WishlistController::class);
+        
         // Coupons
         Route::resource('coupons', AdminCouponController::class);
 
-        // Admin profile routes - THÊM VÀO ĐÂY
+        // Admin profile routes
         Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
