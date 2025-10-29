@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
@@ -131,6 +132,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Quản lý users
         Route::resource('users', \App\Http\Controllers\Admin\AdminUserController::class);
 
+        //Quản lý admins
+        Route::get('/admin-profile', [\App\Http\Controllers\Admin\AdminAdminController::class, 'show'])->name('admins.index');
+        Route::get('/admin-profile/edit', [\App\Http\Controllers\Admin\AdminAdminController::class, 'edit'])->name('admins.edit');
+        Route::put('/admin-profile/update', [\App\Http\Controllers\Admin\AdminAdminController::class, 'update'])->name('admins.update');
+
         // Quản lý sản phẩm
         Route::resource('products', AdminProductController::class);
 
@@ -152,5 +158,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Coupons
         Route::resource('coupons', AdminCouponController::class);
+
+        // Admin profile routes - THÊM VÀO ĐÂY
+        Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
 });
