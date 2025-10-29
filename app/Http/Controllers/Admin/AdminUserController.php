@@ -17,6 +17,8 @@ class AdminUserController extends Controller
     public function show(User $user)
     {
         $user->load(['orders', 'addresses']);
+        // Thêm phân trang cho đơn hàng
+        $orders = $user->orders()->with(['orderItems.product'])->latest()->paginate(10);
         $totalSpent = $user->orders
             ->where('status', 'completed')
             ->sum(function ($order) {
@@ -27,7 +29,7 @@ class AdminUserController extends Controller
                     ?? 0;
             });
 
-        return view('admin.users.show', compact('user', 'totalSpent'));
+        return view('admin.users.show', compact('user','orders', 'totalSpent'));
     }
 
     // Form tạo user mới
