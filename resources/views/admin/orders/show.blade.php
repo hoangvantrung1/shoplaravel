@@ -269,6 +269,43 @@
                             {{ $order->status === 'unpaid' ? 'Chưa thanh toán' : 'Đã thanh toán' }}
                         </span>
                     </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Hình thức thanh toán:</span>
+                        <span class="font-medium 
+                            {{ $order->payment_method === 'cod' ? 'text-orange-600' : 'text-blue-600' }}">
+                            @if($order->payment_method === 'cod')
+                                Thanh toán khi nhận hàng (COD)
+                            @elseif($order->payment_method === 'vnpay')
+                                Thanh toán VNPay
+                            @else
+                                {{ $order->payment_method ?? 'Chưa xác định' }}
+                            @endif
+                        </span>
+                    </div>
+                    @if($order->transaction_id)
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Mã giao dịch:</span>
+                        <span class="font-medium text-gray-800 font-mono text-sm">
+                            {{ $order->transaction_id }}
+                        </span>
+                    </div>
+                    @endif
+                    @if($order->bank_code && $order->bank_code !== 'COD')
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Ngân hàng:</span>
+                        <span class="font-medium text-gray-800">
+                            {{ $order->bank_code }}
+                        </span>
+                    </div>
+                    @endif
+                    @if($order->payment_date)
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Ngày thanh toán:</span>
+                        <span class="font-medium text-gray-800">
+                            {{ \Carbon\Carbon::parse($order->payment_date)->format('d/m/Y H:i') }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
             </div>
             
