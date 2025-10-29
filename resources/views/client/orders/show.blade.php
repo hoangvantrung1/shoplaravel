@@ -112,29 +112,46 @@
                     Quay lại
                 </a>
 
-            @if(in_array($order->status, ['pending', 'processing']))
-            <form action="{{ route('client.orders.cancel', $order->id) }}" 
-                method="POST" 
-                onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?')" 
-                class="inline-block">
-                @csrf
-                @method('PUT')
-                <button type="submit" 
-                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 
-                        text-white font-semibold rounded-lg shadow-sm transition duration-200 
-                        focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                        class="h-5 w-5 mr-2" 
-                        viewBox="0 0 20 20" 
-                        fill="currentColor">
-                        <path fill-rule="evenodd" 
-                            d="M9 2a1 1 0 011 1v1h4a1 1 0 010 2H6a1 1 0 010-2h4V3a1 1 0 011-1zm-3 7a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm6 0a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1z" 
-                            clip-rule="evenodd" />
-                    </svg>
-                    Hủy đơn hàng
-                </button>
-            </form>
-            @endif
+                {{-- Nút thanh toán lại - chỉ hiện với đơn chưa thanh toán --}}
+                @if(in_array($order->status, ['unpaid', 'failed']))
+                    <form action="{{ route('client.orders.repay', $order->id) }}" method="POST" class="inline-block">
+                        @csrf
+                        <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 
+                                text-white font-semibold rounded-lg shadow-sm transition duration-200 
+                                focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Thanh toán ngay
+                        </button>
+                    </form>
+                @endif
+
+                {{-- Nút hủy đơn - HIỆN với đơn chưa thanh toán VÀ các trạng thái cho phép khác --}}
+                @if(in_array($order->status, ['unpaid', 'failed', 'pending', 'processing']) && $order->status !== 'cancelled')
+                <form action="{{ route('client.orders.cancel', $order->id) }}" 
+                    method="POST" 
+                    onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?')" 
+                    class="inline-block">
+                    @csrf
+                    @method('PUT')
+                    <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 
+                            text-white font-semibold rounded-lg shadow-sm transition duration-200 
+                            focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                            class="h-5 w-5 mr-2" 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor">
+                            <path fill-rule="evenodd" 
+                                d="M9 2a1 1 0 011 1v1h4a1 1 0 010 2H6a1 1 0 010-2h4V3a1 1 0 011-1zm-3 7a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm6 0a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1z" 
+                                clip-rule="evenodd" />
+                        </svg>
+                        Hủy đơn hàng
+                    </button>
+                </form>
+                @endif
             </div>
         </div>
     </div>

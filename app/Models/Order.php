@@ -44,6 +44,7 @@ class Order extends Model
             'pending' => 'Chờ xử lý',
             'processing' => 'Đang xử lý',
             'completed' => 'Giao thành công',
+            'shipping' => 'Đang giao',
             'cancelled' => 'Đã hủy',
             'paid' => 'Đã thanh toán',     // THÊM TRẠNG THÁI NÀY
             'failed' => 'Thanh toán thất bại' // THÊM TRẠNG THÁI NÀY
@@ -63,6 +64,7 @@ class Order extends Model
             'pending' => 'bg-blue-100 text-blue-800',
             'processing' => 'bg-purple-100 text-purple-800',
             'completed' => 'bg-green-100 text-green-800',
+            'shipping' => 'bg-indigo-100 text-indigo-700',
             'cancelled' => 'bg-red-100 text-red-800',
             'paid' => 'bg-green-100 text-green-800',
             'failed' => 'bg-red-100 text-red-800'

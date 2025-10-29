@@ -121,90 +121,133 @@
         </div>
 
         <!-- Cập nhật trạng thái & Thông tin bổ sung -->
-        <div class="space-y-6">
+                <div class="space-y-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-            <h2 class="text-xl font-semibold text-gray-800">Cập nhật trạng thái</h2>
-        </div>
-        <div class="p-6">
-            @php
-                $statuses = [
-                    'pending' => ['label' => 'Chờ xác nhận', 'color' => 'bg-yellow-100 text-yellow-800'],
-                    'confirmed' => ['label' => 'Đã xác nhận', 'color' => 'bg-blue-100 text-blue-800'],
-                    'processing' => ['label' => 'Đang xử lý', 'color' => 'bg-indigo-100 text-indigo-800'],
-                    'shipping' => ['label' => 'Đang giao', 'color' => 'bg-purple-100 text-purple-800'],
-                    'delivered' => ['label' => 'Đã giao', 'color' => 'bg-green-100 text-green-800'],
-                    'completed' => ['label' => 'Hoàn thành', 'color' => 'bg-emerald-100 text-emerald-800'],
-                    'cancelled' => ['label' => 'Đã hủy', 'color' => 'bg-red-100 text-red-800'],
-                ];
-
-                // Xác định trạng thái có thể chuyển đổi
-                $allowedStatuses = [];
-                
-                switch($order->status) {
-                    case 'pending':
-                        $allowedStatuses = ['processing', 'cancelled'];
-                        break;
-                    case 'processing':
-                        $allowedStatuses = ['completed', 'cancelled'];
-                        break;          
-                    case 'shipping':
-                        $allowedStatuses = ['delivered']; 
-                        break;
-                    case 'delivered':
-                        $allowedStatuses = ['completed']; 
-                        break;
-                    case 'completed':
-                        $allowedStatuses = [];
-                        break;
-                    case 'cancelled':
-                        $allowedStatuses = [];
-                        break;
-                    default:
-                        $allowedStatuses = ['processing', 'cancelled'];
-                }
-            @endphp
-            
-            <div class="mb-4">
-                <span class="text-sm font-medium text-gray-500">Trạng thái hiện tại:</span>
-                <span class="ml-2 px-3 py-1 rounded-full text-sm font-medium {{ $statuses[$order->status]['color'] }}">
-                    {{ $statuses[$order->status]['label'] }}
-                </span>
-            </div>
-            
-            @if(!empty($allowedStatuses) && in_array($order->status, ['pending', 'processing']))
-                <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Thay đổi trạng thái:</label>
-                        <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="{{ $order->status }}" selected disabled>
-                                {{ $statuses[$order->status]['label'] }} (hiện tại)
-                            </option>
-                            @foreach($allowedStatuses as $status)
-                                <option value="{{ $status }}">
-                                    {{ $statuses[$status]['label'] }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                        Cập nhật trạng thái
-                    </button>
-                </form>
-            @else
-                <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
-                    <p class="text-gray-600 font-medium">Đơn hàng đã kết thúc không thể thay đổi trạng thái</p>
-                    <p class="text-sm text-gray-500 mt-1">
-                        Trạng thái "{{ $statuses[$order->status]['label'] }}" là trạng thái cuối cùng
-                    </p>
+                <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                    <h2 class="text-xl font-semibold text-gray-800">Cập nhật trạng thái</h2>
                 </div>
-            @endif
-        </div>
-    </div>
+                <div class="p-6">
+                    @php
+                        // ĐẦY ĐỦ các trạng thái
+                        $statuses = [
+                            'unpaid' => ['label' => 'Chưa thanh toán', 'color' => 'bg-yellow-100 text-yellow-800'],
+                            'paid' => ['label' => 'Đã thanh toán', 'color' => 'bg-green-100 text-green-800'],
+                            'pending' => ['label' => 'Chờ xác nhận', 'color' => 'bg-yellow-100 text-yellow-800'],
+                            'confirmed' => ['label' => 'Đã xác nhận', 'color' => 'bg-blue-100 text-blue-800'],
+                            'processing' => ['label' => 'Đang xử lý', 'color' => 'bg-indigo-100 text-indigo-800'],
+                            'shipping' => ['label' => 'Đang giao hàng', 'color' => 'bg-purple-100 text-purple-800'],
+                            'delivered' => ['label' => 'Đã giao hàng', 'color' => 'bg-green-100 text-green-800'],
+                            'completed' => ['label' => 'Hoàn thành', 'color' => 'bg-emerald-100 text-emerald-800'],
+                            'cancelled' => ['label' => 'Đã hủy', 'color' => 'bg-red-100 text-red-800'],
+                        ];
+
+                        // Đảm bảo không bị lỗi với bất kỳ trạng thái nào
+                        $currentStatus = strtolower($order->status);
+                        $statusColor = $statuses[$currentStatus]['color'] ?? 'bg-gray-100 text-gray-800';
+                        $statusLabel = $statuses[$currentStatus]['label'] ?? ucfirst($currentStatus);
+                        
+                        // LOGIC chuyển đổi trạng thái ĐẦY ĐỦ
+                        $allowedStatuses = [];
+                        
+                        switch($currentStatus) {
+                            case 'unpaid':
+                                // Chưa thanh toán -> Xác nhận hoặc Hủy
+                                $allowedStatuses = ['confirmed', 'cancelled'];
+                                break;
+                            case 'paid':
+                                $allowedStatuses = ['pending', 'confirmed', 'cancelled'];
+                                break;
+                            case 'pending':
+                                // Chờ xác nhận -> Đã xác nhận, Đang xử lý hoặc Hủy
+                                $allowedStatuses = ['confirmed', 'processing', 'cancelled'];
+                                break;
+                            case 'confirmed':
+                                // Đã xác nhận -> Đang xử lý, Đang giao hàng hoặc Hủy
+                                $allowedStatuses = ['processing', 'shipping', 'cancelled'];
+                                break;
+                            case 'processing':
+                                // Đang xử lý -> Đang giao hàng, Đã giao hàng, Hoàn thành hoặc Hủy
+                                $allowedStatuses = ['shipping', 'delivered', 'completed', 'cancelled'];
+                                break;          
+                            case 'shipping':
+                                // Đang giao hàng -> Đã giao hàng, Hoàn thành hoặc Hủy
+                                $allowedStatuses = ['delivered', 'completed', 'cancelled']; 
+                                break;
+                            case 'delivered':
+                                // Đã giao hàng -> Hoàn thành
+                                $allowedStatuses = ['completed']; 
+                                break;
+                                
+                            // CÁC TRẠNG THÁI CUỐI CÙNG - KHÔNG THỂ THAY ĐỔI
+                            case 'completed':
+                            case 'cancelled':
+                                $allowedStatuses = [];
+                                break;
+                            default:
+                                // Mặc định cho các trạng thái khác
+                                $allowedStatuses = ['confirmed', 'processing', 'cancelled'];
+                        }
+                        
+                        // Xác định trạng thái nào là trạng thái cuối cùng
+                        $finalStatuses = ['completed', 'cancelled'];
+                        $isFinalStatus = in_array($currentStatus, $finalStatuses);
+                    @endphp
+                    
+                    <div class="mb-4">
+                        <span class="text-sm font-medium text-gray-500">Trạng thái hiện tại:</span>
+                        <span class="ml-2 px-3 py-1 rounded-full text-sm font-medium {{ $statusColor }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </div>
+                    
+                    @if(!empty($allowedStatuses) && !$isFinalStatus)
+                        <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-4">
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Thay đổi trạng thái:</label>
+                                <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    @foreach($allowedStatuses as $status)
+                                        <option value="{{ $status }}">
+                                            {{ $statuses[$status]['label'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            @if($currentStatus === 'unpaid')
+                            <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p class="text-sm text-yellow-700 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    <strong>Lưu ý:</strong> Đơn hàng chưa thanh toán. Có thể xác nhận đơn hoặc hủy đơn.
+                                </p>
+                            </div>
+                            @endif
+                            
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Cập nhật trạng thái
+                            </button>
+                        </form>
+                    @else
+                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
+                            <p class="text-gray-600 font-medium">
+                                @if($isFinalStatus)
+                                    Đơn hàng đã kết thúc không thể thay đổi trạng thái
+                                @else
+                                    Không có trạng thái nào để chuyển đổi
+                                @endif
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Trạng thái "{{ $statusLabel }}" {{ $isFinalStatus ? 'là trạng thái cuối cùng' : 'không thể chuyển trạng thái' }}
+                            </p>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
             <!-- Thông tin bổ sung -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -221,21 +264,24 @@
                         <span class="font-medium">{{ $order->orderItems->count() }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Phương thức thanh toán:</span>
-                        <span class="font-medium">Thanh toán khi nhận hàng</span>
+                        <span class="text-gray-600">Trạng thái thanh toán:</span>
+                        <span class="font-medium {{ $order->status === 'unpaid' ? 'text-yellow-600' : 'text-green-600' }}">
+                            {{ $order->status === 'unpaid' ? 'Chưa thanh toán' : 'Đã thanh toán' }}
+                        </span>
                     </div>
                 </div>
             </div>
+            
             <a href="{{ route('admin.orders.index') }}" 
                     class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                        </svg>
-                        Quay lại danh sách
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Quay lại danh sách
             </a>
         </div>
     </div>
-@endsection
+@endsection 
 
 @push('styles')
     <style>

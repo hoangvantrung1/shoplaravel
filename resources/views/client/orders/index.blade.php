@@ -69,11 +69,15 @@
                         </span>
                     </div>
                     <span class="px-3 py-1 rounded-full text-sm font-semibold 
-                        {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                           ($order->status === 'processing' ? 'bg-blue-100 text-blue-700' :
-                           ($order->status === 'shipping' ? 'bg-indigo-100 text-indigo-700' :
-                           ($order->status === 'completed' ? 'bg-green-100 text-green-700' :
-                           'bg-red-100 text-red-700'))) }}">
+                        {{ match($order->status) {
+                            'pending' => 'bg-yellow-100 text-yellow-700',
+                            'processing' => 'bg-blue-100 text-blue-700',
+                            'shipping' => 'bg-indigo-100 text-indigo-700', 
+                            'completed', 'paid' => 'bg-green-100 text-green-700',
+                            'unpaid' => 'bg-orange-100 text-orange-700',
+                            'failed', 'cancelled' => 'bg-red-100 text-red-700',
+                            default => 'bg-gray-100 text-gray-700'
+                        } }}">
                         {{ $order->status_label }}
                     </span>
                 </div>
@@ -116,9 +120,66 @@
             </div>
             @endforeach
         </div>
+        <!-- Phân trang hiện đại -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-gray-600">
+                Đang hiển thị <span class="font-semibold text-blue-600">{{ $orders->firstItem() ?: 0 }}-{{ $orders->lastItem() ?: 0 }}</span> 
+                trong tổng số <span class="font-semibold text-blue-600">{{ $orders->total() }}</span> đơn hàng
+            </p>
+            
+            <div class="flex items-center space-x-1">
+                <!-- Nút Previous -->
+                @if ($orders->onFirstPage())
+                    <span class="flex items-center px-4 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Trước
+                    </span>
+                @else
+                    <a href="{{ $orders->previousPageUrl() }}" 
+                    class="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Trước
+                    </a>
+                @endif
 
-        <div class="mt-6">
-            {{ $orders->links() }}
+                <!-- Số trang -->
+                <div class="flex items-center space-x-1 mx-2">
+                    @foreach ($orders->getUrlRange(max(1, $orders->currentPage() - 2), min($orders->lastPage(), $orders->currentPage() + 2)) as $page => $url)
+                        @if ($page == $orders->currentPage())
+                            <span class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg text-sm font-semibold shadow-md">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $url }}" 
+                            class="flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Nút Next -->
+                @if ($orders->hasMorePages())
+                    <a href="{{ $orders->nextPageUrl() }}" 
+                    class="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm">
+                        Sau
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                @else
+                    <span class="flex items-center px-4 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed">
+                        Sau
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                @endif
+            </div>
         </div>
     @else
         <div class="text-center py-12 bg-gray-50 rounded-xl">

@@ -48,6 +48,14 @@ class OrderController extends Controller
             if ($order->user_id != auth()->id()) {
                 abort(403);
             }
+            // CHO PHÉP hủy cả đơn hàng chưa thanh toán
+            if (in_array($order->status, ['unpaid', 'failed'])) {
+                // Cập nhật trạng thái đơn hàng
+                $order->update(['status' => 'cancelled']);
+                
+                return redirect()->route('client.orders.show', $order)
+                    ->with('success', 'Đơn hàng chưa thanh toán đã được hủy thành công.');
+            }
 
             if ($order->status === 'completed') {
                 return back()->with('error', 'Không thể hủy đơn hàng đã hoàn thành!');
@@ -148,5 +156,82 @@ class OrderController extends Controller
         session()->forget('cart');
 
         return redirect()->route('home')->with('success', 'Đặt hàng thành công!');
+    }
+    public function repay(Request $request, Order $order)
+    {
+        // Kiểm tra quyền truy cập
+        if (auth()->check() && $order->user_id !== auth()->id()) {
+            abort(403, 'Bạn không có quyền truy cập đơn hàng này.');
+        }
+
+        // Chỉ cho phép thanh toán lại với các trạng thái chưa thanh toán
+        if (!in_array($order->status, ['unpaid', 'failed'])) {
+            return redirect()->back()->with('error', 'Đơn hàng này không thể thanh toán lại.');
+        }
+
+        try {
+            // Sử dụng trực tiếp logic VNPay
+            $vnpUrl = $this->createVnpayUrl($order->id, $order->total, $request->ip());
+            
+            // Cập nhật ghi chú thanh toán (KHÔNG cập nhật status vì đã là unpaid/failed)
+            $order->update([
+                'payment_note' => 'Đang chờ thanh toán lại - ' . now()->format('H:i d/m/Y')
+            ]);
+
+            return redirect()->away($vnpUrl);
+
+        } catch (\Exception $e) {
+            \Log::error('Lỗi thanh toán lại: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi tạo giao dịch thanh toán: ' . $e->getMessage());
+        }
+    }
+        protected function createVnpayUrl($orderId, $amount, $ipAddress)
+    {
+        $vnp_Url = env('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
+        $vnp_TmnCode = env('VNP_TMNCODE');
+        $vnp_HashSecret = env('VNP_HASHSECRET');
+
+        if (!$vnp_TmnCode || !$vnp_HashSecret) {
+            throw new \Exception('Cấu hình VNPay chưa đầy đủ. Vui lòng kiểm tra file .env');
+        }
+
+        // TẠO MÃ GIAO DỊCH DUY NHẤT cho lần thanh toán lại
+        $uniqueTransactionRef = $orderId . '_' . time() . '_' . rand(1000, 9999);
+
+        $inputData = [
+            'vnp_Version' => '2.1.0',
+            'vnp_TmnCode' => $vnp_TmnCode,
+            'vnp_Amount' => intval($amount * 100),
+            'vnp_Command' => 'pay',
+            'vnp_CreateDate' => date('YmdHis'),
+            'vnp_CurrCode' => 'VND',
+            'vnp_IpAddr' => $ipAddress,
+            'vnp_Locale' => 'vn',
+            'vnp_OrderInfo' => "Thanh toán lại đơn hàng #$orderId",
+            'vnp_OrderType' => 'other',
+            'vnp_ReturnUrl' => route('checkout.vnpay.return'),
+            'vnp_TxnRef' => $uniqueTransactionRef, // Sử dụng mã duy nhất
+        ];
+
+        ksort($inputData);
+
+        $query = "";
+        $hashData = "";
+        $i = 0;
+
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashData .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
+
+        $vnpSecureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+        $vnp_Url .= "?" . $query . "vnp_SecureHash=" . $vnpSecureHash;
+
+        return $vnp_Url;
     }
 }

@@ -96,8 +96,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('client.orders.show');
     Route::put('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('client.orders.cancel');
+    Route::post('/orders/{order}/repay', [OrderController::class, 'repay'])->name('client.orders.repay');
 
-        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/{product}/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
@@ -138,6 +139,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Quản lý thương hiệu
         Route::resource('brands', AdminBrandController::class);
+
+        Route::patch('/admin/orders/{order}/update-status', [OrderAdminController::class, 'updateStatus'])->name('admin.orders.update-status');
 
         // Quản lý đơn hàng
         Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');

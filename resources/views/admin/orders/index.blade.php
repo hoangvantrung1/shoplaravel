@@ -21,20 +21,13 @@
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách
-                                hàng</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng
-                                tiền</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng
-                                thái</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hình
-                                thức</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày
-                                tạo</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Hành động</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hình thức</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -53,11 +46,11 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="text-sm font-semibold text-green-600">{{ number_format($order->total, 0, ',', '.') }}₫</span>
+                                    <span class="text-sm font-semibold text-green-600">{{ number_format($order->total, 0, ',', '.') }}₫</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
+                                        // ĐẦY ĐỦ các trạng thái tiếng Anh có thể có
                                         $statusColors = [
                                             'pending' => 'bg-yellow-100 text-yellow-800',
                                             'confirmed' => 'bg-blue-100 text-blue-800',
@@ -65,7 +58,13 @@
                                             'completed' => 'bg-green-100 text-green-800',
                                             'cancelled' => 'bg-red-100 text-red-800',
                                             'delivered' => 'bg-green-100 text-green-800',
-                                            'processing' => 'bg-blue-100 text-blue-800'
+                                            'processing' => 'bg-blue-100 text-blue-800',
+                                            'failed' => 'bg-red-100 text-red-800',
+                                            'success' => 'bg-green-100 text-green-800',
+                                            'paid' => 'bg-green-100 text-green-800',
+                                            'unpaid' => 'bg-yellow-100 text-yellow-800',
+                                            'error' => 'bg-red-100 text-red-800',
+                                            'total' => 'bg-green-100 text-green-800'
                                         ];
 
                                         $statusLabels = [
@@ -75,10 +74,16 @@
                                             'completed' => 'Hoàn thành',
                                             'cancelled' => 'Đã hủy',
                                             'delivered' => 'Đã giao',
-                                            'processing' => 'Đang xử lý'
+                                            'processing' => 'Đang xử lý',
+                                            'failed' => 'Thất bại',
+                                            'success' => 'Thành công',
+                                            'paid' => 'Đã thanh toán',
+                                            'unpaid' => 'Chưa thanh toán',
+                                            'error' => 'Lỗi',
+                                            'total' => 'Hoàn thành'
                                         ];
 
-                                        $currentStatus = $order->status;
+                                        $currentStatus = strtolower($order->status);
                                         $statusText = $statusLabels[$currentStatus] ?? ucfirst($currentStatus);
                                         $statusColor = $statusColors[$currentStatus] ?? 'bg-gray-100 text-gray-800';
                                     @endphp
