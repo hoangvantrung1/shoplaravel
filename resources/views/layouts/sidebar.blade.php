@@ -115,11 +115,6 @@
             <span class="material-icons">location_on</span>
             <span x-show="open" class="ml-2">Quản lý địa chỉ</span>
         </a>
-        <a href="{{ route('admin.chat-messages.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.chat-messages.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">chat</span>
-            <span x-show="open" class="ml-2">Tin nhắn</span>
-        </a>
         <a href="{{ route('admin.wishlists.index') }}"
             class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.wishlists.*') ? 'bg-green-100' : '' }}">
             <span class="material-icons">favorite</span>
