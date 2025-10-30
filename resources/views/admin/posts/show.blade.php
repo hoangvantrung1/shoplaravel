@@ -56,9 +56,9 @@
                     <h3 class="ml-3 font-semibold text-gray-800">Hình ảnh đại diện</h3>
                 </div>
                 <div class="space-y-3">
-                    @if($post->featured_image && $post->featuredImageExists())
+                    @if($post->featured_image && file_exists(public_path($post->featured_image)))
                         <div class="bg-white rounded-lg p-3 border border-gray-200">
-                            <img src="{{ $post->featured_image_url }}" 
+                            <img src="{{ asset($post->featured_image) }}" 
                                  alt="{{ $post->title }}"
                                  class="w-full h-48 object-cover rounded-lg">
                             <div class="mt-2 text-xs text-gray-500 text-center">
@@ -69,7 +69,7 @@
                         <div class="text-center py-8 bg-white rounded-lg border-2 border-dashed border-gray-300">
                             <span class="material-icons text-gray-400 text-4xl mb-2">image_not_supported</span>
                             <p class="text-gray-500 text-sm">Chưa có hình ảnh đại diện</p>
-                            @if($post->featured_image && !$post->featuredImageExists())
+                            @if($post->featured_image)
                                 <p class="text-red-400 text-xs mt-1">File không tồn tại: {{ $post->featured_image }}</p>
                             @endif
                         </div>
