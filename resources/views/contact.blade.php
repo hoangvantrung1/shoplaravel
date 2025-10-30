@@ -27,14 +27,6 @@
             <span class="flex items-center"><i class="fas fa-heart text-red-500 mr-1"></i>Chăm sóc tận tình</span>
         </div>
     </section>
-
-    {{-- Thông báo --}}
-    @if(session('success'))
-        <div class="max-w-3xl mx-auto bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 text-center" data-aos="fade-down">
-            {{ session('success') }}
-        </div>
-    @endif
-
     {{-- Form liên hệ & thông tin --}}
     <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

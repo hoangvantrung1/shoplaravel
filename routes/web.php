@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\ChatMessageController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\Admin\ReviewController; // THÊM DÒNG NÀY
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
@@ -17,7 +17,7 @@ use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\ReviewController as ClientReviewController; // ĐỔI TÊN CHO CLIENT
+use App\Http\Controllers\ReviewController as ClientReviewController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
@@ -55,7 +55,7 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->
 Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 
-//chatbot
+// chatbot
 Route::post('/chat/send', [ChatController::class, 'store'])->name('chat.send');
 
 // Social login
@@ -74,7 +74,7 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 // Product detail
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
 
-// SỬA DÒNG NÀY - sử dụng ClientReviewController
+// ClientReviewController
 Route::middleware('auth')->post('/product/{id}/reviews', [ClientReviewController::class, 'store'])->name('product.reviews.store');
 
 // Checkout
@@ -90,10 +90,9 @@ Route::post('/cart/coupon/remove', [CouponController::class, 'remove'])->name('c
 Route::get('/blog', [PageController::class, 'blog'])->name('blog');
 Route::get('/blog/{slug}', [PageController::class, 'blogDetail'])->name('blog.detail');
 
-// Trang Liên hệ
-Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::post('/contact', [PageController::class, 'contactSubmit'])->name('contact.submit');
-
+// Trang Liên hệ - SỬA LẠI: Sử dụng ContactController thay vì PageController
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'contact'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'contactSubmit'])->name('contact.submit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('client.orders.index');
@@ -105,6 +104,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/wishlist/{product}/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    
     // Profile
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
@@ -134,7 +134,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Quản lý users
         Route::resource('users', \App\Http\Controllers\Admin\AdminUserController::class);
 
-        //Quản lý admins
+        // Quản lý admins
         Route::get('/admin-profile', [\App\Http\Controllers\Admin\AdminAdminController::class, 'show'])->name('admins.index');
         Route::get('/admin-profile/edit', [\App\Http\Controllers\Admin\AdminAdminController::class, 'edit'])->name('admins.edit');
         Route::put('/admin-profile/update', [\App\Http\Controllers\Admin\AdminAdminController::class, 'update'])->name('admins.update');
@@ -158,13 +158,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Báo cáo
         Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
 
-        // SỬA DÒNG NÀY - sử dụng Admin ReviewController
+        // Quản lý đánh giá
         Route::resource('reviews', ReviewController::class);
 
         // Quản lý bài viết
         Route::resource('posts', PostController::class);
 
-        // Các quản lý khác
+        // Quản lý liên hệ
         Route::resource('contacts', ContactController::class);
 
         // Địa chỉ
