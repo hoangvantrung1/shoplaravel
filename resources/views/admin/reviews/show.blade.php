@@ -144,11 +144,6 @@
                     ID: {{ $review->id }}
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ route('admin.reviews.edit', $review) }}" 
-                       class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition duration-200 flex items-center shadow-sm">
-                        <span class="material-icons mr-2 text-sm">edit</span>
-                        Chỉnh sửa
-                    </a>
                     <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" 
                           onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?')">
                         @csrf
