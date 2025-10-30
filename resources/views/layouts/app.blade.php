@@ -287,9 +287,10 @@
                         @foreach($posts->take(3) as $post)
                                     <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                                         <div class="aspect-w-16 aspect-h-9 overflow-hidden">
-                                            <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}"
+                                            <img src="{{ $post->featured_image ? asset($post->featured_image) : asset('images/default-blog.jpg') }}"
                                                 alt="{{ $post->title }}"
-                                                class="w-full h-48 object-cover hover:scale-105 transition duration-300">
+                                                class="w-full h-48 object-cover hover:scale-105 transition duration-300"
+                                                onerror="this.src='{{ asset('images/default-blog.jpg') }}'">
                                         </div>
                                         <div class="p-6">
                                             <div class="flex items-center text-sm text-gray-500 mb-2">
@@ -309,7 +310,7 @@
                                                     {{ $category }}
                                                 </span>
                                                 <span class="mx-2">•</span>
-                                                <span>{{ $post->published_at->format('d/m/Y') }}</span>
+                                                <span>{{ $post->created_at->format('d/m/Y') }}</span>
                                             </div>
                                             <h3 class="text-xl font-bold text-gray-800 mb-3 hover:text-purple-600 transition">
                                                 <a href="{{ route('blog.detail', $post->slug) }}">{{ Str::limit($post->title, 50) }}</a>

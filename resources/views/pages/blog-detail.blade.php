@@ -65,9 +65,9 @@
                             class="bg-{{ $categoryColor }}-100 text-{{ $categoryColor }}-600 px-3 py-1 rounded-full text-sm font-medium">
                             {{ $category }}
                         </span>
-                        <span class="text-gray-500"><i
-                                class="far fa-clock mr-1"></i>{{ $post->published_at->diffForHumans() }}</span>
-                        <span class="text-gray-500"><i class="far fa-eye mr-1"></i>{{ $post->view_count }} lượt xem</span>
+                        <span class="text-gray-500">
+                            <i class="far fa-clock mr-1"></i>{{ ($post->published_at ?? $post->created_at)->diffForHumans() }}
+                        </span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="text-gray-500">Chia sẻ:</span>

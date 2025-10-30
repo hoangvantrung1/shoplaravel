@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Thêm Bài viết Mới')
+@section('title', 'Chỉnh sửa Bài viết')
 
 @section('content')
 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -8,8 +8,8 @@
     <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-white">Thêm Bài viết Mới</h1>
-                <p class="text-green-100 mt-1">Tạo bài viết mới cho website</p>
+                <h1 class="text-2xl font-bold text-white">Chỉnh sửa Bài viết</h1>
+                <p class="text-green-100 mt-1">Cập nhật thông tin bài viết #{{ $post->id }}</p>
             </div>
             <a href="{{ route('admin.posts.index') }}" 
                class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition duration-200 flex items-center shadow-sm">
@@ -20,8 +20,9 @@
     </div>
 
     <div class="p-6">
-        <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.posts.update', $post) }}" method="POST" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Thông tin chính -->
@@ -32,7 +33,7 @@
                         <input type="text" 
                                id="title"
                                name="title" 
-                               value="{{ old('title') }}"
+                               value="{{ old('title', $post->title) }}"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
                                placeholder="Nhập tiêu đề bài viết"
                                required>
@@ -47,7 +48,7 @@
                         <input type="text" 
                                id="slug"
                                name="slug" 
-                               value="{{ old('slug') }}"
+                               value="{{ old('slug', $post->slug) }}"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
                                placeholder="slug-bai-viet"
                                required>
@@ -64,7 +65,7 @@
                             name="excerpt"
                             rows="3"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
-                            placeholder="Mô tả ngắn về bài viết">{{ old('excerpt') }}</textarea>
+                            placeholder="Mô tả ngắn về bài viết">{{ old('excerpt', $post->excerpt) }}</textarea>
                         @error('excerpt')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -79,7 +80,7 @@
                             rows="12"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
                             placeholder="Nhập nội dung bài viết"
-                            required>{{ old('content') }}</textarea>
+                            required>{{ old('content', $post->content) }}</textarea>
                         @error('content')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -93,21 +94,47 @@
                         <h3 class="font-semibold text-gray-800 mb-4">Trạng thái</h3>
                         <select name="status" 
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
-                            <option value="draft" {{ old('status') === 'draft' ? 'selected' : '' }}>Bản nháp</option>
-                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>Đã xuất bản</option>
+                            <option value="draft" {{ old('status', $post->status) === 'draft' ? 'selected' : '' }}>Bản nháp</option>
+                            <option value="published" {{ old('status', $post->status) === 'published' ? 'selected' : '' }}>Đã xuất bản</option>
                         </select>
-                        @error('status')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Hình ảnh -->
                     <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
                         <h3 class="font-semibold text-gray-800 mb-4">Hình ảnh đại diện</h3>
                         
-                        <!-- Upload hình ảnh -->
+                        <!-- Hiển thị hình ảnh hiện tại -->
+                        <div id="current-image-container" class="mb-4">
+                            @if($post->featured_image && file_exists(public_path($post->featured_image)))
+                                <div class="relative">
+                                    <img src="{{ asset($post->featured_image) }}" 
+                                         alt="Featured image" 
+                                         class="w-full h-48 object-cover rounded-lg border border-gray-200"
+                                         id="current-image">
+                                    <button type="button" 
+                                            onclick="removeCurrentImage()"
+                                            class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition duration-200">
+                                        <span class="material-icons text-sm">close</span>
+                                    </button>
+                                </div>
+                                <input type="hidden" name="current_image" value="{{ $post->featured_image }}" id="current-image-input">
+                                <div class="mt-2 text-xs text-gray-500 text-center">
+                                    <p>Đường dẫn: {{ $post->featured_image }}</p>
+                                </div>
+                            @else
+                                <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                                    <span class="material-icons text-gray-400 text-4xl mb-2">image</span>
+                                    <p class="text-gray-500 text-sm">Chưa có hình ảnh</p>
+                                    @if($post->featured_image)
+                                        <p class="text-red-400 text-xs mt-1">File không tồn tại: {{ $post->featured_image }}</p>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Upload hình ảnh mới -->
                         <div id="image-upload-container">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tải lên hình ảnh</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tải lên hình ảnh mới</label>
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-500 transition duration-200 cursor-pointer"
                                  onclick="document.getElementById('featured_image').click()">
                                 <span class="material-icons text-gray-400 text-3xl mb-2">cloud_upload</span>
@@ -129,26 +156,51 @@
                                     Xóa ảnh preview
                                 </button>
                             </div>
-                            @error('featured_image')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Thông tin bổ sung -->
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                        <h3 class="font-semibold text-gray-800 mb-4">Thông tin</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Ngày tạo:</span>
+                                <span class="font-medium">{{ $post->created_at->format('d/m/Y H:i') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Cập nhật:</span>
+                                <span class="font-medium">{{ $post->updated_at->format('d/m/Y H:i') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">ID:</span>
+                                <span class="font-medium">{{ $post->id }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('admin.posts.index') }}" 
-                   class="bg-gray-300 text-gray-700 px-6 py-2.5 rounded-lg font-medium hover:bg-gray-400 transition duration-200 flex items-center">
-                    <span class="material-icons mr-2 text-sm">cancel</span>
-                    Hủy bỏ
-                </a>
-                <button type="submit" 
-                        class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition duration-200 flex items-center shadow-sm">
-                    <span class="material-icons mr-2 text-sm">save</span>
-                    Tạo Bài viết
-                </button>
+            <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                <div>
+                    <a href="{{ route('admin.posts.show', $post) }}" 
+                       class="text-green-600 hover:text-green-800 flex items-center font-medium">
+                        <span class="material-icons mr-2">visibility</span>
+                        Xem chi tiết
+                    </a>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ route('admin.posts.index') }}" 
+                       class="bg-gray-300 text-gray-700 px-6 py-2.5 rounded-lg font-medium hover:bg-gray-400 transition duration-200 flex items-center">
+                        <span class="material-icons mr-2 text-sm">cancel</span>
+                        Hủy bỏ
+                    </a>
+                    <button type="submit" 
+                            class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition duration-200 flex items-center shadow-sm">
+                        <span class="material-icons mr-2 text-sm">save</span>
+                        Cập nhật Bài viết
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -195,6 +247,19 @@ function removePreview() {
     document.getElementById('featured_image').value = '';
     document.getElementById('image-preview').classList.add('hidden');
     document.getElementById('preview').src = '';
+}
+
+// Xóa hình ảnh hiện tại
+function removeCurrentImage() {
+    if (confirm('Bạn có chắc muốn xóa hình ảnh hiện tại?')) {
+        document.getElementById('current-image-container').innerHTML = `
+            <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                <span class="material-icons text-gray-400 text-4xl mb-2">image</span>
+                <p class="text-gray-500 text-sm">Đã xóa hình ảnh</p>
+            </div>
+            <input type="hidden" name="remove_image" value="1">
+        `;
+    }
 }
 </script>
 @endsection
