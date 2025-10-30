@@ -203,12 +203,23 @@
                                         'confirmed' => 'bg-blue-100 text-blue-800',
                                         'shipping' => 'bg-purple-100 text-purple-800',
                                         'completed' => 'bg-green-100 text-green-800',
-                                        'cancelled' => 'bg-red-100 text-red-800'
+                                        'cancelled' => 'bg-red-100 text-red-800',
+                                        'paid' => 'bg-green-100 text-green-800' // Thêm trạng thái paid
                                     ];
                                     $statusColor = $statusColors[$order->status] ?? 'bg-gray-100 text-gray-800';
+                                    
+                                    $statusText = [
+                                        'pending' => 'Chờ xử lý',
+                                        'confirmed' => 'Đã xác nhận',
+                                        'shipping' => 'Đang giao hàng',
+                                        'completed' => 'Hoàn thành',
+                                        'cancelled' => 'Đã hủy',
+                                        'paid' => 'Đã thanh toán' // Thêm text cho paid
+                                    ];
+                                    $displayStatus = $statusText[$order->status] ?? ucfirst($order->status);
                                 @endphp
                                 <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusColor }}">
-                                    {{ ucfirst($order->status) }}
+                                    {{ $displayStatus }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
