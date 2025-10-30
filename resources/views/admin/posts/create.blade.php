@@ -4,11 +4,15 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow">
-    <div class="p-6 border-b">
-        <h2 class="text-2xl font-bold text-gray-800">Thêm Bài viết Mới</h2>
-        <p class="text-gray-600">Tạo bài viết mới cho website</p>
+    <!-- Header Thêm Bài viết Mới -->
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Thêm Bài viết Mới</h2>
+                <p class="text-green-100 mt-1">Tạo bài viết mới cho website</p>
+            </div>
+        </div>
     </div>
-
     <div class="p-6">
         <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
             @csrf

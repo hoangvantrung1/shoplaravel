@@ -4,18 +4,19 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow">
-    <div class="p-6 border-b flex justify-between items-center">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800">Quản lý Bài viết</h2>
-            <p class="text-gray-600">Quản lý bài viết và tin tức</p>
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Quản lý Bài viết</h1>
+                <p class="text-green-100 mt-1">Quản lý bài viết và tin tức</p>
+            </div>
+            <a href="{{ route('admin.posts.create') }}"
+                class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition duration-200 flex items-center shadow-sm">
+                <i class="fas fa-plus mr-2"></i> Thêm Bài viết
+            </a>
         </div>
-        <a href="{{ route('admin.posts.create') }}" 
-           class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center">
-            <span class="material-icons mr-2 text-sm">add</span>
-            Thêm Bài viết
-        </a>
     </div>
-
     <div class="p-6">
         @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">

@@ -4,9 +4,13 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow">
-    <div class="p-6 border-b">
-        <h2 class="text-2xl font-bold text-gray-800">Quản lý Đánh giá</h2>
-        <p class="text-gray-600">Quản lý và xem đánh giá từ khách hàng</p>
+    <div class="bg-gradient-to-r from-green-500 to-green-700 px-6 py-4 rounded-t-lg shadow-md">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Quản lý Đánh giá</h1>
+                <p class="text-green-100 mt-1">Quản lý và xem đánh giá từ khách hàng</p>
+            </div>
+        </div>
     </div>
 
     <div class="p-6">
