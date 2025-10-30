@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ChatMessageController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\WishlistManagementController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
@@ -174,7 +175,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('chat-messages', ChatMessageController::class);
 
         // Wishlists
-        Route::resource('wishlists', WishlistController::class);
+        Route::get('/wishlists', [WishlistManagementController::class, 'index'])->name('wishlists.index');
+        Route::get('/wishlists/statistics', [WishlistManagementController::class, 'statistics'])->name('wishlists.statistics');
+        Route::get('/wishlists/user/{user}', [WishlistManagementController::class, 'show'])->name('wishlists.show');
+        Route::delete('/wishlists/{userId}/product/{productId}', [WishlistManagementController::class, 'removeFromWishlist'])->name('wishlists.remove');
         
         // Coupons
         Route::resource('coupons', AdminCouponController::class);

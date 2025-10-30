@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow">
-    <div class="bg-gradient-to-r from-green-500 to-green-700 px-6 py-4 rounded-t-lg shadow-md">
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4 rounded-t-lg shadow-md">
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-bold text-white">Quản lý Địa chỉ</h1>
