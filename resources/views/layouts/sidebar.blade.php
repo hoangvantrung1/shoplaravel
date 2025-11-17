@@ -1,124 +1,99 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://kit.fontawesome.com/bdc6329ab7.js" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<aside x-data="{ open: true }" class="bg-white shadow flex flex-col transition-all duration-300 relative"
-    :class="open ? 'w-64' : 'w-16'">
-    <div class="p-6 flex justify-between items-center border-b">
-        <span class="text-2xl font-bold text-green-600" x-show="open">AdminPanel</span>
-        <button @click="open = !open" class="md:hidden focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+@php
+    $menuItems = [
+        ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'admin.dashboard', 'match' => 'admin.dashboard'],
+        ['label' => 'Sản phẩm', 'icon' => 'inventory_2', 'route' => 'admin.products.index', 'match' => 'admin.products.*'],
+        ['label' => 'Đơn hàng', 'icon' => 'shopping_cart', 'route' => 'admin.orders.index', 'match' => 'admin.orders.*'],
+        ['label' => 'Danh mục', 'icon' => 'category', 'route' => 'admin.categories.index', 'match' => 'admin.categories.*'],
+        ['label' => 'Thương hiệu', 'icon' => 'shopping_bag', 'route' => 'admin.brands.index', 'match' => 'admin.brands.*'],
+        ['label' => 'Doanh thu', 'icon' => 'account_balance', 'route' => 'admin.reports.sales', 'match' => 'admin.reports.sales'],
+        ['label' => 'Phiếu giảm giá', 'icon' => 'confirmation_number', 'route' => 'admin.coupons.index', 'match' => 'admin.coupons.*'],
+        ['label' => 'Đánh giá', 'icon' => 'reviews', 'route' => 'admin.reviews.index', 'match' => 'admin.reviews.*'],
+        ['label' => 'Bài viết', 'icon' => 'article', 'route' => 'admin.posts.index', 'match' => 'admin.posts.*'],
+        ['label' => 'Liên hệ', 'icon' => 'contact_mail', 'route' => 'admin.contacts.index', 'match' => 'admin.contacts.*'],
+        ['label' => 'Địa chỉ', 'icon' => 'location_on', 'route' => 'admin.addresses.index', 'match' => 'admin.addresses.*'],
+        ['label' => 'Yêu thích', 'icon' => 'favorite', 'route' => 'admin.wishlists.index', 'match' => 'admin.wishlists.*'],
+    ];
+@endphp
+
+<aside x-data="{ open: true, accountOpen: {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.admins.*') ? 'true' : 'false' }} }"
+    class="bg-white/95 backdrop-blur shadow-lg flex flex-col transition-all duration-300 border-r border-gray-100"
+    :class="open ? 'w-64' : 'w-20'">
+
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-400 text-white flex items-center justify-center font-bold">AP</div>
+            <div x-show="open" class="leading-tight">
+                <p class="text-sm text-gray-500">Quản trị hệ thống</p>
+                <p class="text-lg font-semibold text-gray-900">Admin Panel</p>
+            </div>
+        </div>
+        <button @click="open = !open" class="hidden md:flex items-center justify-center w-9 h-9 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
+            <span class="material-icons" x-show="open">chevron_left</span>
+            <span class="material-icons" x-show="!open">chevron_right</span>
         </button>
     </div>
-    
-    <nav class="flex-1 mt-6 flex flex-col">
-        <!-- Dashboard -->
-        <a href="{{ route('admin.dashboard') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.dashboard') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">dashboard</span>
-            <span x-show="open" class="ml-2">Dashboard</span>
-        </a>
 
-        <!-- Sản phẩm -->
-        <a href="{{ route('admin.products.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.products.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">inventory_2</span>
-            <span x-show="open" class="ml-2">Sản phẩm</span>
-        </a>
+    <div class="px-5 py-4 border-b border-gray-50" x-show="open">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-semibold">
+                {{ strtoupper(substr(auth('admin')->user()->name ?? 'A', 0, 1)) }}
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Xin chào,</p>
+                <p class="font-semibold text-gray-900 truncate">{{ auth('admin')->user()->name ?? 'Admin' }}</p>
+            </div>
+        </div>
+    </div>
 
-        <!-- Đơn hàng -->
-        <a href="{{ route('admin.orders.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.orders.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">shopping_cart</span>
-            <span x-show="open" class="ml-2">Đơn hàng</span>
-        </a>
+    <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+        <p class="text-xs uppercase tracking-widest text-gray-400 px-4" x-show="open">Chức năng chính</p>
 
-        <!-- Dropdown Quản lý tài khoản -->
-        <div x-data="{ openDropdown: false }">
-            <button @click="openDropdown = !openDropdown"
-                class="px-6 py-3 flex items-center justify-between w-full font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.admins.*') ? 'bg-green-100' : '' }}">
-                <div class="flex items-center">
-                    <span class="material-icons">account_circle</span>
-                    <span x-show="open" class="ml-2">Quản lý tài khoản</span>
+        @foreach ($menuItems as $item)
+            @php
+                $active = request()->routeIs($item['match']);
+            @endphp
+            <a href="{{ route($item['route']) }}"
+                class="group mx-3 px-3 py-2 rounded-xl flex items-center text-sm font-medium transition
+                    {{ $active ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600 hover:bg-gray-50' }}"
+                title="{{ $item['label'] }}">
+                <span class="material-icons text-[20px]">{{ $item['icon'] }}</span>
+                <span x-show="open" class="ml-3 flex-1">{{ $item['label'] }}</span>
+                @if($active)
+                    <span x-show="open" class="text-xs font-semibold text-emerald-500">Đang xem</span>
+                @endif
+            </a>
+        @endforeach
+
+        <div class="px-3">
+            <div class="h-px bg-gray-100 my-3"></div>
+        </div>
+
+        <!-- Quản lý tài khoản -->
+        <div class="mx-3">
+            <button @click="accountOpen = !accountOpen"
+                class="w-full px-3 py-2 rounded-xl flex items-center justify-between text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+                <div class="flex items-center space-x-3">
+                    <span class="material-icons text-[20px]">manage_accounts</span>
+                    <span x-show="open">Quản lý tài khoản</span>
                 </div>
-                <span x-show="open" class="material-icons text-sm transition-transform duration-200"
-                    :class="{ 'rotate-180': openDropdown }">expand_more</span>
+                <span class="material-icons text-sm transition-transform duration-200"
+                    :class="{ 'rotate-180': accountOpen }" x-show="open">expand_more</span>
             </button>
-
-            <!-- Dropdown nằm ngay dưới, không position absolute -->
-            <div x-show="openDropdown"
-                x-transition
-                class="bg-gray-50 ml-6 mt-1 rounded-lg overflow-hidden"
-                @click.outside="openDropdown = false"
-                style="display: none;">
+            <div x-show="accountOpen" x-collapse class="mt-2 space-y-1 pl-3 border-l border-gray-100" x-cloak>
                 <a href="{{ route('admin.users.index') }}"
-                class="flex items-center px-6 py-2 text-sm text-gray-700 hover:bg-green-50 border-b border-gray-100 transition-colors duration-200"
-                @click="openDropdown = false">
-                    <span class="material-icons text-blue-500 mr-2 text-lg">people</span>
-                    <span>Quản lý User</span>
+                    class="flex items-center px-3 py-2 text-sm rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-icons text-sm mr-2 text-blue-500">people</span>
+                    <span x-show="open">Quản lý User</span>
                 </a>
-
                 <a href="{{ route('admin.admins.index') }}"
-                class="flex items-center px-6 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors duration-200"
-                @click="openDropdown = false">
-                    <span class="material-icons text-purple-500 mr-2 text-lg">admin_panel_settings</span>
-                    <span>Quản lý Admin</span>
+                    class="flex items-center px-3 py-2 text-sm rounded-lg {{ request()->routeIs('admin.admins.*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-icons text-sm mr-2 text-purple-500">admin_panel_settings</span>
+                    <span x-show="open">Quản lý Admin</span>
                 </a>
             </div>
         </div>
-        <!-- Danh mục -->
-        <a href="{{ route('admin.categories.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.categories.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">category</span>
-            <span x-show="open" class="ml-2">Quản lý danh mục</span>
-        </a>
-
-        <!-- Thương hiệu -->
-        <a href="{{ route('admin.brands.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.brands.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">shopping_bag</span>
-            <span x-show="open" class="ml-2">Quản lý thương hiệu</span>
-        </a>
-
-        <!-- Doanh thu -->
-        <a href="{{ route('admin.reports.sales') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.reports.sales') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">account_balance</span>
-            <span x-show="open" class="ml-2">Quản lý doanh thu</span>
-        </a>
-
-        <!-- Phiếu giảm giá -->
-        <a href="{{ route('admin.coupons.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.coupons.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">confirmation_number</span>
-            <span x-show="open" class="ml-2">Quản lý phiếu giảm giá</span>
-        </a>
-        <a href="{{ route('admin.reviews.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.reviews.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">reviews</span>
-            <span x-show="open" class="ml-2">Quản lý đánh giá</span>
-        </a>
-        <a href="{{ route('admin.posts.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.posts.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">article</span>
-            <span x-show="open" class="ml-2">Quản lý bài viết</span>
-        </a>
-        <a href="{{ route('admin.contacts.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.contacts.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">contact_mail</span>
-            <span x-show="open" class="ml-2">Quản lý liên hệ</span>
-        </a>
-        <a href="{{ route('admin.addresses.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.addresses.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">location_on</span>
-            <span x-show="open" class="ml-2">Quản lý địa chỉ</span>
-        </a>
-        <a href="{{ route('admin.wishlists.index') }}"
-            class="px-6 py-3 flex items-center font-semibold hover:bg-green-100 transition {{ request()->routeIs('admin.wishlists.*') ? 'bg-green-100' : '' }}">
-            <span class="material-icons">favorite</span>
-            <span x-show="open" class="ml-2">Sản phẩm yêu thích</span>
-        </a>
     </nav>
 </aside>

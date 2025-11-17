@@ -1,33 +1,28 @@
-<header class="bg-white shadow sticky top-0 z-10 py-4 px-6 flex justify-between items-center">
-    <div class="flex items-center space-x-4">
-        <span class="font-bold text-lg"></span>
-    </div>
-    <div class="flex items-center space-x-4">
-        {{-- Hiển thị tên admin --}}
-        @auth('admin')
-            <div class="flex items-center text-gray-700 space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M5.121 17.804A9.004 9.004 0 0112 15c2.21 0 4.21.802 5.879 2.137M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="font-medium">Xin chào, {{ Auth::guard('admin')->user()->name }}</span>
-                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">Admin</span>
-            </div>
-        @endauth
+<header class="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-100">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-6">
+        <div class="flex-1"></div>
 
-        {{-- Đăng xuất --}}
-        <form method="POST" action="{{ route('admin.logout') }}">
-            @csrf
-            <button type="submit" class="flex items-center text-red-600 font-semibold hover:text-red-500 transition">
-                {{-- Icon logout --}}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-14v1" />
-                </svg>
-                Đăng xuất
-            </button>
-        </form>
+        <div class="flex items-center space-x-4">
+            @auth('admin')
+                <div class="hidden sm:flex items-center bg-gray-50 rounded-2xl px-4 py-2 border border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 text-white flex items-center justify-center font-semibold uppercase mr-3">
+                        {{ strtoupper(Str::substr(Auth::guard('admin')->user()->name, 0, 1)) }}
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">{{ Auth::guard('admin')->user()->name }}</p>
+                        <p class="text-xs text-gray-500">Super Admin</p>
+                    </div>
+                </div>
+            @endauth
+
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-100 text-red-600 font-semibold hover:bg-red-50 transition">
+                    <span class="material-icons text-base">logout</span>
+                    <span class="hidden sm:inline">Đăng xuất</span>
+                </button>
+            </form>
+        </div>
     </div>
 </header>
