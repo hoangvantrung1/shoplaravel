@@ -144,7 +144,7 @@ class ChatController extends Controller
             
             foreach ($allProducts as $p) {
                 $score = 0;
-                $productNameLower = mb_strtolower($p->name, 'UTF-8');
+                $productNameLower = mb_strtolower($p->name ?? '', 'UTF-8');
                 $productSlugLower = mb_strtolower($p->slug ?? '', 'UTF-8');
                 $productDescLower = mb_strtolower(strip_tags($p->description ?? ''), 'UTF-8');
                 $brandNameLower = mb_strtolower($p->brand->name ?? '', 'UTF-8');
@@ -228,34 +228,43 @@ class ChatController extends Controller
         }
 
         // Nếu vẫn chưa có product, thử tìm theo category/brand (ưu tiên brand trước)
+        // CHỈ tìm khi có productTokens (có từ khóa sản phẩm cụ thể)
+        // KHÔNG tự động lấy sản phẩm đầu tiên - sẽ trả về danh sách gợi ý
         $category = null;
         $brand = null;
         if (!$product && !empty($productTokens)) {
             // Ưu tiên tìm theo brand trước (vì brand thường cụ thể hơn)
             $brandSearchTerms = $productTokens;
             foreach ($brandSearchTerms as $term) {
+                if (strlen($term) < 2) continue; // Bỏ qua từ quá ngắn
                 // Tìm brand: name và slug (case insensitive)
                 $brand = Brand::where(function ($q) use ($term) {
                     $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($term) . '%'])
                       ->orWhereRaw('LOWER(slug) LIKE ?', ['%' . strtolower($term) . '%']);
                 })->first();
                 if ($brand) {
-                    // Nếu tìm thấy brand, lấy sản phẩm đầu tiên của brand đó
-                    $product = $brand->products()->first();
+                    // KHÔNG tự động lấy sản phẩm đầu tiên - sẽ trả về danh sách gợi ý
                     break;
                 }
             }
             
             // Nếu vẫn chưa tìm thấy brand, thử tìm sản phẩm trực tiếp với term (fallback)
-            if (!$product && !$brand) {
+            // Nhưng CHỈ tìm để lấy brand/category, KHÔNG tự động chọn sản phẩm
+            if (!$brand) {
                 foreach ($brandSearchTerms as $term) {
                     if (strlen($term) > 2) {
-                        $product = Product::whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($term) . '%'])->first();
-                        if ($product) {
-                            // Nếu tìm thấy sản phẩm, thử tìm brand của nó
-                            if ($product->brand_id) {
-                                $brand = Brand::find($product->brand_id);
+                        $foundProduct = Product::with(['brand', 'category'])
+                            ->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($term) . '%'])
+                            ->first();
+                        if ($foundProduct) {
+                            // Nếu tìm thấy sản phẩm, lấy brand và category của nó
+                            if ($foundProduct->brand_id) {
+                                $brand = Brand::find($foundProduct->brand_id);
                             }
+                            if ($foundProduct->category_id) {
+                                $category = Category::find($foundProduct->category_id);
+                            }
+                            // KHÔNG set $product - sẽ trả về danh sách gợi ý
                             break;
                         }
                     }
@@ -295,33 +304,59 @@ class ChatController extends Controller
             $suggestions = [];
             if ($category) {
                 $candidates = $category->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
-                $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
-                $reply = 'Mình tìm thấy một số sản phẩm trong danh mục ' . $category->name . '.';
-                if ($askPrice || $askStock || $askDesc) {
-                    $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                if ($candidates->isNotEmpty()) {
+                    $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+                    $reply = 'Mình tìm thấy một số sản phẩm trong danh mục ' . $category->name . '.';
+                    if ($askPrice || $askStock || $askDesc) {
+                        $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                    } else {
+                        $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                    }
+                    return [
+                        'reply' => $reply,
+                        'product' => null,
+                        'suggestions' => $suggestions,
+                    ];
                 } else {
-                    $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                    // Category không có sản phẩm
+                    $reply = 'Danh mục ' . $category->name . ' hiện chưa có sản phẩm nào.';
+                    if ($askPrice || $askStock || $askDesc) {
+                        $reply .= ' Bạn có thể tìm kiếm sản phẩm khác nhé.';
+                    }
+                    return [
+                        'reply' => $reply,
+                        'product' => null,
+                        'suggestions' => [],
+                    ];
                 }
-                return [
-                    'reply' => $reply,
-                    'product' => null,
-                    'suggestions' => $suggestions,
-                ];
             }
             if ($brand) {
                 $candidates = $brand->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
-                $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
-                $reply = 'Mình tìm thấy một số sản phẩm của thương hiệu ' . $brand->name . '.';
-                if ($askPrice || $askStock || $askDesc) {
-                    $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                if ($candidates->isNotEmpty()) {
+                    $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+                    $reply = 'Mình tìm thấy một số sản phẩm của thương hiệu ' . $brand->name . '.';
+                    if ($askPrice || $askStock || $askDesc) {
+                        $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                    } else {
+                        $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                    }
+                    return [
+                        'reply' => $reply,
+                        'product' => null,
+                        'suggestions' => $suggestions,
+                    ];
                 } else {
-                    $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                    // Brand không có sản phẩm
+                    $reply = 'Thương hiệu ' . $brand->name . ' hiện chưa có sản phẩm nào.';
+                    if ($askPrice || $askStock || $askDesc) {
+                        $reply .= ' Bạn có thể tìm kiếm sản phẩm khác nhé.';
+                    }
+                    return [
+                        'reply' => $reply,
+                        'product' => null,
+                        'suggestions' => [],
+                    ];
                 }
-                return [
-                    'reply' => $reply,
-                    'product' => null,
-                    'suggestions' => $suggestions,
-                ];
             }
         }
 
@@ -394,8 +429,9 @@ class ChatController extends Controller
             }
 
             if (str_contains($message, 'thương hiệu') || str_contains($message, 'hãng')) {
-                $reply = $product->brand
-                    ? "{$product->name} thuộc thương hiệu {$product->brand->name}."
+                $brandName = $product->brand ? $product->brand->name : null;
+                $reply = $brandName
+                    ? "{$product->name} thuộc thương hiệu {$brandName}."
                     : "{$product->name} hiện chưa có thông tin thương hiệu.";
                 if (!empty($suggestions)) {
                     $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
@@ -523,15 +559,27 @@ class ChatController extends Controller
 
         // Nếu có gợi ý, trả về thông điệp tích cực thay vì báo không tìm thấy
         if (!empty($suggestions)) {
+            $reply = 'Mình gợi ý một số sản phẩm liên quan, bạn xem thử bên dưới nhé:';
+            // Nếu có intent nhưng không có sản phẩm cụ thể, thêm hướng dẫn
+            if ($askPrice || $askStock || $askDesc) {
+                $reply .= ' Bạn có thể chọn một sản phẩm để xem thông tin chi tiết.';
+            }
             return [
-                'reply' => 'Mình gợi ý một số sản phẩm liên quan, bạn xem thử bên dưới nhé:',
+                'reply' => $reply,
                 'product' => null,
                 'suggestions' => $suggestions,
             ];
         }
 
+        // Trường hợp không tìm thấy gì
+        $reply = 'Mình chưa tìm thấy sản phẩm nào liên quan đến câu hỏi của bạn 😢.';
+        if ($askPrice || $askStock || $askDesc) {
+            $reply .= ' Bạn có thể gõ tên sản phẩm cụ thể hoặc thương hiệu để mình tìm giúp nhé.';
+        } else {
+            $reply .= ' Bạn có thể gõ rõ tên sản phẩm hơn không?';
+        }
         return [
-            'reply' => 'Mình chưa tìm thấy sản phẩm nào liên quan đến câu hỏi của bạn 😢. Bạn có thể gõ rõ tên sản phẩm hơn không?',
+            'reply' => $reply,
             'product' => null,
             'suggestions' => [],
         ];
