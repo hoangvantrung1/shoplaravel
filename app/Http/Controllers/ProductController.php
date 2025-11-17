@@ -14,7 +14,8 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $brands = Brand::all();
-        $query = Product::query();
+        // Eager load relationships để tránh N+1 query
+        $query = Product::with(['category', 'brand']);
         $posts = Post::latest()->paginate(6);
 
         // Lọc theo tìm kiếm
@@ -53,8 +54,8 @@ class ProductController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        // Phân trang
-        $products = $query->orderBy('id', 'asc')->paginate(12)->withQueryString();
+        // Phân trang - giữ nguyên query string khi phân trang
+        $products = $query->orderBy('id', 'asc')->paginate(12)->appends($request->query());
 
         // $products = $query->paginate(12)->withQueryString();
 
@@ -71,15 +72,16 @@ class ProductController extends Controller
             $brand = Brand::find($request->get('brand_id'));
             $brandName = $brand ? $brand->name : null;
         }
-        $newProductsQuery = Product::query();
-        $newProducts = Product::withCount('reviews')
+        // Eager load relationships để tránh N+1 query
+        $newProducts = Product::with(['category', 'brand'])
+            ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
-        $featuredProductsQuery = Product::query();
-        $featuredProducts = Product::withCount('reviews')
+        $featuredProducts = Product::with(['category', 'brand'])
+            ->withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->orderBy('created_at', 'desc')
             ->limit(8)

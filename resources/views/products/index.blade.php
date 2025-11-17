@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Wishlist functionality
     window.toggleWishlist = async function(productId, button) {
-        console.log('Toggle wishlist called for product:', productId);
+        // Removed console.log for production
         const icon = button.querySelector('i');
         const isInWishlist = icon.classList.contains('text-red-500');
         
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const data = await response.json();
-            console.log('Response:', data);
+            // Removed console.log for production
             
             if (data.success) {
                 if (data.action === 'added') {
