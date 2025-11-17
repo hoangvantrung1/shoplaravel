@@ -43,6 +43,7 @@ class Order extends Model
             'unpaid' => 'Chưa thanh toán', // THÊM TRẠNG THÁI NÀY
             'pending' => 'Chờ xử lý',
             'processing' => 'Đang xử lý',
+            'confirmed' => 'Đã xác nhận',
             'completed' => 'Giao thành công',
             'shipping' => 'Đang giao',
             'cancelled' => 'Đã hủy',
@@ -63,6 +64,7 @@ class Order extends Model
             'unpaid' => 'bg-yellow-100 text-yellow-800',
             'pending' => 'bg-blue-100 text-blue-800',
             'processing' => 'bg-purple-100 text-purple-800',
+            'confirmed' => 'bg-indigo-100 text-indigo-700',
             'completed' => 'bg-green-100 text-green-800',
             'shipping' => 'bg-indigo-100 text-indigo-700',
             'cancelled' => 'bg-red-100 text-red-800',

@@ -13,6 +13,7 @@
                 '' => 'Tất cả',
                 'pending' => 'Chờ xác nhận',
                 'processing' => 'Đang xử lý',
+                'confirmed' => 'Đã xác nhận',
                 'shipping' => 'Đang giao',
                 'completed' => 'Hoàn thành',
                 'cancelled' => 'Đã hủy',
@@ -72,7 +73,8 @@
                         {{ match($order->status) {
                             'pending' => 'bg-yellow-100 text-yellow-700',
                             'processing' => 'bg-blue-100 text-blue-700',
-                            'shipping' => 'bg-indigo-100 text-indigo-700', 
+                            'shipping' => 'bg-indigo-100 text-indigo-700',
+                            'confirmed' => 'bg-indigo-100 text-indigo-700', 
                             'completed', 'paid' => 'bg-green-100 text-green-700',
                             'unpaid' => 'bg-orange-100 text-orange-700',
                             'failed', 'cancelled' => 'bg-red-100 text-red-700',
