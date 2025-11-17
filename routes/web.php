@@ -158,6 +158,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Báo cáo
         Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
+        Route::get('/reports/sales/data', [DashboardController::class, 'salesData'])->name('reports.sales.data');
+        Route::get('/reports/sales/export', [DashboardController::class, 'exportSales'])->name('reports.sales.export');
 
         // Quản lý đánh giá
         Route::resource('reviews', ReviewController::class);

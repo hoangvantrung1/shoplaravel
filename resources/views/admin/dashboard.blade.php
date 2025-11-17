@@ -147,19 +147,25 @@
             <!-- Biểu đồ và thống kê -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="card bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-semibold text-gray-900">Doanh thu theo tháng</h2>
-                        <div class="relative">
-                            <select
-                                class="block appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm">
-                                <option>12 tháng gần nhất</option>
-                                <option>6 tháng gần nhất</option>
-                                <option>Năm 2023</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Doanh thu & số đơn</h2>
+                        <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                            <div class="relative">
+                                <select id="chartRange"
+                                    class="block appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-10 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm">
+                                    <option value="daily">7 ngày gần nhất</option>
+                                    <option value="weekly">8 tuần gần nhất</option>
+                                    <option value="monthly" selected>12 tháng gần nhất</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
                             </div>
+                            <button id="exportCsv"
+                                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg shadow hover:bg-secondary transition">
+                                <i class="fas fa-file-export mr-2"></i>Xuất CSV
+                            </button>
                         </div>
                     </div>
                     <div class="chart-container">
@@ -196,15 +202,15 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @php
-                                    // Sử dụng biến đúng từ controller
-                                    $monthlyData = isset($monthlyRevenueFull) ? $monthlyRevenueFull : $monthlyRevenue;
-                                    $maxRevenue = max($monthlyData) > 0 ? max($monthlyData) : 1; // Tránh chia cho 0
+                                    $monthlyLabels = $chartData['labels'];
+                                    $monthlyRevenue = $chartData['revenue'];
+                                    $maxRevenue = max($monthlyRevenue) > 0 ? max($monthlyRevenue) : 1;
                                 @endphp
 
-                                @foreach($monthlyData as $i => $revenue)
+                                @foreach($monthlyRevenue as $i => $revenue)
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tháng
-                                            {{ $i + 1 }}</td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {{ $monthlyLabels[$i] ?? 'N/A' }}</td>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ number_format($revenue) }} đ</td>
                                         <td class="px-4 py-4 whitespace-nowrap">
@@ -355,40 +361,70 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Biểu đồ doanh thu theo tháng
-            const ctxRevenue = document.getElementById('revenueChart');
-            if (ctxRevenue) {
-                // Sử dụng biến đúng từ controller
-                const monthlyData = @json(isset($monthlyRevenueFull) ? $monthlyRevenueFull : $monthlyRevenue);
+            const salesDataUrl = "{{ route('admin.reports.sales.data') }}";
+            const exportUrl = "{{ route('admin.reports.sales.export') }}";
+            const initialChartData = @json($chartData);
+            const rangeSelect = document.getElementById('chartRange');
+            const exportButton = document.getElementById('exportCsv');
+            let revenueChart;
 
-                new Chart(ctxRevenue, {
-                    type: 'line',
+            function initRevenueChart(dataset) {
+                const ctxRevenue = document.getElementById('revenueChart');
+                if (!ctxRevenue) return;
+
+                revenueChart = new Chart(ctxRevenue, {
                     data: {
-                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-                        datasets: [{
-                            label: 'Doanh thu (VNĐ)',
-                            data: monthlyData,
-                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                            borderColor: '#4361ee',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: '#4361ee',
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
+                        labels: dataset.labels,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Doanh thu (VNĐ)',
+                                data: dataset.revenue,
+                                backgroundColor: 'rgba(67, 97, 238, 0.15)',
+                                borderColor: '#4361ee',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'y',
+                                pointBackgroundColor: '#4361ee',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Số đơn',
+                                data: dataset.orders,
+                                backgroundColor: '#4cc9f0',
+                                borderColor: '#4cc9f0',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                yAxisID: 'y1',
+                                barThickness: 24
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: false
+                                display: true
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        if (ctx.dataset.label.includes('Doanh thu')) {
+                                            return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('vi-VN') + ' đ';
+                                        }
+                                        return ctx.dataset.label + ': ' + ctx.parsed.y;
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                position: 'left',
                                 grid: {
                                     drawBorder: false
                                 },
@@ -398,6 +434,13 @@
                                     }
                                 }
                             },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            },
                             x: {
                                 grid: {
                                     display: false
@@ -405,6 +448,40 @@
                             }
                         }
                     }
+                });
+            }
+
+            async function loadChartData(range) {
+                try {
+                    const res = await fetch(`${salesDataUrl}?range=${range}`);
+                    if (!res.ok) throw new Error('Không thể tải dữ liệu');
+                    const data = await res.json();
+                    updateChart(data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            function updateChart(dataset) {
+                if (!revenueChart) return;
+                revenueChart.data.labels = dataset.labels;
+                revenueChart.data.datasets[0].data = dataset.revenue;
+                revenueChart.data.datasets[1].data = dataset.orders;
+                revenueChart.update();
+            }
+
+            initRevenueChart(initialChartData);
+
+            if (rangeSelect) {
+                rangeSelect.addEventListener('change', function () {
+                    loadChartData(this.value);
+                });
+            }
+
+            if (exportButton) {
+                exportButton.addEventListener('click', function () {
+                    const range = rangeSelect ? rangeSelect.value : 'monthly';
+                    window.location.href = `${exportUrl}?range=${range}`;
                 });
             }
 
