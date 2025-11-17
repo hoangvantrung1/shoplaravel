@@ -79,100 +79,290 @@ class ChatController extends Controller
         $lastProductId = session('last_product_id');
         $lastProduct = $lastProductId ? Product::find($lastProductId) : null;
 
-        // Cố gắng tìm sản phẩm theo nhiều chiến lược từ câu hỏi hiện tại
-        $productQuery = Product::query();
+        // Loại bỏ các từ intent khi tìm kiếm sản phẩm
+        $excludeWords = ['mô', 'tả', 'sản', 'phẩm', 'giá', 'còn', 'hàng', 'tồn', 'kho', 'hết', 'chi', 'tiết', 'bao', 'nhiêu', 'của', 'là', 'gì', 'thế', 'nào', 'cho', 'tôi', 'biết', 'về', 'hỗ', 'trợ', 'tìm', 'kiếm'];
+        $productTokens = [];
         if ($normalized !== '') {
             $tokens = array_values(array_filter(explode(' ', $normalized)));
-            $productQuery->where(function ($q) use ($tokens, $message) {
-                // ưu tiên khớp tất cả token
-                foreach ($tokens as $t) {
-                    $q->where('name', 'like', '%' . $t . '%');
-                }
-            });
-
-            // sắp xếp theo mức độ khớp đơn giản (đếm token xuất hiện)
-            $scoreExprParts = [];
             foreach ($tokens as $t) {
-                $tEsc = str_replace(['%', '_'], ['\\%', '\\_'], $t);
-                $scoreExprParts[] = "(CASE WHEN name LIKE '%$tEsc%' THEN 1 ELSE 0 END)";
-            }
-            if (!empty($scoreExprParts)) {
-                $scoreExpr = implode(' + ', $scoreExprParts);
-                $productQuery->select('*')->selectRaw("($scoreExpr) as match_score")->orderByDesc('match_score');
+                // Chỉ thêm token nếu:
+                // 1. Độ dài > 1
+                // 2. Không phải từ intent
+                // 3. Không phải số đơn thuần (trừ khi có chữ kèm theo)
+                if (strlen($t) > 1 && !in_array($t, $excludeWords) && !preg_match('/^\d+$/', $t)) {
+                    $productTokens[] = $t;
+                }
             }
         }
-        // fallback: nguyên bản user message
-        $product = $productQuery->first();
+        
+        // Debug: Nếu message chỉ chứa intent words, đảm bảo productTokens rỗng
+        // Ví dụ: "giá sản phẩm" -> productTokens = []
 
-        // Nếu vẫn chưa có product, thử tìm theo category/brand
+        // Tìm kiếm sản phẩm với nhiều tiêu chí: name, description, slug, brand name, category name
+        // CHỈ tìm kiếm khi có productTokens (có từ khóa sản phẩm cụ thể)
+        // Nếu chỉ có intent words (như "giá sản phẩm"), KHÔNG tìm kiếm
+        $product = null;
+        $matchedProducts = collect(); // Lưu tất cả sản phẩm khớp để đánh giá
+        
+        if (!empty($productTokens)) {
+            // Tìm kiếm với OR logic (tìm sản phẩm khớp với bất kỳ token nào)
+            $productQuery = Product::with(['brand', 'category'])
+                ->where(function ($q) use ($productTokens) {
+                    // Tìm trong name, slug, description
+                    foreach ($productTokens as $t) {
+                        $q->orWhere('name', 'like', '%' . $t . '%')
+                          ->orWhere('slug', 'like', '%' . $t . '%')
+                          ->orWhere('description', 'like', '%' . $t . '%');
+                    }
+                })
+                // Tìm theo brand name
+                ->orWhere(function ($q) use ($productTokens) {
+                    $q->whereHas('brand', function ($brandQ) use ($productTokens) {
+                        $brandQ->where(function ($bq) use ($productTokens) {
+                            foreach ($productTokens as $t) {
+                                $bq->orWhere('name', 'like', '%' . $t . '%')
+                                  ->orWhere('slug', 'like', '%' . $t . '%');
+                            }
+                        });
+                    });
+                })
+                // Tìm theo category name
+                ->orWhere(function ($q) use ($productTokens) {
+                    $q->whereHas('category', function ($catQ) use ($productTokens) {
+                        $catQ->where(function ($cq) use ($productTokens) {
+                            foreach ($productTokens as $t) {
+                                $cq->orWhere('name', 'like', '%' . $t . '%')
+                                  ->orWhere('slug', 'like', '%' . $t . '%');
+                            }
+                        });
+                    });
+                });
+
+            // Tính điểm khớp cho mỗi sản phẩm
+            $allProducts = $productQuery->get();
+            $scoredProducts = [];
+            
+            foreach ($allProducts as $p) {
+                $score = 0;
+                $productNameLower = mb_strtolower($p->name, 'UTF-8');
+                $productSlugLower = mb_strtolower($p->slug ?? '', 'UTF-8');
+                $productDescLower = mb_strtolower(strip_tags($p->description ?? ''), 'UTF-8');
+                $brandNameLower = mb_strtolower($p->brand->name ?? '', 'UTF-8');
+                $categoryNameLower = mb_strtolower($p->category->name ?? '', 'UTF-8');
+                
+                foreach ($productTokens as $t) {
+                    $tLower = mb_strtolower($t, 'UTF-8');
+                    
+                    // Điểm cao nhất: khớp chính xác tên sản phẩm (10 điểm)
+                    if ($productNameLower === $tLower || str_contains($productNameLower, $tLower)) {
+                        $score += 10;
+                        // Nếu khớp ở đầu tên sản phẩm, thêm điểm
+                        if (str_starts_with($productNameLower, $tLower)) {
+                            $score += 5;
+                        }
+                    }
+                    
+                    // Khớp slug (8 điểm)
+                    if ($productSlugLower && str_contains($productSlugLower, $tLower)) {
+                        $score += 8;
+                    }
+                    
+                    // Khớp brand name (7 điểm)
+                    if ($brandNameLower && str_contains($brandNameLower, $tLower)) {
+                        $score += 7;
+                    }
+                    
+                    // Khớp category name (5 điểm)
+                    if ($categoryNameLower && str_contains($categoryNameLower, $tLower)) {
+                        $score += 5;
+                    }
+                    
+                    // Khớp description (3 điểm)
+                    if ($productDescLower && str_contains($productDescLower, $tLower)) {
+                        $score += 3;
+                    }
+                }
+                
+                // Bonus: nếu khớp tất cả tokens (AND logic)
+                $allTokensMatch = true;
+                foreach ($productTokens as $t) {
+                    $tLower = mb_strtolower($t, 'UTF-8');
+                    if (!str_contains($productNameLower, $tLower) && 
+                        !str_contains($productSlugLower, $tLower) &&
+                        !($brandNameLower && str_contains($brandNameLower, $tLower))) {
+                        $allTokensMatch = false;
+                        break;
+                    }
+                }
+                if ($allTokensMatch && count($productTokens) > 1) {
+                    $score += 15; // Bonus lớn cho khớp tất cả tokens
+                }
+                
+                if ($score > 0) {
+                    $scoredProducts[] = ['product' => $p, 'score' => $score];
+                }
+            }
+            
+            // Sắp xếp theo điểm giảm dần
+            usort($scoredProducts, function ($a, $b) {
+                return $b['score'] <=> $a['score'];
+            });
+            
+            // Lấy sản phẩm có điểm cao nhất làm kết quả chính
+            // CHỈ tự động chọn sản phẩm nếu:
+            // 1. Có ít nhất 1 sản phẩm khớp
+            // 2. Điểm số của sản phẩm đầu tiên cao hơn đáng kể (ít nhất 5 điểm) so với sản phẩm thứ 2
+            // 3. Hoặc chỉ có 1 sản phẩm khớp
+            if (!empty($scoredProducts)) {
+                $topScore = $scoredProducts[0]['score'];
+                $secondScore = isset($scoredProducts[1]) ? $scoredProducts[1]['score'] : 0;
+                
+                // Chỉ tự động chọn nếu điểm số rõ ràng cao hơn hoặc chỉ có 1 kết quả
+                if (count($scoredProducts) === 1 || ($topScore - $secondScore) >= 5 || $topScore >= 20) {
+                    $product = $scoredProducts[0]['product'];
+                }
+                
+                // Lưu tất cả sản phẩm khớp (top 10) để làm gợi ý
+                $matchedProducts = collect(array_slice($scoredProducts, 0, 10))->pluck('product');
+            }
+        }
+
+        // Nếu vẫn chưa có product, thử tìm theo category/brand (ưu tiên brand trước)
         $category = null;
         $brand = null;
-        if (!$product && $normalized !== '') {
-            // map synonyms to a normalized query for category
-            $categoryMatch = null;
-            foreach ($synonyms as $catKey => $aliasList) {
-                foreach ($aliasList as $alias) {
-                    if (str_contains($normalized, $alias)) {
-                        $categoryMatch = $catKey;
-                        break 2;
+        if (!$product && !empty($productTokens)) {
+            // Ưu tiên tìm theo brand trước (vì brand thường cụ thể hơn)
+            $brandSearchTerms = $productTokens;
+            foreach ($brandSearchTerms as $term) {
+                // Tìm brand: name và slug (case insensitive)
+                $brand = Brand::where(function ($q) use ($term) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($term) . '%'])
+                      ->orWhereRaw('LOWER(slug) LIKE ?', ['%' . strtolower($term) . '%']);
+                })->first();
+                if ($brand) {
+                    // Nếu tìm thấy brand, lấy sản phẩm đầu tiên của brand đó
+                    $product = $brand->products()->first();
+                    break;
+                }
+            }
+            
+            // Nếu vẫn chưa tìm thấy brand, thử tìm sản phẩm trực tiếp với term (fallback)
+            if (!$product && !$brand) {
+                foreach ($brandSearchTerms as $term) {
+                    if (strlen($term) > 2) {
+                        $product = Product::whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($term) . '%'])->first();
+                        if ($product) {
+                            // Nếu tìm thấy sản phẩm, thử tìm brand của nó
+                            if ($product->brand_id) {
+                                $brand = Brand::find($product->brand_id);
+                            }
+                            break;
+                        }
                     }
                 }
             }
 
-            $category = $categoryMatch
-                ? Category::where('name', 'like', '%' . $categoryMatch . '%')->first()
-                : Category::where(function ($q) use ($normalized) {
-                    $q->where('name', 'like', '%' . $normalized . '%')
-                      ->orWhere('slug', 'like', '%' . $normalized . '%');
-                })->first();
+            // Nếu chưa tìm thấy, thử tìm theo category
+            if (!$product && !$brand) {
+                // map synonyms to a normalized query for category
+                $categoryMatch = null;
+                foreach ($synonyms as $catKey => $aliasList) {
+                    foreach ($aliasList as $alias) {
+                        if (str_contains($normalized, $alias)) {
+                            $categoryMatch = $catKey;
+                            break 2;
+                        }
+                    }
+                }
 
-            $brand = null;
-            if (!$category) {
-                $brand = Brand::where(function ($q) use ($normalized) {
-                    $q->where('name', 'like', '%' . $normalized . '%')
-                      ->orWhere('slug', 'like', '%' . $normalized . '%');
-                })->first();
+                $category = $categoryMatch
+                    ? Category::where('name', 'like', '%' . $categoryMatch . '%')->first()
+                    : Category::where(function ($q) use ($productTokens) {
+                        foreach ($productTokens as $term) {
+                            $q->where('name', 'like', '%' . $term . '%')
+                              ->orWhere('slug', 'like', '%' . $term . '%');
+                        }
+                    })->first();
             }
         }
 
+        // Nếu tìm thấy brand nhưng chưa có product cụ thể
+        // KHÔNG tự động lấy sản phẩm đầu tiên - luôn hỏi lại người dùng để chọn sản phẩm cụ thể
+        // (Trừ khi có lastProduct và người dùng đang tiếp tục câu hỏi về sản phẩm đó)
+
         // Nếu người dùng chỉ hỏi theo thương hiệu hoặc danh mục, ưu tiên trả về danh sách gợi ý
-        if (($category || $brand) && !$askPrice && !$askStock && !$askDesc) {
+        if (($category || $brand) && !$product) {
             $suggestions = [];
             if ($category) {
-                $candidates = $category->products()->latest('id')->limit(6)->get();
+                $candidates = $category->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
                 $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+                $reply = 'Mình tìm thấy một số sản phẩm trong danh mục ' . $category->name . '.';
+                if ($askPrice || $askStock || $askDesc) {
+                    $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                } else {
+                    $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                }
                 return [
-                    'reply' => 'Mình tìm thấy một số sản phẩm trong danh mục ' . $category->name . ':',
+                    'reply' => $reply,
                     'product' => null,
                     'suggestions' => $suggestions,
                 ];
             }
             if ($brand) {
-                $candidates = $brand->products()->latest('id')->limit(6)->get();
+                $candidates = $brand->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
                 $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+                $reply = 'Mình tìm thấy một số sản phẩm của thương hiệu ' . $brand->name . '.';
+                if ($askPrice || $askStock || $askDesc) {
+                    $reply .= ' Bạn muốn biết thông tin về sản phẩm nào? Hãy chọn một sản phẩm bên dưới:';
+                } else {
+                    $reply .= ' Bạn có thể chọn một sản phẩm để xem chi tiết:';
+                }
                 return [
-                    'reply' => 'Mình tìm thấy một số sản phẩm của thương hiệu ' . $brand->name . ':',
+                    'reply' => $reply,
                     'product' => null,
                     'suggestions' => $suggestions,
                 ];
             }
         }
 
-        // Nếu không tìm thấy nhưng có intent cụ thể và đã có sản phẩm trước đó -> dùng sản phẩm trước
-        if (!$product && ($askPrice || $askStock || $askDesc) && $lastProduct) {
-            $product = $lastProduct;
-        }
+        // KHÔNG dùng lastProduct khi người dùng chỉ hỏi intent thuần (như "giá sản phẩm")
+        // Chỉ dùng lastProduct khi người dùng đang tiếp tục câu hỏi về sản phẩm đó
+        // (ví dụ: đã hỏi về iPhone 15, sau đó hỏi "giá bao nhiêu" hoặc "còn hàng không")
+        
+        // Kiểm tra xem message có chứa từ khóa sản phẩm/brand mới không
+        $hasNewProductKeyword = !empty($productTokens);
+        
+        // KHÔNG tự động dùng lastProduct - luôn hỏi lại người dùng khi câu hỏi chung chung
+        // Chỉ dùng lastProduct trong trường hợp đặc biệt: người dùng đang tiếp tục câu hỏi
+        // (ví dụ: "giá bao nhiêu" sau khi đã hỏi về một sản phẩm cụ thể)
+        // Nhưng để an toàn, chúng ta sẽ KHÔNG dùng lastProduct khi chỉ có intent thuần
 
-        // Nếu tìm được sản phẩm
+        // Nếu tìm được sản phẩm (và sản phẩm này rõ ràng, không mơ hồ)
         if ($product) {
-            // Lưu context sản phẩm cho phiên làm việc
+            // Lưu context sản phẩm mới cho phiên làm việc (ghi đè lastProduct cũ)
             session(['last_product_id' => $product->id]);
+            
+            // Chuẩn bị danh sách gợi ý từ các sản phẩm khớp (loại bỏ sản phẩm chính)
+            $suggestions = [];
+            if ($matchedProducts->count() > 1) {
+                $suggestions = $matchedProducts
+                    ->reject(fn ($p) => $p->id === $product->id)
+                    ->take(5)
+                    ->map(fn ($p) => $this->mapProduct($p))
+                    ->values()
+                    ->all();
+            }
+            
             if ($askPrice) {
                 $price = $product->sale_price ?: $product->price;
+                $reply = "Giá của {$product->name} là " . number_format($price, 0, ',', '.') . "₫.";
+                if (!empty($suggestions)) {
+                    $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
+                }
                 return [
-                    'reply' => "Giá của {$product->name} là " . number_format($price, 0, ',', '.') . "₫.",
+                    'reply' => $reply,
                     'product' => $this->mapProduct($product),
-                    'suggestions' => [],
+                    'suggestions' => $suggestions,
                 ];
             }
 
@@ -180,18 +370,26 @@ class ChatController extends Controller
                 $reply = $product->stock > 0
                     ? "{$product->name} hiện còn {$product->stock} sản phẩm trong kho."
                     : "{$product->name} hiện đã hết hàng.";
+                if (!empty($suggestions)) {
+                    $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
+                }
                 return [
                     'reply' => $reply,
                     'product' => $this->mapProduct($product),
-                    'suggestions' => [],
+                    'suggestions' => $suggestions,
                 ];
             }
 
             if ($askDesc) {
+                $desc = strip_tags((string) $product->description);
+                $reply = "Mô tả sản phẩm {$product->name}: " . ($desc ?: 'Sản phẩm này hiện chưa có mô tả chi tiết.');
+                if (!empty($suggestions)) {
+                    $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
+                }
                 return [
-                    'reply' => "Mô tả sản phẩm {$product->name}: " . strip_tags((string) $product->description),
+                    'reply' => $reply,
                     'product' => $this->mapProduct($product),
-                    'suggestions' => [],
+                    'suggestions' => $suggestions,
                 ];
             }
 
@@ -199,32 +397,63 @@ class ChatController extends Controller
                 $reply = $product->brand
                     ? "{$product->name} thuộc thương hiệu {$product->brand->name}."
                     : "{$product->name} hiện chưa có thông tin thương hiệu.";
+                if (!empty($suggestions)) {
+                    $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
+                }
                 return [
                     'reply' => $reply,
                     'product' => $this->mapProduct($product),
-                    'suggestions' => [],
+                    'suggestions' => $suggestions,
                 ];
             }
 
+            $reply = "Bạn muốn biết thêm gì về {$product->name}? (giá, còn hàng, mô tả, thương hiệu...)";
+            if (!empty($suggestions)) {
+                $reply .= " Mình cũng tìm thấy một số sản phẩm tương tự bên dưới.";
+            }
             return [
-                'reply' => "Bạn muốn biết thêm gì về {$product->name}? (giá, còn hàng, mô tả, thương hiệu...)",
+                'reply' => $reply,
                 'product' => $this->mapProduct($product),
-                'suggestions' => [],
+                'suggestions' => $suggestions,
             ];
         }
 
-        // Không tìm thấy: gợi ý sản phẩm theo category/brand hoặc token đầu tiên
+        // Không tìm thấy sản phẩm cụ thể: gợi ý sản phẩm theo category/brand hoặc từ matchedProducts
         $suggestions = [];
-        if ($category) {
-            $candidates = $category->products()->latest('id')->limit(6)->get();
+        
+        // Nếu có matchedProducts (nhiều sản phẩm khớp nhưng không rõ ràng)
+        if ($matchedProducts->isNotEmpty() && !$product) {
+            $suggestions = $matchedProducts
+                ->take(6)
+                ->map(fn ($p) => $this->mapProduct($p))
+                ->values()
+                ->all();
+        } elseif ($category) {
+            $candidates = $category->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
             $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
         } elseif ($brand) {
-            $candidates = $brand->products()->latest('id')->limit(6)->get();
+            $candidates = $brand->products()->with(['brand', 'category'])->latest('id')->limit(6)->get();
+            $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+        } elseif (!empty($productTokens)) {
+            // Tìm kiếm với tất cả tokens
+            $searchQuery = Product::with(['brand', 'category']);
+            $searchQuery->where(function ($q) use ($productTokens) {
+                foreach ($productTokens as $t) {
+                    $q->orWhere('name', 'like', '%' . $t . '%')
+                      ->orWhere('slug', 'like', '%' . $t . '%')
+                      ->orWhere('description', 'like', '%' . $t . '%');
+                }
+            });
+            $candidates = $searchQuery->latest('id')->limit(6)->get();
             $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
         } elseif (!empty($normalized)) {
             $firstToken = explode(' ', $normalized)[0] ?? '';
-            if ($firstToken !== '') {
-                $candidates = Product::where('name', 'like', '%' . $firstToken . '%')
+            if ($firstToken !== '' && strlen($firstToken) > 2) {
+                $candidates = Product::with(['brand', 'category'])
+                    ->where(function ($q) use ($firstToken) {
+                        $q->where('name', 'like', '%' . $firstToken . '%')
+                          ->orWhere('slug', 'like', '%' . $firstToken . '%');
+                    })
                     ->latest('id')
                     ->limit(6)
                     ->get();
@@ -236,24 +465,57 @@ class ChatController extends Controller
                 $suggestions = $this->fuzzySuggest($normalized, 6);
             }
         }
+        
+        // Nếu vẫn không có gợi ý, lấy sản phẩm hot hoặc mới nhất
+        if (empty($suggestions)) {
+            $candidates = Product::with(['brand', 'category'])
+                ->where(function ($q) {
+                    $q->where('is_hot', true)
+                      ->orWhereNull('is_hot')
+                      ->orWhere('is_hot', false);
+                })
+                ->latest('id')
+                ->limit(6)
+                ->get();
+            $suggestions = $candidates->map(fn ($p) => $this->mapProduct($p))->values()->all();
+        }
 
+        // Nếu có intent nhưng không tìm thấy sản phẩm cụ thể
         if ($askPrice) {
+            $reply = 'Bạn đang quan tâm đến sản phẩm nào? Mình có thể giúp bạn tìm giá.';
+            if (!empty($suggestions)) {
+                $reply .= ' Hãy chọn một sản phẩm bên dưới nếu phù hợp:';
+            } else {
+                $reply .= ' Bạn có thể gõ tên sản phẩm hoặc thương hiệu để mình tìm giúp nhé.';
+            }
             return [
-                'reply' => 'Bạn muốn hỏi giá sản phẩm nào? Hãy chọn một sản phẩm bên dưới nếu phù hợp.',
+                'reply' => $reply,
                 'product' => null,
                 'suggestions' => $suggestions,
             ];
         }
         if ($askStock) {
+            $reply = 'Bạn muốn kiểm tra tồn kho của sản phẩm nào?';
+            if (!empty($suggestions)) {
+                $reply .= ' Hãy chọn một sản phẩm bên dưới nếu phù hợp:';
+            } else {
+                $reply .= ' Bạn có thể gõ tên sản phẩm hoặc thương hiệu để mình tìm giúp nhé.';
+            }
             return [
-                'reply' => 'Bạn muốn kiểm tra tồn kho của sản phẩm nào? Hãy chọn một sản phẩm bên dưới nếu phù hợp.',
+                'reply' => $reply,
                 'product' => null,
                 'suggestions' => $suggestions,
             ];
         }
         if ($askDesc) {
+            $reply = 'Bạn muốn xem mô tả của sản phẩm nào?';
+            if (!empty($suggestions)) {
+                $reply .= ' Hãy chọn một sản phẩm bên dưới nếu phù hợp:';
+            } else {
+                $reply .= ' Bạn có thể gõ tên sản phẩm hoặc thương hiệu để mình tìm giúp nhé.';
+            }
             return [
-                'reply' => 'Bạn muốn xem mô tả của sản phẩm nào? Hãy chọn một sản phẩm bên dưới nếu phù hợp.',
+                'reply' => $reply,
                 'product' => null,
                 'suggestions' => $suggestions,
             ];
@@ -298,41 +560,61 @@ class ChatController extends Controller
         }
 
         // Lấy một tập sản phẩm ứng viên để tính điểm (giới hạn để tránh nặng DB)
-        $candidates = Product::select('id', 'name', 'price', 'stock', 'image')
+        $candidates = Product::with(['brand', 'category'])
             ->latest('id')
-            ->limit(200)
+            ->limit(300)
             ->get();
 
         $scored = [];
         foreach ($candidates as $p) {
             $name = mb_strtolower((string) $p->name, 'UTF-8');
             $nameNoAccent = $this->removeAccents($name);
+            $slugNoAccent = $this->removeAccents(mb_strtolower($p->slug ?? '', 'UTF-8'));
+            $brandNameNoAccent = $this->removeAccents(mb_strtolower($p->brand->name ?? '', 'UTF-8'));
 
             // Điểm theo số token xuất hiện
             $tokenScore = 0;
             foreach ($tokens as $t) {
-                if ($t === '') continue;
+                if ($t === '' || strlen($t) < 2) continue;
                 $tNoAccent = $this->removeAccents($t);
-                if (str_contains($name, $t) || ($tNoAccent !== '' && str_contains($nameNoAccent, $tNoAccent))) {
-                    $tokenScore += 2; // trọng số cao hơn cho khớp trực tiếp
+                
+                // Khớp chính xác trong tên (điểm cao)
+                if (str_contains($name, mb_strtolower($t, 'UTF-8'))) {
+                    $tokenScore += 5;
+                }
+                // Khớp không dấu trong tên
+                elseif ($tNoAccent !== '' && str_contains($nameNoAccent, $tNoAccent)) {
+                    $tokenScore += 4;
+                }
+                // Khớp trong slug
+                if ($slugNoAccent && str_contains($slugNoAccent, $tNoAccent)) {
+                    $tokenScore += 3;
+                }
+                // Khớp trong brand name
+                if ($brandNameNoAccent && str_contains($brandNameNoAccent, $tNoAccent)) {
+                    $tokenScore += 2;
                 }
             }
 
             // Điểm fuzzy: lấy min khoảng cách Levenshtein giữa name và từng token
             $levScore = 0;
             foreach ($tokens as $t) {
-                if ($t === '') continue;
+                if ($t === '' || strlen($t) < 2) continue;
                 $tNoAccent = $this->removeAccents($t);
                 $len = max(mb_strlen($nameNoAccent, 'UTF-8'), mb_strlen($tNoAccent, 'UTF-8'));
                 if ($len === 0) continue;
-                // Sử dụng so khớp không dấu để tránh lỗi môi trường với iconv và cải thiện độ bền
+                
+                // Tính khoảng cách Levenshtein
                 $dist = levenshtein($nameNoAccent, $tNoAccent);
-                // chuyển khoảng cách thành điểm (0..1), gần thì cao
-                $sim = max(0, 1 - ($dist / max(1, $len)));
-                $levScore = max($levScore, $sim);
+                // Chuyển khoảng cách thành điểm (0..1), gần thì cao
+                // Chỉ tính điểm nếu khoảng cách nhỏ hơn 30% độ dài
+                if ($dist < $len * 0.3) {
+                    $sim = max(0, 1 - ($dist / max(1, $len)));
+                    $levScore = max($levScore, $sim * 2); // Nhân 2 để tăng trọng số
+                }
             }
 
-            $score = $tokenScore + $levScore; // tổng hợp đơn giản
+            $score = $tokenScore + $levScore;
             if ($score > 0) {
                 $scored[] = ['score' => $score, 'product' => $p];
             }
@@ -340,8 +622,7 @@ class ChatController extends Controller
 
         // Sắp xếp theo điểm giảm dần và trả về top N
         usort($scored, function ($a, $b) {
-            if ($a['score'] === $b['score']) return 0;
-            return ($a['score'] < $b['score']) ? 1 : -1;
+            return $b['score'] <=> $a['score'];
         });
 
         $top = array_slice($scored, 0, $limit);

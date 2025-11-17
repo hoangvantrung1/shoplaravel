@@ -424,40 +424,97 @@
     </main>
        <!-- Chatbot floating -->
     <div id="chatbot"
-        class="fixed bottom-6 right-6 w-80 bg-white shadow-lg rounded-2xl border border-gray-200 hidden flex-col overflow-hidden"
+        class="fixed bottom-6 right-6 w-96 bg-white shadow-2xl rounded-3xl border border-gray-200 hidden flex-col overflow-hidden z-50 transition-all duration-300"
         role="dialog" aria-label="Chat hỗ trợ tự động">
-        <div class="chat-header bg-purple-600 text-white p-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
-                <h4 class="font-semibold text-lg">Hỗ trợ tự động</h4>
+        <!-- Header với gradient -->
+        <div class="chat-header bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 flex justify-between items-center shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-lg"></i>
+                    </div>
+                    <span class="absolute -top-1 -right-1 inline-flex h-3 w-3 rounded-full bg-emerald-400 animate-pulse border-2 border-white"></span>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-base">Hỗ trợ tự động</h4>
+                    <p class="text-xs text-purple-100">Trực tuyến</p>
+                </div>
             </div>
             <div class="flex items-center gap-2">
-                <button id="toggleTheme" class="text-white/90 hover:text-white" title="Chuyển giao diện" aria-label="Chuyển giao diện">
-                    <i class="fas fa-moon"></i>
+                <button id="toggleTheme" 
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-white/90 hover:text-white hover:bg-white/20 transition-colors" 
+                        title="Chuyển giao diện" 
+                        aria-label="Chuyển giao diện">
+                    <i class="fas fa-moon text-sm"></i>
                 </button>
-                <button id="closeChat" class="text-white hover:text-gray-200" title="Đóng" aria-label="Đóng chat">
-                    <i class="fas fa-times"></i>
+                <button id="closeChat" 
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-white/90 hover:text-white hover:bg-white/20 transition-colors" 
+                        title="Đóng" 
+                        aria-label="Đóng chat">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
         </div>
-        <div id="chatBody" class="p-4 h-80 overflow-y-auto space-y-2 text-sm bg-gray-50">
-            <div class="text-gray-500 text-center">Xin chào 👋! Hỏi tôi về giá, hàng tồn hoặc mô tả sản phẩm nhé!</div>
+        
+        <!-- Chat Body -->
+        <div id="chatBody" class="p-4 h-96 overflow-y-auto space-y-3 text-sm bg-gradient-to-b from-gray-50 to-white">
+            <!-- Welcome message với quick actions -->
+            <div id="welcomeMessage" class="space-y-3">
+                <div class="flex items-start gap-2">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-purple-600 text-xs"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                            <p class="text-gray-800 font-medium mb-2">Xin chào! 👋</p>
+                            <p class="text-gray-600 text-sm mb-3">Tôi có thể giúp bạn:</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="quick-action-btn px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-100 transition-colors" data-action="giá sản phẩm">
+                                    💰 Giá sản phẩm
+                                </button>
+                                <button class="quick-action-btn px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors" data-action="hàng tồn kho">
+                                    📦 Hàng tồn kho
+                                </button>
+                                <button class="quick-action-btn px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors" data-action="mô tả sản phẩm">
+                                    📝 Mô tả sản phẩm
+                                </button>
+                                <button class="quick-action-btn px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-xs font-medium hover:bg-orange-100 transition-colors" data-action="hỗ trợ">
+                                    🆘 Hỗ trợ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="p-3 border-t border-gray-200 bg-white flex items-center gap-2 divider">
-            <input id="chatInput" type="text" placeholder="Nhập câu hỏi của bạn..." aria-label="Ô nhập câu hỏi"
-                class="chat-input flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none">
-            <button id="sendChat"
-                class="chat-send ml-1 bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition"
-                title="Gửi (Enter)" aria-label="Gửi tin nhắn">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+        
+        <!-- Input area -->
+        <div class="p-4 border-t border-gray-200 bg-white">
+            <div class="flex items-end gap-2">
+                <div class="flex-1 relative">
+                    <input id="chatInput" 
+                           type="text" 
+                           placeholder="Nhập câu hỏi của bạn..." 
+                           aria-label="Ô nhập câu hỏi"
+                           class="chat-input w-full border-2 border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 focus:outline-none transition-all">
+                    <i class="fas fa-paper-plane absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+                <button id="sendChat"
+                        class="w-11 h-11 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl flex items-center justify-center group"
+                        title="Gửi (Enter)" 
+                        aria-label="Gửi tin nhắn">
+                    <i class="fas fa-paper-plane text-sm group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center">Nhấn Enter để gửi</p>
         </div>
     </div>
 
-    <!-- Chat bubble icon -->
+    <!-- Chat bubble icon với animation -->
     <button id="openChat"
-        class="fixed bottom-8 right-8 bg-purple-600 text-white rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-2xl hover:bg-purple-700 transition">
-        💬
+        class="fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center text-2xl hover:from-purple-700 hover:to-purple-800 transition-all hover:scale-110 z-40 group">
+        <span class="group-hover:scale-110 transition-transform">💬</span>
+        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
     </button>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -531,16 +588,37 @@
         }
         applyTheme(localStorage.getItem(THEME_KEY) || 'light');
 
-        // Toggle mở / đóng chat
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.getAttribute('data-action');
+                chatInput.value = action;
+                sendMessage();
+            });
+        });
+
+        // Toggle mở / đóng chat với animation
         openChat.addEventListener('click', () => {
             chatBox.classList.remove('hidden');
+            chatBox.style.opacity = '0';
+            chatBox.style.transform = 'translateY(20px) scale(0.95)';
+            setTimeout(() => {
+                chatBox.style.transition = 'all 0.3s ease-out';
+                chatBox.style.opacity = '1';
+                chatBox.style.transform = 'translateY(0) scale(1)';
+            }, 10);
             openChat.classList.add('hidden');
             chatInput.focus();
         });
 
         closeChat.addEventListener('click', () => {
-            chatBox.classList.add('hidden');
-            openChat.classList.remove('hidden');
+            chatBox.style.transition = 'all 0.3s ease-in';
+            chatBox.style.opacity = '0';
+            chatBox.style.transform = 'translateY(20px) scale(0.95)';
+            setTimeout(() => {
+                chatBox.classList.add('hidden');
+                openChat.classList.remove('hidden');
+            }, 300);
         });
 
         // Toggle theme
