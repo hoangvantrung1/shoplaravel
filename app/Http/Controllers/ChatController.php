@@ -17,26 +17,26 @@ class ChatController extends Controller
         ]);
 
         try {
-            $sessionId = $request->session()->getId();
+        $sessionId = $request->session()->getId();
             $userMessage = trim($validated['message']);
 
-            // Lưu câu hỏi của người dùng
-            ChatMessage::create([
-                'session_id' => $sessionId,
-                'message' => $userMessage,
-                'is_admin_reply' => false,
-            ]);
+        // Lưu câu hỏi của người dùng
+        ChatMessage::create([
+            'session_id' => $sessionId,
+            'message' => $userMessage,
+            'is_admin_reply' => false,
+        ]);
 
-            // Gọi hàm xử lý logic trả lời
+        // Gọi hàm xử lý logic trả lời
             $result = $this->generateReply($userMessage);
             $botReply = $result['reply'];
 
-            // Lưu câu trả lời của bot
-            ChatMessage::create([
-                'session_id' => $sessionId,
-                'message' => $botReply,
-                'is_admin_reply' => true,
-            ]);
+        // Lưu câu trả lời của bot
+        ChatMessage::create([
+            'session_id' => $sessionId,
+            'message' => $botReply,
+            'is_admin_reply' => true,
+        ]);
 
             return response()->json([
                 'reply' => $botReply,
@@ -90,19 +90,15 @@ class ChatController extends Controller
                 }
             });
 
-            // sắp xếp theo mức độ khớp đơn giản (đếm token xuất hiện) - dùng bindings an toàn
-            $scoreExprPieces = [];
-            $scoreBindings = [];
+            // sắp xếp theo mức độ khớp đơn giản (đếm token xuất hiện)
+            $scoreExprParts = [];
             foreach ($tokens as $t) {
-                $scoreExprPieces[] = '(CASE WHEN name LIKE ? THEN 1 ELSE 0 END)';
-                $scoreBindings[] = '%' . $t . '%';
+                $tEsc = str_replace(['%', '_'], ['\\%', '\\_'], $t);
+                $scoreExprParts[] = "(CASE WHEN name LIKE '%$tEsc%' THEN 1 ELSE 0 END)";
             }
-            if (!empty($scoreExprPieces)) {
-                $scoreExpr = implode(' + ', $scoreExprPieces);
-                $productQuery
-                    ->select('*')
-                    ->selectRaw("($scoreExpr) as match_score", $scoreBindings)
-                    ->orderByDesc('match_score');
+            if (!empty($scoreExprParts)) {
+                $scoreExpr = implode(' + ', $scoreExprParts);
+                $productQuery->select('*')->selectRaw("($scoreExpr) as match_score")->orderByDesc('match_score');
             }
         }
         // fallback: nguyên bản user message

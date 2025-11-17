@@ -2,17 +2,10 @@
 
 @section('title', $post->title . ' - ShopLaravel')
 
-@section('meta')
-    <meta name="description" content="{{ Str::limit(strip_tags($post->excerpt ?: $post->content), 150) }}">
-    <meta property="og:title" content="{{ $post->title }} - ShopLaravel">
-    <meta property="og:description" content="{{ Str::limit(strip_tags($post->excerpt ?: $post->content), 150) }}">
-    <meta property="og:type" content="article">
-@endsection
-
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-9">
         <!-- Breadcrumb -->
-        <nav class="flex mb-10" aria-label="Breadcrumb">
+        <nav class="flex mb-8" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
                     <a href="{{ route('home') }}"
@@ -42,7 +35,7 @@
             <!-- Ảnh cover -->
             <div class="aspect-w-16 aspect-h-9 overflow-hidden">
                 <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}" alt="{{ $post->title }}"
-                    class="w-full h-50 object-cover items-center mx-auto" loading="lazy" decoding="async">
+                    class="w-full h-50 object-cover items-center mx-auto">
             </div>
 
             <!-- Nội dung bài viết -->
@@ -65,9 +58,9 @@
                             class="bg-{{ $categoryColor }}-100 text-{{ $categoryColor }}-600 px-3 py-1 rounded-full text-sm font-medium">
                             {{ $category }}
                         </span>
-                        <span class="text-gray-500">
-                            <i class="far fa-clock mr-1"></i>{{ ($post->published_at ?? $post->created_at)->diffForHumans() }}
-                        </span>
+                        <span class="text-gray-500"><i
+                                class="far fa-clock mr-1"></i>{{ $post->published_at->diffForHumans() }}</span>
+                        <span class="text-gray-500"><i class="far fa-eye mr-1"></i>{{ $post->view_count }} lượt xem</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="text-gray-500">Chia sẻ:</span>
@@ -84,12 +77,7 @@
                 </div>
 
                 <!-- Tiêu đề -->
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ $post->title }}</h1>
-                @php
-                    $words = str_word_count(strip_tags($post->content));
-                    $readingMinutes = max(1, (int) ceil($words / 200));
-                @endphp
-                <p class="text-sm text-gray-500 mb-6">⏱ Thời gian đọc khoảng {{ $readingMinutes }} phút</p>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">{{ $post->title }}</h1>
 
                 <!-- Excerpt -->
                 @if($post->excerpt)
@@ -99,7 +87,7 @@
                 @endif
 
                 <!-- Nội dung -->
-                <div class="prose max-w-none text-gray-700 text-lg leading-relaxed" id="blog-content">
+                <div class="prose max-w-none text-gray-700 text-lg leading-relaxed">
                     {!! $post->content !!}
                 </div>
 
@@ -146,7 +134,7 @@
                         <div class="h-48 overflow-hidden">
                             <img src="{{ $relatedPost->featured_image ?: '/images/default-blog.jpg' }}"
                                 alt="{{ $relatedPost->title }}"
-                                class="w-full h-full object-cover hover:scale-105 transition duration-300" loading="lazy" decoding="async">
+                                class="w-full h-full object-cover hover:scale-105 transition duration-300">
                         </div>
                         <div class="p-4">
                             <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-purple-600 transition">
@@ -179,8 +167,6 @@
     </div>
 
     <style>
-        /* Back to top positioning compatibility */
-        #backToTop{ position: fixed; }
         .prose {
             line-height: 1.8;
         }
@@ -222,102 +208,4 @@
             margin: 1em 0;
         }
     </style>
-
-    @push('scripts')
-        <script type="application/ld+json">
-            {
-              "@context": "https://schema.org",
-              "@type": "Article",
-              "headline": "{{ addslashes($post->title) }}",
-              "datePublished": "{{ optional($post->published_at)->toIso8601String() }}",
-              "dateModified": "{{ optional($post->updated_at)->toIso8601String() }}",
-              "author": {
-                "@type": "Organization",
-                "name": "ShopLaravel"
-              },
-              "image": "{{ $post->featured_image ?: url('/images/default-blog.jpg') }}",
-              "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": "{{ request()->url() }}"
-              }
-            }
-        </script>
-        <script>
-            // Reduced motion respect for any upcoming animations here (no AOS on detail currently)
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            // Back to top button
-            (function(){
-                const btn = document.createElement('button');
-                btn.id = 'backToTop';
-                btn.setAttribute('aria-label', 'Lên đầu trang');
-                btn.className = 'fixed bottom-6 right-6 z-50 bg-purple-600 text-white w-10 h-10 rounded-full shadow-lg hover:bg-purple-700 transition hidden md:flex items-center justify-center';
-                btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-                document.body.appendChild(btn);
-
-                const toggle = () => {
-                    if (window.scrollY > 400) {
-                        btn.classList.remove('hidden');
-                    } else {
-                        btn.classList.add('hidden');
-                    }
-                };
-                window.addEventListener('scroll', toggle, { passive: true });
-                toggle();
-
-                btn.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-                });
-            })();
-
-            // Table of Contents Generator
-            (function(){
-                const content = document.getElementById('blog-content');
-                const tocContainer = document.getElementById('toc-container');
-                const tocNav = document.getElementById('toc-nav');
-                
-                if (!content || !tocContainer || !tocNav) return;
-
-                const headings = content.querySelectorAll('h2, h3, h4');
-                if (headings.length === 0) {
-                    tocContainer.style.display = 'none';
-                    return;
-                }
-
-                // Generate TOC
-                headings.forEach((heading, index) => {
-                    const id = `heading-${index}`;
-                    heading.id = id;
-                    
-                    const level = parseInt(heading.tagName.charAt(1));
-                    const indent = (level - 2) * 12; // 12px per level
-                    
-                    const tocItem = document.createElement('a');
-                    tocItem.href = `#${id}`;
-                    tocItem.textContent = heading.textContent;
-                    tocItem.className = 'block py-1 text-gray-600 hover:text-purple-600 transition-colors';
-                    tocItem.style.paddingLeft = `${indent}px`;
-                    
-                    tocNav.appendChild(tocItem);
-                });
-
-                // Highlight current section
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const id = entry.target.id;
-                            tocNav.querySelectorAll('a').forEach(link => {
-                                link.classList.remove('text-purple-600', 'font-semibold');
-                                if (link.getAttribute('href') === `#${id}`) {
-                                    link.classList.add('text-purple-600', 'font-semibold');
-                                }
-                            });
-                        }
-                    });
-                }, { rootMargin: '-20% 0px -70% 0px' });
-
-                headings.forEach(heading => observer.observe(heading));
-            })();
-        </script>
-    @endpush
 @endsection

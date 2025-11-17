@@ -244,16 +244,16 @@
     @include('components.banner-video')
 
     {{-- Main Content --}}
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         @yield('content')
 
         {{-- Danh mục sản phẩm --}}
 
         {{-- Sản phẩm mới - chỉ hiển thị khi không có bộ lọc --}}
         @if(isset($isHomePage) && $isHomePage)
-            <section class="py-12 bg-gray-50">
+            <section class="pt-8 pb-6 bg-gray-50">
                 <div class="max-w-7xl mx-auto px-6">
-                    <div class="flex justify-between items-center mb-8">
+                    <div class="flex justify-between items-center mb-6">
                         <h2 class="text-3xl font-bold text-gray-800 animate-fadeUp">
                             Sản phẩm mới
                         </h2>
@@ -274,10 +274,10 @@
         @include('components.brands-section')
         {{-- Blog & Tin tức --}}
         @if(isset($posts) && $posts->count() > 0)
-            <section class="py-12 bg-white">
+            <section class="pt-0 pb-6 bg-white">
                 <div class="max-w-7xl mx-auto px-6">
-                    <div class="text-center mb-12">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Blog & Tin tức</h2>
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-3">Blog & Tin tức</h2>
                         <p class="text-lg text-gray-600 max-w-3xl mx-auto">
                             Cập nhật những tin tức mới nhất về công nghệ
                         </p>
@@ -287,10 +287,9 @@
                         @foreach($posts->take(3) as $post)
                                     <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                                         <div class="aspect-w-16 aspect-h-9 overflow-hidden">
-                                            <img src="{{ $post->featured_image ? asset($post->featured_image) : asset('images/default-blog.jpg') }}"
+                                            <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}"
                                                 alt="{{ $post->title }}"
-                                                class="w-full h-48 object-cover hover:scale-105 transition duration-300"
-                                                onerror="this.src='{{ asset('images/default-blog.jpg') }}'">
+                                                class="w-full h-48 object-cover hover:scale-105 transition duration-300">
                                         </div>
                                         <div class="p-6">
                                             <div class="flex items-center text-sm text-gray-500 mb-2">
@@ -310,7 +309,7 @@
                                                     {{ $category }}
                                                 </span>
                                                 <span class="mx-2">•</span>
-                                                <span>{{ $post->created_at->format('d/m/Y') }}</span>
+                                                <span>{{ $post->published_at->format('d/m/Y') }}</span>
                                             </div>
                                             <h3 class="text-xl font-bold text-gray-800 mb-3 hover:text-purple-600 transition">
                                                 <a href="{{ route('blog.detail', $post->slug) }}">{{ Str::limit($post->title, 50) }}</a>
@@ -336,9 +335,9 @@
             </section>
         @endif
         {{-- Tại sao chọn chúng tôi --}}
-        <section class="py-12 bg-white">
+        <section class="py-6 bg-white">
             <div class="max-w-7xl mx-auto px-6">
-                <h2 class="text-3xl font-bold mb-8 text-center text-gray-800 animate-fadeUp">Tại sao chọn chúng tôi?
+                <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 animate-fadeUp">Tại sao chọn chúng tôi?
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div class="p-6 bg-gray-100 rounded-lg shadow-md hover:shadow-xl transition-all text-center">
@@ -377,24 +376,49 @@
 
 
         {{-- Newsletter --}}
-        <section class="py-12 bg-purple-600 text-white">
-            <div class="max-w-5xl mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold mb-4 animate-fadeUp">Đăng ký nhận thông báo</h2>
-                <p class="mb-8 max-w-2xl mx-auto">Nhận thông tin về sản phẩm mới, khuyến mãi đặc biệt và các sự kiện
-                    công nghệ độc quyền</p>
+        <section class="relative py-12 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-0 -right-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 -left-20 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl"></div>
+            </div>
+            
+            <div class="relative max-w-4xl mx-auto px-6 text-center">
+                <!-- Icon -->
+                <div class="mb-4 flex justify-center">
+                    <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-2xl text-white"></i>
+                    </div>
+                </div>
+                
+                <h2 class="text-3xl sm:text-4xl font-bold mb-3 animate-fadeUp">Đăng ký nhận thông báo</h2>
+                <p class="text-lg text-purple-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Nhận thông tin về sản phẩm mới, khuyến mãi đặc biệt và các sự kiện công nghệ độc quyền
+                </p>
 
-                <form class="newsletter-form flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                    <input type="email" placeholder="Email của bạn"
-                        class="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:ring-2 focus:ring-white focus:ring-opacity-50"
-                        required>
+                <form class="newsletter-form flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-6">
+                    <div class="flex-1 relative">
+                        <input type="email" 
+                               placeholder="Nhập email của bạn" 
+                               class="w-full px-5 py-4 pr-12 rounded-xl text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-white focus:ring-opacity-50 focus:outline-none shadow-lg transition-all"
+                               required>
+                        <i class="fas fa-envelope absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
                     <button type="submit"
-                        class="bg-white text-purple-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all animate-pulse-slow">
-                        Đăng ký ngay
+                        class="group relative px-8 py-4 bg-white text-purple-600 font-semibold rounded-xl hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden">
+                        <span class="relative z-10 flex items-center gap-2">
+                            Đăng ký ngay
+                            <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+                        </span>
+                        <!-- Shine effect -->
+                        <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
                     </button>
                 </form>
 
-                <p class="text-sm text-purple-200 mt-4">Chúng tôi tôn trọng quyền riêng tư của bạn và không chia sẻ
-                    thông tin với bên thứ ba.</p>
+                <div class="flex items-center justify-center gap-2 text-sm text-purple-200">
+                    <i class="fas fa-shield-alt text-purple-300"></i>
+                    <p>Chúng tôi tôn trọng quyền riêng tư của bạn và không chia sẻ thông tin với bên thứ ba.</p>
+                </div>
             </div>
         </section>
     </main>
