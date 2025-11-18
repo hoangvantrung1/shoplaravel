@@ -17,6 +17,105 @@
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- Bộ lọc nâng cao -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <form method="GET" action="{{ route('admin.orders.index') }}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Tìm kiếm -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                placeholder="Mã đơn, tên, email, SĐT..." 
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Lọc theo trạng thái -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                            <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tất cả</option>
+                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Chưa thanh toán</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xác nhận</option>
+                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Đã xác nhận</option>
+                                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
+                                <option value="shipping" {{ request('status') == 'shipping' ? 'selected' : '' }}>Đang giao hàng</option>
+                                <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Đã giao hàng</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Đã hủy</option>
+                            </select>
+                        </div>
+
+                        <!-- Lọc theo phương thức thanh toán -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Hình thức thanh toán</label>
+                            <select name="payment_method" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tất cả</option>
+                                <option value="cod" {{ request('payment_method') == 'cod' ? 'selected' : '' }}>COD</option>
+                                <option value="vnpay" {{ request('payment_method') == 'vnpay' ? 'selected' : '' }}>VNPay</option>
+                            </select>
+                        </div>
+
+                        <!-- Lọc theo trạng thái thanh toán -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái thanh toán</label>
+                            <select name="payment_status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tất cả</option>
+                                <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Đã thanh toán</option>
+                                <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Chưa thanh toán</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Lọc theo ngày bắt đầu -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                            <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Lọc theo ngày kết thúc -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                            <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Sắp xếp -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp</label>
+                            <div class="flex gap-2">
+                                <select name="sort_by" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Ngày tạo</option>
+                                    <option value="total" {{ request('sort_by') == 'total' ? 'selected' : '' }}>Tổng tiền</option>
+                                    <option value="status" {{ request('sort_by') == 'status' ? 'selected' : '' }}>Trạng thái</option>
+                                </select>
+                                <select name="sort_order" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Giảm dần</option>
+                                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Tăng dần</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
+                            <i class="fas fa-filter mr-2"></i> Lọc
+                        </button>
+                        <a href="{{ route('admin.orders.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
+                            <i class="fas fa-redo mr-2"></i> Xóa bộ lọc
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead class="bg-gray-50">

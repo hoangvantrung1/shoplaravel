@@ -37,6 +37,22 @@ class Order extends Model
         return $this->hasMany(OrderItem::class, 'order_id');
     }
 
+    /**
+     * Quan hệ với OrderNote (ghi chú và timeline)
+     */
+    public function notes()
+    {
+        return $this->hasMany(OrderNote::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Lấy ghi chú nội bộ
+     */
+    public function internalNotes()
+    {
+        return $this->hasMany(OrderNote::class)->where('is_internal', true)->orderBy('created_at', 'desc');
+    }
+
     public function getStatusLabelAttribute()
     {
         $map = [

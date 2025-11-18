@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\ProductLog;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -108,7 +111,62 @@ class ProductController extends Controller
             $validated['image'] = 'uploads/' . $imageName;
         }
 
-        $product->update($validated);
+        // Lưu giá trị cũ để so sánh
+        $oldPrice = $product->price;
+        $oldStock = $product->stock;
+
+        // Cập nhật sản phẩm trong transaction
+        DB::beginTransaction();
+        try {
+            $product->update($validated);
+
+            // Log thay đổi giá nếu có
+            if ($oldPrice != $validated['price']) {
+                ProductLog::create([
+                    'product_id' => $product->id,
+                    'field_changed' => 'price',
+                    'old_value' => $oldPrice,
+                    'new_value' => $validated['price'],
+                    'changed_by' => auth('admin')->id(),
+                    'notes' => $request->input('price_note', null),
+                ]);
+
+                Log::info('Thay đổi giá sản phẩm', [
+                    'product_id' => $product->id,
+                    'old_price' => $oldPrice,
+                    'new_price' => $validated['price'],
+                    'admin_id' => auth('admin')->id(),
+                ]);
+            }
+
+            // Log thay đổi tồn kho nếu có
+            if ($oldStock != $validated['stock']) {
+                ProductLog::create([
+                    'product_id' => $product->id,
+                    'field_changed' => 'stock',
+                    'old_value' => $oldStock,
+                    'new_value' => $validated['stock'],
+                    'changed_by' => auth('admin')->id(),
+                    'notes' => $request->input('stock_note', null),
+                ]);
+
+                Log::info('Thay đổi tồn kho sản phẩm', [
+                    'product_id' => $product->id,
+                    'old_stock' => $oldStock,
+                    'new_stock' => $validated['stock'],
+                    'admin_id' => auth('admin')->id(),
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Lỗi cập nhật sản phẩm: ' . $e->getMessage(), [
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Có lỗi xảy ra khi cập nhật sản phẩm!');
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Cập nhật sản phẩm thành công!');
     }
@@ -126,5 +184,19 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm thành công!');
+    }
+
+    /**
+     * Xem lịch sử thay đổi của sản phẩm
+     */
+    public function logs($id)
+    {
+        $product = Product::findOrFail($id);
+        $logs = ProductLog::where('product_id', $product->id)
+            ->with('admin')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.products.logs', compact('product', 'logs'));
     }
 }

@@ -213,6 +213,15 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <!-- Ghi chú nội bộ -->
+                            <div class="mb-4">
+                                <label for="note" class="block text-sm font-medium text-gray-700 mb-2">Ghi chú nội bộ (tùy chọn):</label>
+                                <textarea name="note" id="note" rows="3" 
+                                    placeholder="Nhập ghi chú về thay đổi trạng thái..." 
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Ghi chú này sẽ được lưu trong timeline của đơn hàng</p>
+                            </div>
                             
                             @if($currentStatus === 'unpaid')
                             <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -309,8 +318,77 @@
                 </div>
             </div>
             
+            <!-- Timeline và Ghi chú -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                    <h2 class="text-xl font-semibold text-gray-800">Timeline & Ghi chú</h2>
+                </div>
+                <div class="p-6">
+                    <!-- Form thêm ghi chú -->
+                    <form action="{{ route('admin.orders.addNote', $order->id) }}" method="POST" class="mb-6 pb-6 border-b border-gray-200">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="new_note" class="block text-sm font-medium text-gray-700 mb-2">Thêm ghi chú mới:</label>
+                            <textarea name="note" id="new_note" rows="3" required
+                                placeholder="Nhập ghi chú nội bộ..." 
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="is_internal" value="1" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Ghi chú nội bộ (chỉ admin mới thấy)</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                            <i class="fas fa-plus mr-2"></i> Thêm ghi chú
+                        </button>
+                    </form>
+
+                    <!-- Timeline -->
+                    <div class="space-y-4">
+                        @forelse($order->notes as $note)
+                            <div class="flex items-start space-x-4 p-4 rounded-lg {{ $note->is_internal ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-200' }}">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-{{ $note->is_internal ? 'lock' : 'comment' }} text-blue-600"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium text-gray-800">
+                                                {{ $note->admin ? $note->admin->name : 'Hệ thống' }}
+                                            </span>
+                                            @if($note->is_internal)
+                                                <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-200 text-yellow-800">
+                                                    Nội bộ
+                                                </span>
+                                            @endif
+                                            @if($note->status)
+                                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">
+                                                    {{ $statuses[strtolower($note->status)]['label'] ?? $note->status }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <span class="text-xs text-gray-500">
+                                            {{ $note->created_at->format('d/m/Y H:i') }}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $note->note }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-comments text-4xl mb-2"></i>
+                                <p>Chưa có ghi chú nào</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             <a href="{{ route('admin.orders.index') }}" 
-                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-200">
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-200 mt-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                 </svg>

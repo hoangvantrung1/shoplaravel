@@ -42,5 +42,12 @@ public function isInWishlist($userId = null)
     return $userId ? $this->wishlists()->where('user_id', $userId)->exists() : false;
 }
 
+    /**
+     * Quan hệ với ProductLog (lịch sử thay đổi)
+     */
+    public function logs()
+    {
+        return $this->hasMany(ProductLog::class);
+    }
 }
 

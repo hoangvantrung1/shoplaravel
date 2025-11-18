@@ -142,6 +142,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Quản lý sản phẩm
         Route::resource('products', AdminProductController::class);
+        Route::get('/products/{id}/logs', [AdminProductController::class, 'logs'])->name('products.logs');
 
         // Quản lý danh mục
         Route::resource('categories', AdminCategoryController::class);
@@ -155,6 +156,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::post('/orders/{order}/notes', [OrderAdminController::class, 'addNote'])->name('orders.addNote');
 
         // Báo cáo
         Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');

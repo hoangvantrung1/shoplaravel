@@ -6,26 +6,80 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\OrderNote;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Mail\OrderShipped;
 use App\Mail\OrderCompleted;
 
 class OrderAdminController extends Controller
 {
-    // Danh sách đơn hàng
-    public function index()
+    /**
+     * Danh sách đơn hàng với bộ lọc nâng cao
+     */
+    public function index(Request $request)
     {
-        $orders = Order::with('orderItems')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Order::with('orderItems');
+
+        // Lọc theo trạng thái
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Lọc theo phương thức thanh toán
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // Lọc theo trạng thái thanh toán (paid/unpaid)
+        if ($request->filled('payment_status')) {
+            if ($request->payment_status === 'paid') {
+                $query->whereIn('status', ['paid', 'confirmed', 'processing', 'shipping', 'delivered', 'completed']);
+            } elseif ($request->payment_status === 'unpaid') {
+                $query->whereIn('status', ['unpaid', 'pending']);
+            }
+        }
+
+        // Lọc theo khoảng thời gian
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Tìm kiếm theo mã đơn, tên, email, SĐT
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_code', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Sắp xếp
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        if (in_array($sortBy, ['created_at', 'total', 'status'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $orders = $query->paginate(10)->appends($request->query());
+
         return view('admin.orders.index', compact('orders'));
     }
 
-    // Chi tiết đơn hàng
+    /**
+     * Chi tiết đơn hàng với timeline và ghi chú
+     */
     public function show(Order $order)
     {
-        $order->load('orderItems.product');
+        $order->load(['orderItems.product', 'notes.admin']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -40,9 +94,11 @@ class OrderAdminController extends Controller
         
         $request->validate([
             'status' => 'required|in:' . implode(',', $allowedStatuses),
+            'note' => 'nullable|string|max:1000', // Ghi chú nội bộ (tùy chọn)
         ], [
             'status.required' => 'Vui lòng chọn trạng thái',
-            'status.in' => 'Trạng thái không hợp lệ'
+            'status.in' => 'Trạng thái không hợp lệ',
+            'note.max' => 'Ghi chú không được vượt quá 1000 ký tự',
         ]);
 
         $oldStatus = strtolower(trim($order->status));
@@ -68,19 +124,52 @@ class OrderAdminController extends Controller
         // LƯU TRẠNG THÁI CŨ để xử lý hoàn tồn kho
         $wasNotCancelled = ($oldStatus !== 'cancelled');
 
-        // CẬP NHẬT TRẠNG THÁI
-        $order->update([
-            'status' => $newStatus,
-            'updated_at' => now()
-        ]);
+        // CẬP NHẬT TRẠNG THÁI VÀ LƯU GHI CHÚ trong transaction
+        DB::beginTransaction();
+        try {
+            // CẬP NHẬT TRẠNG THÁI
+            $order->update([
+                'status' => $newStatus,
+                'updated_at' => now()
+            ]);
 
-        // Log cập nhật thành công
-        Log::info('Cập nhật trạng thái đơn hàng thành công', [
-            'order_id' => $order->id,
-            'old_status' => $oldStatus,
-            'new_status' => $newStatus,
-            'user' => auth()->user()->name ?? 'Admin'
-        ]);
+            // Lưu ghi chú nếu có
+            if ($request->filled('note')) {
+                OrderNote::create([
+                    'order_id' => $order->id,
+                    'note' => $request->note,
+                    'status' => $newStatus,
+                    'is_internal' => true,
+                    'created_by' => auth('admin')->id(),
+                ]);
+            } else {
+                // Tự động tạo ghi chú khi thay đổi trạng thái
+                OrderNote::create([
+                    'order_id' => $order->id,
+                    'note' => "Trạng thái đã thay đổi từ '{$this->getStatusLabel($oldStatus)}' sang '{$this->getStatusLabel($newStatus)}'",
+                    'status' => $newStatus,
+                    'is_internal' => true,
+                    'created_by' => auth('admin')->id(),
+                ]);
+            }
+
+            // Log cập nhật thành công
+            Log::info('Cập nhật trạng thái đơn hàng thành công', [
+                'order_id' => $order->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'admin_id' => auth('admin')->id(),
+            ]);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Lỗi cập nhật trạng thái đơn hàng: ' . $e->getMessage(), [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái!');
+        }
 
         // GỬI EMAIL theo trạng thái
         $this->sendStatusEmail($order, $newStatus);
@@ -219,6 +308,40 @@ class OrderAdminController extends Controller
         } catch (\Exception $e) {
             Log::error('Lỗi xóa đơn hàng: ' . $e->getMessage());
             return back()->with('error', 'Có lỗi xảy ra khi xóa đơn hàng!');
+        }
+    }
+
+    /**
+     * Thêm ghi chú nội bộ cho đơn hàng
+     */
+    public function addNote(Request $request, Order $order)
+    {
+        $request->validate([
+            'note' => 'required|string|max:1000',
+            'is_internal' => 'boolean',
+        ], [
+            'note.required' => 'Vui lòng nhập ghi chú',
+            'note.max' => 'Ghi chú không được vượt quá 1000 ký tự',
+        ]);
+
+        try {
+            OrderNote::create([
+                'order_id' => $order->id,
+                'note' => $request->note,
+                'status' => $order->status,
+                'is_internal' => $request->has('is_internal') ? (bool)$request->is_internal : true,
+                'created_by' => auth('admin')->id(),
+            ]);
+
+            Log::info('Thêm ghi chú đơn hàng', [
+                'order_id' => $order->id,
+                'admin_id' => auth('admin')->id(),
+            ]);
+
+            return redirect()->back()->with('success', 'Thêm ghi chú thành công!');
+        } catch (\Exception $e) {
+            Log::error('Lỗi thêm ghi chú đơn hàng: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra khi thêm ghi chú!');
         }
     }
 }

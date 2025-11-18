@@ -102,6 +102,12 @@
                                             <i class="fas fa-edit mr-1"></i> Sửa
                                         </a>
                                         <span class="text-gray-300">|</span>
+                                        <a href="{{ route('admin.products.logs', $product->id) }}"
+                                            class="text-blue-600 hover:text-blue-900 transition duration-200 flex items-center"
+                                            title="Xem lịch sử thay đổi">
+                                            <i class="fas fa-history mr-1"></i> Log
+                                        </a>
+                                        <span class="text-gray-300">|</span>
                                         <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
                                             class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
                                             @csrf
