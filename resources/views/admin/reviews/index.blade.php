@@ -48,6 +48,18 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="max-w-xs truncate">{{ $review->comment }}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                @if($review->images && count($review->images) > 0)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-images mr-1 text-xs"></i>{{ count($review->images) }} ảnh
+                                    </span>
+                                @endif
+                                @if($review->video)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                        <i class="fas fa-video mr-1 text-xs"></i>Video
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex text-yellow-400">

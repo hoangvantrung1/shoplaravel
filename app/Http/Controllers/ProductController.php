@@ -125,6 +125,15 @@ class ProductController extends Controller
 
         $averageRating = round($product->reviews->avg('rating'), 1);
 
+        // Tính rating breakdown (số lượng review theo từng sao)
+        $ratingBreakdown = [
+            5 => $reviews->where('rating', 5)->count(),
+            4 => $reviews->where('rating', 4)->count(),
+            3 => $reviews->where('rating', 3)->count(),
+            2 => $reviews->where('rating', 2)->count(),
+            1 => $reviews->where('rating', 1)->count(),
+        ];
+
         $relatedProducts = Product::withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->where('category_id', $product->category_id)
@@ -142,7 +151,8 @@ class ProductController extends Controller
             'brands',
             'reviewsCount',
             'averageRating',
-            'reviews'
+            'reviews',
+            'ratingBreakdown'
         ));
     }
 }

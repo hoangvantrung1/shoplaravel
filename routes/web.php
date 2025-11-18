@@ -76,7 +76,11 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
 
 // ClientReviewController
-Route::middleware('auth')->post('/product/{id}/reviews', [ClientReviewController::class, 'store'])->name('product.reviews.store');
+Route::middleware('auth')->group(function () {
+    Route::post('/product/{id}/reviews', [ClientReviewController::class, 'store'])->name('product.reviews.store');
+    Route::put('/reviews/{review}', [ClientReviewController::class, 'update'])->name('product.reviews.update');
+    Route::delete('/reviews/{review}', [ClientReviewController::class, 'destroy'])->name('product.reviews.destroy');
+});
 
 // Checkout
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');

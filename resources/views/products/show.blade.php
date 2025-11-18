@@ -277,8 +277,141 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @auth
+                                                @if(auth()->id() === $review->user_id)
+                                                    <div class="relative">
+                                                        <button type="button"
+                                                                class="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                                                                onclick="toggleReviewMenu({{ $review->id }})">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div id="review-menu-{{ $review->id }}" class="hidden absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
+                                                            <button type="button"
+                                                                    class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-t-xl"
+                                                                    onclick="toggleEditForm({{ $review->id }})">
+                                                                <i class="fas fa-edit mr-2 text-purple-500"></i>Chỉnh sửa
+                                                            </button>
+                                                            <form action="{{ route('product.reviews.destroy', $review) }}" method="POST"
+                                                                  onsubmit="return confirm('Bạn chắc chắn muốn xóa đánh giá này?')">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                        class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-xl">
+                                                                    <i class="fas fa-trash-alt mr-2"></i>Xóa
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endauth
                                         </div>
-                                        <p class="text-gray-700 leading-relaxed">{{ $review->comment }}</p>
+                                        
+                                        {{-- Comment --}}
+                                        @if($review->comment)
+                                            <p class="text-gray-700 leading-relaxed mb-4">{{ $review->comment }}</p>
+                                        @endif
+
+                                        {{-- Images Gallery --}}
+                                        @if($review->images && count($review->images) > 0)
+                                            <div class="mb-4">
+                                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                    @foreach($review->images_urls as $imageUrl)
+                                                        <div class="relative group cursor-pointer">
+                                                            <img src="{{ $imageUrl }}" alt="Review image" 
+                                                                 class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-purple-500 transition-all duration-300"
+                                                                 onclick="openImageModal('{{ $imageUrl }}')">
+                                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all duration-300 flex items-center justify-center">
+                                                                <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- Video --}}
+                                        @if($review->video_url)
+                                            <div class="mb-4">
+                                                <video controls class="w-full rounded-lg border-2 border-gray-200" preload="metadata">
+                                                    <source src="{{ $review->video_url }}" type="video/mp4">
+                                                    Trình duyệt của bạn không hỗ trợ video.
+                                                </video>
+                                            </div>
+                                        @endif
+
+                                        @auth
+                                            @if(auth()->id() === $review->user_id)
+                                                <div id="edit-form-{{ $review->id }}" class="hidden mt-5">
+                                                    <div class="rounded-2xl border border-purple-100 bg-gradient-to-br from-white to-purple-50/40 shadow-inner p-5">
+                                                        <div class="flex items-center justify-between mb-4">
+                                                            <div class="flex items-center gap-3">
+                                                                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center">
+                                                                    <i class="fas fa-pen"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <p class="text-sm font-semibold text-gray-900">Chỉnh sửa đánh giá</p>
+                                                                    <p class="text-xs text-gray-500">Cập nhật lại trải nghiệm của bạn</p>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" onclick="toggleEditForm({{ $review->id }})"
+                                                                    class="text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                        <form action="{{ route('product.reviews.update', $review) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <label class="text-xs font-semibold text-gray-600">Đánh giá (1-5 sao)</label>
+                                                                    <div class="mt-2 bg-white border border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2">
+                                                                        <i class="fas fa-star text-amber-400"></i>
+                                                                        <select name="rating" class="flex-1 bg-transparent border-none focus:ring-0 text-sm">
+                                                                            @for($i = 5; $i >= 1; $i--)
+                                                                                <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>{{ $i }} sao</option>
+                                                                            @endfor
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="text-xs font-semibold text-gray-600">Quản lý media</label>
+                                                                    <label class="mt-2 flex items-center gap-2 text-xs text-gray-600 bg-white border border-gray-200 rounded-xl px-3 py-2 cursor-pointer hover:border-purple-300 transition">
+                                                                        <input type="checkbox" name="clear_media" value="1" class="rounded text-purple-600 focus:ring-purple-500">
+                                                                        Xóa toàn bộ ảnh/video hiện tại
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <label class="text-xs font-semibold text-gray-600">Nội dung</label>
+                                                                <textarea name="comment" rows="3" class="mt-2 w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm">{{ $review->comment }}</textarea>
+                                                            </div>
+                                                            <div>
+                                                                <label class="text-xs font-semibold text-gray-600">Thay thế ảnh / video (tối đa 5 ảnh + 1 video)</label>
+                                                                <label class="mt-2 flex flex-col sm:flex-row items-center gap-3 w-full border-2 border-dashed border-purple-200 rounded-2xl px-4 py-4 bg-white hover:border-purple-400 transition cursor-pointer text-sm text-gray-600">
+                                                                    <div class="flex items-center gap-3 text-purple-600 font-semibold">
+                                                                        <i class="fas fa-cloud-upload-alt text-lg"></i>
+                                                                        Chọn file mới
+                                                                    </div>
+                                                                    <span class="text-xs text-gray-400">Nếu không chọn file, hệ thống giữ nguyên nội dung cũ</span>
+                                                                    <input type="file" name="media[]" multiple accept="image/*,video/*" class="hidden">
+                                                                </label>
+                                                            </div>
+                                                            <div class="flex flex-wrap items-center justify-end gap-3">
+                                                                <button type="button"
+                                                                        class="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:border-gray-400"
+                                                                        onclick="toggleEditForm({{ $review->id }})">
+                                                                    Hủy
+                                                                </button>
+                                                                <button type="submit"
+                                                                        class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl hover:shadow-lg hover:translate-y-0.5 transition-all">
+                                                                    Lưu thay đổi
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endauth
                                     </div>
                                 @empty
                                     <div class="text-center py-12">
@@ -292,30 +425,52 @@
                         {{-- Review Form & Stats --}}
                         <div class="space-y-6">
                             {{-- Rating Stats --}}
-                            <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6 text-center border border-purple-100">
-                                <div class="text-5xl font-bold text-purple-600 mb-2">
-                                    {{ number_format($averageRating, 1) }}
-                                    <span class="text-2xl text-gray-600">/5</span>
+                            <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100">
+                                {{-- Overall Rating --}}
+                                <div class="text-center mb-6">
+                                    <div class="text-5xl font-bold text-purple-600 mb-2">
+                                        {{ number_format($averageRating ?? 0, 1) }}
+                                        <span class="text-2xl text-gray-600">/5</span>
+                                    </div>
+                                    <div class="flex justify-center mb-3 text-xl text-amber-400">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= floor($averageRating ?? 0))
+                                                <i class="fas fa-star"></i>
+                                            @elseif ($i - ($averageRating ?? 0) < 1)
+                                                <i class="fas fa-star-half-alt"></i>
+                                            @else
+                                                <i class="far fa-star"></i>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                    <p class="text-gray-600 font-medium">{{ $reviewsCount ?? 0 }} đánh giá</p>
                                 </div>
-                                <div class="flex justify-center mb-3 text-xl text-amber-400">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        @if ($i <= floor($averageRating))
-                                            <i class="fas fa-star"></i>
-                                        @elseif ($i - $averageRating < 1)
-                                            <i class="fas fa-star-half-alt"></i>
-                                        @else
-                                            <i class="far fa-star"></i>
-                                        @endif
-                                    @endfor
-                                </div>
-                                <p class="text-gray-600 font-medium">{{ $reviewsCount }} đánh giá</p>
+
+                                {{-- Rating Breakdown --}}
+                                @if($reviewsCount > 0 && isset($ratingBreakdown))
+                                    <div class="space-y-2 pt-4 border-t border-purple-200">
+                                        @for($star = 5; $star >= 1; $star--)
+                                            <div class="flex items-center gap-2">
+                                                <div class="flex items-center gap-1 w-16">
+                                                    <span class="text-sm font-semibold text-gray-700">{{ $star }}</span>
+                                                    <i class="fas fa-star text-amber-400 text-xs"></i>
+                                                </div>
+                                                <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                    <div class="bg-gradient-to-r from-amber-400 to-amber-500 h-full rounded-full transition-all duration-500" 
+                                                         style="width: {{ $reviewsCount > 0 ? ($ratingBreakdown[$star] / $reviewsCount * 100) : 0 }}%"></div>
+                                                </div>
+                                                <span class="text-sm text-gray-600 w-8 text-right">{{ $ratingBreakdown[$star] }}</span>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Review Form --}}
                             @auth
                                 <div class="bg-white border border-gray-200 rounded-2xl p-6">
                                     <h4 class="text-lg font-semibold text-gray-900 mb-4">Viết đánh giá của bạn</h4>
-                                    <form method="POST" action="{{ route('product.reviews.store', $product->id) }}" class="space-y-4">
+                                    <form method="POST" action="{{ route('product.reviews.store', $product->id) }}" enctype="multipart/form-data" class="space-y-4">
                                         @csrf
                                         
                                         {{-- Star Rating --}}
@@ -334,7 +489,42 @@
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">Nhận xét</label>
                                             <textarea name="comment" rows="4" 
                                                       class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                                      placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required></textarea>
+                                                      placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."></textarea>
+                                        </div>
+
+                                        {{-- Upload Media (Images + Video) --}}
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                                                <i class="fas fa-folder-plus text-purple-600"></i>
+                                                Ảnh / Video trải nghiệm của bạn
+                                            </label>
+
+                                            <div class="w-full border-2 border-dashed border-gray-300 rounded-2xl p-5 bg-gray-50 hover:border-purple-400 transition-colors">
+                                                <div class="flex flex-wrap items-center gap-4">
+                                                    <button type="button"
+                                                            onclick="document.getElementById('review-media').click()"
+                                                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-purple-200 text-purple-600 rounded-xl font-semibold shadow-sm hover:bg-purple-50 transition-colors">
+                                                        <i class="fas fa-plus-circle text-lg"></i>
+                                                        Tải ảnh / video
+                                                    </button>
+                                                    <p class="text-xs text-gray-500">
+                                                        Hỗ trợ tối đa 5 ảnh (≤5MB/ảnh) và 1 video (≤20MB)
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <input type="file" name="media[]" id="review-media" multiple accept="image/*,video/*" class="hidden">
+
+                                            <div class="mt-4 space-y-3">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-700 mb-2">Ảnh đã chọn</p>
+                                                    <div id="image-preview" class="grid grid-cols-3 gap-2"></div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-700 mb-2">Video đã chọn</p>
+                                                    <div id="video-preview" class="mt-2"></div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <button type="submit"
@@ -636,6 +826,164 @@
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // Media upload preview (images + video)
+    let currentMediaFiles = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const mediaInput = document.getElementById('review-media');
+        const imagePreview = document.getElementById('image-preview');
+        const videoPreview = document.getElementById('video-preview');
+
+        if (mediaInput) {
+            mediaInput.addEventListener('change', function(event) {
+                const files = Array.from(event.target.files);
+                let imagesCount = 0;
+                let hasVideo = false;
+                currentMediaFiles = [];
+
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        if (imagesCount >= 5) {
+                            showToast('Chỉ được chọn tối đa 5 ảnh', 'warning');
+                            return;
+                        }
+
+                        if (file.size > 5 * 1024 * 1024) {
+                            showToast(`Ảnh ${file.name} vượt quá 5MB`, 'warning');
+                            return;
+                        }
+
+                        imagesCount++;
+                        currentMediaFiles.push(file);
+                    } else if (file.type.startsWith('video/')) {
+                        if (hasVideo) {
+                            showToast('Chỉ được chọn tối đa 1 video', 'warning');
+                            return;
+                        }
+
+                        if (file.size > 20 * 1024 * 1024) {
+                            showToast('Video vượt quá 20MB', 'warning');
+                            return;
+                        }
+
+                        hasVideo = true;
+                        currentMediaFiles.push(file);
+                    } else {
+                        showToast(`Định dạng file "${file.name}" không được hỗ trợ`, 'warning');
+                    }
+                });
+
+                syncMediaInput(mediaInput);
+                renderMediaPreviews(imagePreview, videoPreview);
+            });
+        }
+    });
+
+    function syncMediaInput(mediaInput) {
+        const dt = new DataTransfer();
+        currentMediaFiles.forEach(file => dt.items.add(file));
+        mediaInput.files = dt.files;
+    }
+
+    function renderMediaPreviews(imagePreview, videoPreview) {
+        imagePreview.innerHTML = '';
+        videoPreview.innerHTML = '';
+
+        currentMediaFiles.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative group';
+                    wrapper.innerHTML = `
+                        <img src="${e.target.result}" alt="Ảnh đã chọn" class="w-full h-24 object-cover rounded-lg border-2 border-gray-200">
+                        <button type="button" onclick="removeMediaFile(${index})"
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    imagePreview.appendChild(wrapper);
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative';
+                    wrapper.innerHTML = `
+                        <video src="${e.target.result}" controls class="w-full rounded-lg border-2 border-gray-200 max-h-64"></video>
+                        <button type="button" onclick="removeMediaFile(${index})"
+                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    videoPreview.appendChild(wrapper);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function removeMediaFile(index) {
+        currentMediaFiles.splice(index, 1);
+        const mediaInput = document.getElementById('review-media');
+        const imagePreview = document.getElementById('image-preview');
+        const videoPreview = document.getElementById('video-preview');
+        syncMediaInput(mediaInput);
+        renderMediaPreviews(imagePreview, videoPreview);
+    }
+
+    // Toggle review menu & edit form
+    function toggleReviewMenu(id) {
+        document.querySelectorAll('[id^="review-menu-"]').forEach(menu => {
+            if (menu.id !== `review-menu-${id}`) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        const target = document.getElementById(`review-menu-${id}`);
+        if (target) {
+            target.classList.toggle('hidden');
+        }
+    }
+
+    function toggleEditForm(id) {
+        const form = document.getElementById(`edit-form-${id}`);
+        const menu = document.getElementById(`review-menu-${id}`);
+        if (menu) menu.classList.add('hidden');
+        if (form) form.classList.toggle('hidden');
+    }
+
+    window.addEventListener('click', function(event) {
+        const button = event.target.closest('[onclick^="toggleReviewMenu"]');
+        if (!button) {
+            document.querySelectorAll('[id^="review-menu-"]').forEach(menu => menu.classList.add('hidden'));
+        }
+    });
+
+    // Image Modal for viewing full-size images
+    function openImageModal(imageUrl) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="relative max-w-5xl max-h-full">
+                <img src="${imageUrl}" alt="Full size" class="max-w-full max-h-[90vh] object-contain rounded-lg">
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="absolute top-4 right-4 bg-white text-gray-900 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close on click outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 </script>
 @endsection

@@ -108,6 +108,42 @@
                     <p class="font-medium">Không có bình luận</p>
                 </div>
                 @endif
+
+                {{-- Images Gallery --}}
+                @if($review->images && count($review->images) > 0)
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-images mr-2 text-blue-600"></i>
+                            Ảnh đánh giá ({{ count($review->images) }})
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            @foreach($review->images_urls as $imageUrl)
+                                <div class="relative group">
+                                    <img src="{{ $imageUrl }}" alt="Review image" 
+                                         class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-500 transition-all cursor-pointer"
+                                         onclick="window.open('{{ $imageUrl }}', '_blank')">
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all flex items-center justify-center">
+                                        <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Video --}}
+                @if($review->video_url)
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-video mr-2 text-purple-600"></i>
+                            Video đánh giá
+                        </h4>
+                        <video controls class="w-full rounded-lg border-2 border-gray-200" preload="metadata">
+                            <source src="{{ $review->video_url }}" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                @endif
             </div>
 
             <!-- Card Thông tin thời gian -->
