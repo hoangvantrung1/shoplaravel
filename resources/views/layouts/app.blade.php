@@ -286,11 +286,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
                         @foreach($posts->take(3) as $post)
                                     <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                                        <div class="aspect-w-16 aspect-h-9 overflow-hidden">
-                                            <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}"
-                                                alt="{{ $post->title }}"
-                                                class="w-full h-48 object-cover hover:scale-105 transition duration-300">
-                                        </div>
+                                        <a href="{{ route('blog.detail', $post->slug) }}" class="block">
+                                            <div class="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
+                                                <img src="{{ $post->featured_image_url }}"
+                                                    alt="{{ $post->title }}"
+                                                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                    onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450/9ca3af/ffffff?text=No+Image'">
+                                            </div>
+                                        </a>
                                         <div class="p-6">
                                             <div class="flex items-center text-sm text-gray-500 mb-2">
                                                 @php

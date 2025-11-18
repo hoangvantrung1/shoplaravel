@@ -37,25 +37,40 @@ class Post extends Model
                     ->where('published_at', '<=', now());
     }
 
-        // trong app/Models/Post.php
+    /**
+     * Lấy URL ảnh đại diện của bài viết
+     * Xử lý nhiều trường hợp: null, đường dẫn đầy đủ, đường dẫn tương đối
+     */
     public function getFeaturedImageUrlAttribute()
     {
-        if (!$this->featured_image) {
-            return asset('images/default-blog.jpg');
+        // Nếu không có ảnh, trả về placeholder
+        if (empty($this->featured_image)) {
+            // Sử dụng placeholder từ placeholder.com hoặc data URI
+            return 'https://via.placeholder.com/800x450/9ca3af/ffffff?text=No+Image';
         }
         
-        // Nếu đã là đường dẫn đầy đủ
-        if (str_starts_with($this->featured_image, 'http')) {
-            return $this->featured_image;
+        $imagePath = trim($this->featured_image);
+        
+        // Nếu đã là URL đầy đủ (http/https), trả về trực tiếp
+        if (str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) {
+            return $imagePath;
         }
         
-        // Đảm bảo đường dẫn bắt đầu bằng 'images/'
-        $imagePath = $this->featured_image;
+        // Loại bỏ dấu / ở đầu nếu có (ví dụ: /images/xxx.jpg -> images/xxx.jpg)
+        $imagePath = ltrim($imagePath, '/');
+        
+        // Chuẩn hóa đường dẫn: đảm bảo bắt đầu bằng 'images/'
         if (!str_starts_with($imagePath, 'images/')) {
             $imagePath = 'images/' . $imagePath;
         }
         
-        return asset($imagePath);
+        // Kiểm tra file có tồn tại không
+        if (file_exists(public_path($imagePath))) {
+            return asset($imagePath);
+        }
+        
+        // Nếu không tìm thấy file, trả về placeholder
+        return 'https://via.placeholder.com/800x450/9ca3af/ffffff?text=Image+Not+Found';
     }
 
     public function featuredImageExists()

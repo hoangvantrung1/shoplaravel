@@ -33,9 +33,11 @@
         <!-- Bài viết chi tiết -->
         <article class="bg-white rounded-lg shadow-lg overflow-hidden">
             <!-- Ảnh cover -->
-            <div class="aspect-w-16 aspect-h-9 overflow-hidden">
-                <img src="{{ $post->featured_image ?: '/images/default-blog.jpg' }}" alt="{{ $post->title }}"
-                    class="w-full h-50 object-cover items-center mx-auto">
+            <div class="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
+                <img src="{{ $post->featured_image_url }}" 
+                     alt="{{ $post->title }}"
+                     class="w-full h-full object-cover"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/1200x675/9ca3af/ffffff?text=No+Image'">
             </div>
 
             <!-- Nội dung bài viết -->
@@ -131,11 +133,14 @@
 
                 @foreach($relatedPosts as $relatedPost)
                     <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <div class="h-48 overflow-hidden">
-                            <img src="{{ $relatedPost->featured_image ?: '/images/default-blog.jpg' }}"
-                                alt="{{ $relatedPost->title }}"
-                                class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                        </div>
+                        <a href="{{ route('blog.detail', $relatedPost->slug) }}" class="block">
+                            <div class="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
+                                <img src="{{ $relatedPost->featured_image_url }}"
+                                    alt="{{ $relatedPost->title }}"
+                                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                    onerror="this.onerror=null; this.src='https://via.placeholder.com/1200x675/9ca3af/ffffff?text=No+Image'">
+                            </div>
+                        </a>
                         <div class="p-4">
                             <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-purple-600 transition">
                                 <a href="{{ route('blog.detail', $relatedPost->slug) }}">{{ $relatedPost->title }}</a>
@@ -206,6 +211,26 @@
             height: auto;
             border-radius: 8px;
             margin: 1em 0;
+        }
+
+        /* Fallback cho aspect-ratio */
+        .aspect-\[16\/9\] {
+            aspect-ratio: 16 / 9;
+        }
+        
+        @supports not (aspect-ratio: 16 / 9) {
+            .aspect-\[16\/9\] {
+                position: relative;
+                padding-bottom: 56.25%; /* 16:9 ratio */
+            }
+            
+            .aspect-\[16\/9\] > img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
         }
     </style>
 @endsection
