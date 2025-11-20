@@ -16,10 +16,38 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     // Danh sách sản phẩm
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderBy('created_at', 'asc')->paginate(10);
-        return view('admin.products.index', compact('products'));
+        $query = Product::with(['category', 'brand'])->orderBy('created_at', 'desc');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        if ($categoryId = $request->get('category_id')) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($brandId = $request->get('brand_id')) {
+            $query->where('brand_id', $brandId);
+        }
+
+        if ($status = $request->get('stock_status')) {
+            if ($status === 'in_stock') {
+                $query->where('stock', '>', 0);
+            } elseif ($status === 'out_stock') {
+                $query->where('stock', '<=', 0);
+            }
+        }
+
+        $products = $query->paginate(10)->appends($request->query());
+        $categories = Category::all();
+        $brands = Brand::all();
+
+        return view('admin.products.index', compact('products', 'categories', 'brands'));
     }
     // Form tạo mới
     public function create()

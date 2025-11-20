@@ -20,6 +20,72 @@
             </div>
         </div>
 
+        <div class="px-6 py-5 border-b border-gray-100 bg-white">
+            <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">Tìm kiếm</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Tên hoặc slug sản phẩm..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">Danh mục</label>
+                    <select name="category_id"
+                        class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <option value="">Tất cả</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">Thương hiệu</label>
+                    <select name="brand_id"
+                        class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <option value="">Tất cả</option>
+                        @foreach($brands as $brand)
+                            <option value="{{ $brand->id }}" {{ request('brand_id') == $brand->id ? 'selected' : '' }}>
+                                {{ $brand->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-600 mb-1 block">Tồn kho</label>
+                    <div class="flex gap-2 items-center">
+                        <select name="stock_status"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
+                            <option value="">Tất cả</option>
+                            <option value="in_stock" {{ request('stock_status') === 'in_stock' ? 'selected' : '' }}>Còn hàng</option>
+                            <option value="out_stock" {{ request('stock_status') === 'out_stock' ? 'selected' : '' }}>Hết hàng</option>
+                        </select>
+                        <button type="submit"
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center gap-2">
+                            <i class="fas fa-filter"></i>
+                            Lọc
+                        </button>
+                        @if(request()->hasAny(['search','category_id','brand_id','stock_status']))
+                            <a href="{{ route('admin.products.index') }}"
+                               class="px-4 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition flex items-center gap-2"
+                               title="Xóa bộ lọc">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div class="px-6 py-8">
             @if(session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
