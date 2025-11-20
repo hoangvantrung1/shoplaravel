@@ -33,19 +33,22 @@
         {{-- Product Top Section --}}
         <div class="bg-white rounded-2xl shadow-pro p-8 flex flex-col lg:flex-row gap-8 mb-8">
             {{-- Left: Images --}}
-            <div class="lg:w-1/2 space-y-4">
-                <div class="relative bg-gray-50 rounded-2xl p-4">
-                    <img id="main-image" src="{{ asset($product->image) }}" alt="{{ $product->name }}"
-                        class="w-full h-auto max-h-[500px] object-contain rounded-xl transition-transform duration-300">
+            <div class="lg:w-1/2 space-y-3 sm:space-y-4 w-full">
+                <div class="relative bg-gray-50 rounded-xl sm:rounded-2xl p-2 sm:p-4 w-full overflow-hidden">
+                    <div class="relative w-full flex items-center justify-center min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
+                        <img id="main-image" src="{{ asset($product->image) }}" alt="{{ $product->name }}"
+                            class="w-full h-auto max-w-full max-h-[70vh] sm:max-h-[500px] object-contain rounded-lg sm:rounded-xl transition-transform duration-300"
+                            style="max-width: 100%; height: auto; display: block;">
+                    </div>
                     
                     {{-- Badges --}}
                     @if($product->discount > 0)
-                        <span class="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                        <span class="absolute top-2 left-2 sm:top-4 sm:left-4 bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs sm:text-sm font-bold px-2 sm:px-4 py-1 sm:py-2 rounded-full shadow-lg">
                             -{{ $product->discount }}%
                         </span>
                     @endif
                     @if($product->is_hot)
-                        <span class="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                        <span class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs sm:text-sm font-bold px-2 sm:px-4 py-1 sm:py-2 rounded-full shadow-lg">
                             HOT
                         </span>
                     @endif
@@ -53,11 +56,14 @@
 
                 {{-- Gallery --}}
                 @if(isset($product->gallery) && count($product->gallery) > 0)
-                    <div class="grid grid-cols-4 gap-3">
+                    <div class="grid grid-cols-4 gap-2 sm:gap-3 w-full">
                         @foreach($product->gallery as $index => $img)
-                            <img src="{{ asset($img) }}" 
-                                 onclick="changeImage('{{ asset($img) }}', this)"
-                                 class="w-full h-20 object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all duration-200 {{ $index === 0 ? 'border-purple-500' : '' }}">
+                            <div class="relative w-full aspect-square overflow-hidden rounded-lg sm:rounded-xl cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all duration-200 {{ $index === 0 ? 'border-purple-500' : '' }}"
+                                 onclick="changeImage('{{ asset($img) }}', this)">
+                                <img src="{{ asset($img) }}" 
+                                     alt="Gallery image {{ $index + 1 }}"
+                                     class="w-full h-full object-contain bg-gray-50">
+                            </div>
                         @endforeach
                     </div>
                 @endif
@@ -551,7 +557,7 @@
             </div>
         </div>
 
-        {{-- Related Products --}}
+        {{-- Related Products - Carousel như newProduct --}}
         @if(isset($relatedProducts) && count($relatedProducts) > 0)
             <section class="mb-8">
                 <div class="flex items-center justify-between mb-6">
@@ -561,53 +567,98 @@
                         Xem tất cả <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @foreach($relatedProducts as $item)
-                        <div class="product-card bg-white rounded-2xl shadow-pro overflow-hidden group">
-                            <a href="{{ route('product.show', $item->id) }}" class="block">
-                                <div class="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden">
-                                    <img src="{{ asset($item->image) }}" alt="{{ $item->name }}"
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                    
-                                    {{-- Badges --}}
-                                    @if($item->is_hot)
-                                        <span class="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                                            HOT
-                                        </span>
-                                    @endif
-                                    @if($item->discount > 0)
-                                        <span class="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                                            -{{ $item->discount }}%
-                                        </span>
-                                    @endif
-                                </div>
+                
+                {{-- Carousel Container --}}
+                <div class="relative group">
+                    {{-- Navigation Buttons --}}
+                    <button id="relatedPrevBtn"
+                        class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg p-3 hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 hidden md:flex items-center justify-center">
+                        <i class="fas fa-chevron-left text-purple-600 text-sm"></i>
+                    </button>
+                    <button id="relatedNextBtn"
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg p-3 hover:bg-white hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 hidden md:flex items-center justify-center">
+                        <i class="fas fa-chevron-right text-purple-600 text-sm"></i>
+                    </button>
+
+                    {{-- Carousel Track --}}
+                    <div class="overflow-hidden py-4">
+                        <div id="relatedCarouselTrack" class="flex transition-transform duration-500 ease-out gap-3 sm:gap-4 md:gap-6">
+                            @foreach($relatedProducts as $item)
+                                @php
+                                    $hasDiscount = ($item->discount ?? 0) > 0;
+                                    $finalPrice = $hasDiscount ? 
+                                        $item->price - ($item->price * $item->discount / 100) : 
+                                        $item->price;
+                                @endphp
                                 
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors leading-tight">
-                                        {{ $item->name }}
-                                    </h3>
-                                    
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="text-lg font-bold text-purple-600">
-                                                {{ number_format($item->price, 0, ',', '.') }}₫
-                                            </span>
-                                            @if($item->original_price > $item->price)
-                                                <span class="text-sm text-gray-500 line-through">
-                                                    {{ number_format($item->original_price, 0, ',', '.') }}₫
+                                <div class="flex-shrink-0 w-1/2 sm:w-80 md:w-72 px-1 sm:px-0">
+                                    <div class="product-card bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl md:hover:shadow-2xl overflow-hidden flex flex-col h-full group">
+                                        <a href="{{ route('product.show', $item->id) }}" class="block relative">
+                                            <div class="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden">
+                                                <img src="{{ asset($item->image) }}" alt="{{ $item->name }}"
+                                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                                
+                                                {{-- Badges --}}
+                                                <div class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 md:top-3 md:left-3 flex flex-col space-y-1">
+                                                    @if($item->is_hot)
+                                                        <span class="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg">
+                                                            HOT
+                                                        </span>
+                                                    @endif
+                                                    @if($hasDiscount)
+                                                        <span class="bg-red-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg">
+                                                            -{{ $item->discount }}%
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </a>
+                                        
+                                        <div class="p-2.5 sm:p-3 md:p-4 lg:p-5 flex-1 flex flex-col">
+                                            {{-- Title --}}
+                                            <a href="{{ route('product.show', $item->id) }}" class="block group">
+                                                <h3 class="text-gray-900 font-semibold mb-1 sm:mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors duration-300 text-xs sm:text-sm md:text-base leading-tight">
+                                                    {{ $item->name }}
+                                                </h3>
+                                            </a>
+
+                                            {{-- Price --}}
+                                            <div class="flex items-center space-x-1 sm:space-x-2 mb-2 sm:mb-3 mt-auto">
+                                                <span class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-purple-600">
+                                                    {{ number_format($finalPrice, 0, ',', '.') }}₫
                                                 </span>
-                                            @endif
+                                                @if($hasDiscount && $item->original_price > $item->price)
+                                                    <span class="text-gray-400 line-through text-[10px] sm:text-xs">
+                                                        {{ number_format($item->original_price, 0, ',', '.') }}₫
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            
+                                            {{-- Action Button --}}
+                                            <form action="{{ route('cart.add', $item->id) }}" method="POST" class="w-full">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-semibold text-xs sm:text-sm md:text-base flex items-center justify-center gap-1.5 sm:gap-2">
+                                                    <i class="fas fa-shopping-cart text-xs sm:text-sm"></i> 
+                                                    <span class="hidden sm:inline">Thêm vào giỏ</span>
+                                                    <span class="sm:hidden">Mua</span>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
-                                    
-                                    <button class="w-full bg-gray-100 hover:bg-purple-600 hover:text-white text-gray-700 font-semibold py-2.5 rounded-xl transition-all duration-300 group-hover:scale-105">
-                                        <i class="fas fa-shopping-cart mr-2"></i>
-                                        Mua ngay
-                                    </button>
                                 </div>
-                            </a>
+                            @endforeach
                         </div>
-                    @endforeach
+                    </div>
+
+                    {{-- Dots Indicator --}}
+                    <div class="flex justify-center mt-4 sm:mt-6 space-x-2">
+                        @for($i = 0; $i < ceil(count($relatedProducts) / 2); $i++)
+                            <button
+                                class="related-carousel-dot w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-300 hover:bg-purple-400 transition-all duration-300 {{ $i === 0 ? 'bg-gradient-to-r from-purple-600 to-blue-500 w-6 sm:w-8' : '' }}"
+                                data-slide="{{ $i }}"></button>
+                        @endfor
+                    </div>
                 </div>
             </section>
         @endif
@@ -985,5 +1036,159 @@
             }
         });
     }
+
+    // Related Products Carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        const relatedTrack = document.getElementById('relatedCarouselTrack');
+        const relatedPrevBtn = document.getElementById('relatedPrevBtn');
+        const relatedNextBtn = document.getElementById('relatedNextBtn');
+        const relatedDots = document.querySelectorAll('.related-carousel-dot');
+        const relatedCarouselContainer = document.querySelector('.relative.group');
+
+        if (!relatedTrack) return;
+
+        let currentSlide = 0;
+        let autoPlayInterval;
+        
+        function getItemsPerSlide() {
+            if (window.innerWidth < 640) return 2; // Mobile: 2 items
+            if (window.innerWidth < 768) return 2; // sm: 2 items
+            if (window.innerWidth < 1024) return 3; // md: 3 items
+            return 4; // lg+: 4 items
+        }
+        
+        function getGap() {
+            if (window.innerWidth < 640) return 12; // Mobile: 12px
+            if (window.innerWidth < 768) return 16; // sm: 16px
+            return 24; // md+: 24px
+        }
+
+        const totalSlides = Math.ceil({{ count($relatedProducts ?? []) }} / getItemsPerSlide());
+
+        function updateRelatedCarousel() {
+            const itemsPerSlide = getItemsPerSlide();
+            const gap = getGap();
+            const itemWidth = window.innerWidth < 640 ? 
+                (window.innerWidth / 2 - gap) : 
+                (window.innerWidth < 768 ? 320 : 288);
+            const translateX = -currentSlide * (itemWidth + gap) * itemsPerSlide;
+            
+            relatedTrack.style.transform = `translateX(${translateX}px)`;
+
+            // Update dots
+            relatedDots.forEach((dot, index) => {
+                const isActive = index === currentSlide;
+                dot.classList.toggle('bg-gradient-to-r', isActive);
+                dot.classList.toggle('from-purple-600', isActive);
+                dot.classList.toggle('to-blue-500', isActive);
+                dot.classList.toggle('bg-gray-300', !isActive);
+                dot.classList.toggle('w-6', isActive && window.innerWidth < 640);
+                dot.classList.toggle('w-8', isActive && window.innerWidth >= 640);
+                dot.classList.toggle('w-2', !isActive && window.innerWidth < 640);
+                dot.classList.toggle('w-3', !isActive && window.innerWidth >= 640);
+            });
+        }
+
+        function nextRelatedSlide() {
+            currentSlide = currentSlide < totalSlides - 1 ? currentSlide + 1 : 0;
+            updateRelatedCarousel();
+        }
+
+        function prevRelatedSlide() {
+            currentSlide = currentSlide > 0 ? currentSlide - 1 : totalSlides - 1;
+            updateRelatedCarousel();
+        }
+
+        // Auto-play functionality
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(() => {
+                nextRelatedSlide();
+            }, 3000); // Chuyển slide mỗi 5 giây
+        }
+
+        function resetAutoPlay() {
+            clearInterval(autoPlayInterval);
+            startAutoPlay();
+        }
+
+        if (relatedPrevBtn) {
+            relatedPrevBtn.addEventListener('click', () => {
+                prevRelatedSlide();
+                resetAutoPlay();
+            });
+        }
+
+        if (relatedNextBtn) {
+            relatedNextBtn.addEventListener('click', () => {
+                nextRelatedSlide();
+                resetAutoPlay();
+            });
+        }
+
+        // Dot navigation
+        relatedDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateRelatedCarousel();
+                resetAutoPlay();
+            });
+        });
+
+        // Pause auto-play on hover (desktop only)
+        if (relatedCarouselContainer) {
+            relatedCarouselContainer.addEventListener('mouseenter', () => {
+                clearInterval(autoPlayInterval);
+            });
+
+            relatedCarouselContainer.addEventListener('mouseleave', () => {
+                startAutoPlay();
+            });
+        }
+
+        // Handle resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                currentSlide = 0;
+                updateRelatedCarousel();
+                resetAutoPlay();
+            }, 250);
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        if (relatedTrack) {
+            relatedTrack.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                clearInterval(autoPlayInterval); // Pause khi touch
+            });
+
+            relatedTrack.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+                startAutoPlay(); // Resume sau khi swipe
+            });
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartX - touchEndX;
+
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0) {
+                        nextRelatedSlide();
+                    } else {
+                        prevRelatedSlide();
+                    }
+                }
+            }
+        }
+
+        // Initialize
+        updateRelatedCarousel();
+        startAutoPlay(); // Bắt đầu auto-play
+    });
 </script>
 @endsection
