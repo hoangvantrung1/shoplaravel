@@ -53,7 +53,7 @@
                     $flashSaleProducts = collect();
                     
                     // Kiểm tra xem có sản phẩm với sale_price và trong thời gian deal không
-                    $now = now();
+                    $now = \Carbon\Carbon::now();
                     $productsWithSale = $newProducts->filter(function($product) use ($now) {
                         if (!isset($product->sale_price) || $product->sale_price === null) {
                             return false;
@@ -66,14 +66,26 @@
                             return false;
                         }
                         
-                        // Nếu có deal_start_date và deal_end_date, kiểm tra thời gian
-                        if (isset($product->deal_start_date) && isset($product->deal_end_date)) {
+                        $hasStart = isset($product->deal_start_date);
+                        $hasEnd = isset($product->deal_end_date);
+                        
+                        if ($hasStart && $hasEnd) {
                             $startDate = \Carbon\Carbon::parse($product->deal_start_date);
                             $endDate = \Carbon\Carbon::parse($product->deal_end_date);
                             return $now->between($startDate, $endDate);
                         }
                         
-                        // Nếu không có deal_start_date và deal_end_date, chỉ kiểm tra sale_price (tương thích ngược)
+                        if ($hasStart && !$hasEnd) {
+                            $startDate = \Carbon\Carbon::parse($product->deal_start_date);
+                            return $now->greaterThanOrEqualTo($startDate);
+                        }
+                        
+                        if (!$hasStart && $hasEnd) {
+                            $endDate = \Carbon\Carbon::parse($product->deal_end_date);
+                            return $now->lessThanOrEqualTo($endDate);
+                        }
+                        
+                        // Không cấu hình thời gian => luôn hiển thị (tương thích ngược)
                         return true;
                     });
                     

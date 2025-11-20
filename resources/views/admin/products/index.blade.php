@@ -5,12 +5,18 @@
 @section('content')
     <div class="bg-white rounded-lg shadow-md overflow-hidden max-w-9xl mx-auto">
         <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <h1 class="text-2xl font-bold text-white">Quản lý sản phẩm</h1>
-                <a href="{{ route('admin.products.create') }}"
-                    class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition duration-200 flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Thêm mới
-                </a>
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="{{ route('admin.products.deals') }}"
+                        class="bg-white/20 text-white px-4 py-2 rounded-lg font-medium hover:bg-white/30 transition duration-200 flex items-center">
+                        <i class="fas fa-bolt mr-2"></i> Xem deal
+                    </a>
+                    <a href="{{ route('admin.products.create') }}"
+                        class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition duration-200 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Thêm mới
+                    </a>
+                </div>
             </div>
         </div>
 

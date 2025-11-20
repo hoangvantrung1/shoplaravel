@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\ProductLog;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -252,5 +253,73 @@ class ProductController extends Controller
             ->paginate(20);
 
         return view('admin.products.logs', compact('product', 'logs'));
+    }
+
+    /**
+     * Danh sách deal khuyến mãi đang chạy / sắp diễn ra / đã kết thúc
+     */
+    public function deals(Request $request)
+    {
+        $now = Carbon::now();
+        $status = $request->get('status', 'active');
+
+        $baseQuery = Product::with(['category', 'brand'])
+            ->whereNotNull('sale_price')
+            ->where('sale_price', '>', 0)
+            ->whereColumn('sale_price', '<', 'price');
+
+        $activeQuery = (clone $baseQuery)
+            ->where(function ($query) use ($now) {
+                $query->whereNull('deal_start_date')
+                    ->orWhere('deal_start_date', '<=', $now);
+            })
+            ->where(function ($query) use ($now) {
+                $query->whereNull('deal_end_date')
+                    ->orWhere('deal_end_date', '>=', $now);
+            });
+
+        $upcomingQuery = (clone $baseQuery)
+            ->whereNotNull('deal_start_date')
+            ->where('deal_start_date', '>', $now);
+
+        $expiredQuery = (clone $baseQuery)
+            ->whereNotNull('deal_end_date')
+            ->where('deal_end_date', '<', $now);
+
+        $stats = [
+            'active' => (clone $activeQuery)->count(),
+            'upcoming' => (clone $upcomingQuery)->count(),
+            'expired' => (clone $expiredQuery)->count(),
+        ];
+        $stats['all'] = array_sum($stats);
+
+        switch ($status) {
+            case 'upcoming':
+                $productsQuery = $upcomingQuery;
+                break;
+            case 'expired':
+                $productsQuery = $expiredQuery;
+                break;
+            case 'all':
+                $productsQuery = $baseQuery;
+                break;
+            case 'active':
+            default:
+                $status = 'active';
+                $productsQuery = $activeQuery;
+                break;
+        }
+
+        $products = $productsQuery
+            ->orderByRaw('COALESCE(deal_start_date, created_at) ASC')
+            ->paginate(12)
+            ->appends($request->query());
+
+        return view('admin.products.deals', [
+            'products' => $products,
+            'stats' => $stats,
+            'status' => $status,
+            'now' => $now,
+        ]);
     }
 }

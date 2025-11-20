@@ -147,6 +147,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Quản lý sản phẩm
         Route::resource('products', AdminProductController::class);
         Route::get('/products/{id}/logs', [AdminProductController::class, 'logs'])->name('products.logs');
+        Route::get('/deals', [AdminProductController::class, 'deals'])->name('products.deals');
 
         // Quản lý danh mục
         Route::resource('categories', AdminCategoryController::class);
