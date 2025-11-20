@@ -3,10 +3,55 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'ShopLaravel - Cửa hàng công nghệ hàng đầu')</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    {{-- SEO Meta Tags --}}
+    <title>@yield('title', 'SOP - Cửa hàng công nghệ hàng đầu')</title>
+    <meta name="description" content="@yield('description', 'Khám phá bộ sưu tập công nghệ đa dạng với giá tốt nhất. Sản phẩm chính hãng, giao hàng nhanh, hỗ trợ 24/7.')">
+    <meta name="keywords" content="@yield('keywords', 'công nghệ, điện thoại, laptop, phụ kiện, mua sắm online')">
+    <meta name="author" content="SOP">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    
+    {{-- Open Graph / Facebook --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', 'SOP - Cửa hàng công nghệ hàng đầu')">
+    <meta property="og:description" content="@yield('description', 'Khám phá bộ sưu tập công nghệ đa dạng với giá tốt nhất.')">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:locale" content="vi_VN">
+    <meta property="og:site_name" content="SOP">
+    
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('title', 'SOP - Cửa hàng công nghệ hàng đầu')">
+    <meta name="twitter:description" content="@yield('description', 'Khám phá bộ sưu tập công nghệ đa dạng với giá tốt nhất.')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    
+    {{-- Performance Optimizations --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    {{-- Favicon --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    
+    {{-- PWA Support --}}
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SOP">
+    
+    {{-- External Resources --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {{-- CSRF Token --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         /* Tối ưu hóa các animation */
         @keyframes fadeInUp {
@@ -152,23 +197,30 @@
         .back-to-top {
             display: none;
             position: fixed;
-            bottom: 30px;
+            bottom: 100px;
             right: 30px;
             z-index: 99;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: #a855f7;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
             color: white;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
             transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
         }
 
         .back-to-top:hover {
-            background: #9333ea;
-            transform: translateY(-3px);
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+        }
+
+        .back-to-top:active {
+            transform: translateY(-1px) scale(1.05);
         }
 
         /* Giảm chuyển động cho những người nhạy cảm */
@@ -232,10 +284,102 @@
             opacity: 1;
             transform: scale(1.1);
         }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Skip to content link (Accessibility) */
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #8b5cf6;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 4px 0;
+        }
+
+        .skip-to-content:focus {
+            top: 0;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast notification container */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        /* Focus visible for accessibility */
+        *:focus-visible {
+            outline: 2px solid #8b5cf6;
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-800 flex flex-col min-h-screen">
+    {{-- Skip to content (Accessibility) --}}
+    <a href="#main-content" class="skip-to-content">Bỏ qua đến nội dung chính</a>
+    
+    {{-- Loading Overlay --}}
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    {{-- Toast Notification Container --}}
+    <div id="toastContainer" class="toast-container"></div>
 
     {{-- Navbar --}}
     @include('layouts.navbar')
@@ -244,7 +388,7 @@
     @include('components.banner-video')
 
     {{-- Main Content --}}
-    <main class="flex-1 w-full">
+    <main id="main-content" class="flex-1 w-full" role="main">
         @yield('content')
 
         {{-- Danh mục sản phẩm --}}
@@ -513,14 +657,47 @@
         </div>
     </div>
 
+    <!-- Back to Top Button -->
+    <button id="backToTop" 
+            class="back-to-top" 
+            aria-label="Lên đầu trang"
+            title="Lên đầu trang">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- Chat bubble icon với animation -->
     <button id="openChat"
-        class="fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center text-2xl hover:from-purple-700 hover:to-purple-800 transition-all hover:scale-110 z-30 group">
+        class="fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center text-2xl hover:from-purple-700 hover:to-purple-800 transition-all hover:scale-110 z-30 group"
+        aria-label="Mở chat hỗ trợ"
+        title="Chat hỗ trợ">
         <span class="group-hover:scale-110 transition-transform">💬</span>
         <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
     </button>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Loading overlay - Ẩn sau khi page load
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        loadingOverlay.classList.remove('active');
+                    }, 300);
+                });
+            }
+
+            // Show loading on navigation
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('a[href]');
+                if (link && link.href && !link.target && !link.hasAttribute('download') && 
+                    !link.href.startsWith('#') && !link.href.startsWith('javascript:')) {
+                    const currentHost = window.location.host;
+                    const linkHost = new URL(link.href, window.location.href).host;
+                    if (linkHost === currentHost && loadingOverlay) {
+                        loadingOverlay.classList.add('active');
+                    }
+                }
+            });
+
             // Flash message handling
             const flashMessage = document.getElementById('flash-message');
             if (flashMessage) {
@@ -532,22 +709,81 @@
                 }, 3000);
             }
 
-            // Back to top button
+            // Back to top button với smooth scroll
             const backToTopButton = document.getElementById('backToTop');
+            if (backToTopButton) {
+                window.addEventListener('scroll', () => {
+                    if (window.pageYOffset > 300) {
+                        backToTopButton.style.display = 'flex';
+                    } else {
+                        backToTopButton.style.display = 'none';
+                    }
+                });
 
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopButton.style.display = 'block';
-                } else {
-                    backToTopButton.style.display = 'none';
+                backToTopButton.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Toast notification system
+            window.showToast = function(message, type = 'success', duration = 4000) {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+
+                const toast = document.createElement('div');
+                const icons = {
+                    success: 'fa-check-circle',
+                    error: 'fa-exclamation-circle',
+                    warning: 'fa-exclamation-triangle',
+                    info: 'fa-info-circle'
+                };
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    info: 'bg-blue-500'
+                };
+
+                toast.className = `${colors[type] || colors.success} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 transform translate-x-full transition-transform duration-300 max-w-sm`;
+                toast.innerHTML = `
+                    <i class="fas ${icons[type] || icons.success} text-xl"></i>
+                    <span class="flex-1">${message}</span>
+                    <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                container.appendChild(toast);
+
+                // Animate in
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full');
+                }, 10);
+
+                // Auto remove
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            };
+
+            // Error handling
+            window.addEventListener('error', (e) => {
+                console.error('Global error:', e.error);
+                if (window.showToast) {
+                    window.showToast('Đã xảy ra lỗi. Vui lòng thử lại sau.', 'error');
                 }
             });
 
-            backToTopButton.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+            // Unhandled promise rejection
+            window.addEventListener('unhandledrejection', (e) => {
+                console.error('Unhandled promise rejection:', e.reason);
+                if (window.showToast) {
+                    window.showToast('Đã xảy ra lỗi. Vui lòng thử lại sau.', 'error');
+                }
             });
 
             // Product card animation on scroll
