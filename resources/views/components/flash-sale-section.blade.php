@@ -16,7 +16,7 @@
                         <span class="text-xs sm:text-sm text-gray-600">Chỉ hôm nay</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
-                        Deal hôm nay
+                        Deal hot hôm nay
                     </h2>
                     <p class="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
                         Sản phẩm nổi bật với giá tốt nhất
@@ -52,14 +52,29 @@
                     // Ưu tiên sản phẩm có sale_price (nếu có trong database)
                     $flashSaleProducts = collect();
                     
-                    // Kiểm tra xem có sản phẩm với sale_price không
-                    $productsWithSale = $newProducts->filter(function($product) {
+                    // Kiểm tra xem có sản phẩm với sale_price và trong thời gian deal không
+                    $now = now();
+                    $productsWithSale = $newProducts->filter(function($product) use ($now) {
                         if (!isset($product->sale_price) || $product->sale_price === null) {
                             return false;
                         }
                         $salePrice = (float) $product->sale_price;
                         $price = (float) $product->price;
-                        return $salePrice > 0 && $salePrice < $price && $product->stock > 0;
+                        
+                        // Kiểm tra giá sale hợp lệ
+                        if ($salePrice <= 0 || $salePrice >= $price || $product->stock <= 0) {
+                            return false;
+                        }
+                        
+                        // Nếu có deal_start_date và deal_end_date, kiểm tra thời gian
+                        if (isset($product->deal_start_date) && isset($product->deal_end_date)) {
+                            $startDate = \Carbon\Carbon::parse($product->deal_start_date);
+                            $endDate = \Carbon\Carbon::parse($product->deal_end_date);
+                            return $now->between($startDate, $endDate);
+                        }
+                        
+                        // Nếu không có deal_start_date và deal_end_date, chỉ kiểm tra sale_price (tương thích ngược)
+                        return true;
                     });
                     
                     // Nếu có sản phẩm sale, lấy 4 sản phẩm đó
@@ -154,12 +169,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const countdownEl = document.getElementById('countdown');
+    const sectionEl = document.querySelector('section');
+    
     // Countdown Timer
     function updateCountdown() {
         const now = new Date().getTime();
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
         const distance = endOfDay - now;
+
+        // Nếu đã hết ngày (distance <= 0), ẩn section
+        if (distance <= 0) {
+            if (sectionEl) {
+                sectionEl.style.display = 'none';
+            }
+            return;
+        }
+
+        // Hiển thị section nếu còn thời gian
+        if (sectionEl) {
+            sectionEl.style.display = 'block';
+        }
 
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));

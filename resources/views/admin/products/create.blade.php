@@ -42,6 +42,25 @@
                    placeholder="Để trống nếu không có khuyến mãi">
             <p class="text-sm text-gray-500 mt-1">Giá bán khuyến mãi. Phải nhỏ hơn giá gốc để có hiệu lực.</p>
         </div>
+        
+        {{-- Thời gian Deal --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block font-semibold mb-1">Thời gian bắt đầu Deal <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+                <input type="datetime-local" name="deal_start_date" 
+                       value="{{ old('deal_start_date') }}" 
+                       class="w-full border px-3 py-2 rounded">
+                <p class="text-sm text-gray-500 mt-1">Để trống nếu deal bắt đầu ngay</p>
+            </div>
+            
+            <div>
+                <label class="block font-semibold mb-1">Thời gian kết thúc Deal <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+                <input type="datetime-local" name="deal_end_date" 
+                       value="{{ old('deal_end_date') }}" 
+                       class="w-full border px-3 py-2 rounded">
+                <p class="text-sm text-gray-500 mt-1">Để trống nếu deal không có thời hạn. Ví dụ: Deal hôm nay thì set kết thúc 23:59:59</p>
+            </div>
+        </div>
         <div>
             <label class="block font-semibold mb-2">Số lượng tồn kho</label>
             <input type="number" name="stock" value="{{ old('stock', 0) }}"

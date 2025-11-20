@@ -33,6 +33,31 @@
                 @endif
             </p>
         </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block font-semibold mb-1">Thời gian bắt đầu Deal <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+                <input type="datetime-local" name="deal_start_date" 
+                       value="{{ old('deal_start_date', $product->deal_start_date ? $product->deal_start_date->format('Y-m-d\TH:i') : '') }}" 
+                       class="w-full border px-3 py-2 rounded">
+                <p class="text-sm text-gray-500 mt-1">Để trống nếu deal bắt đầu ngay</p>
+            </div>
+            
+            <div>
+                <label class="block font-semibold mb-1">Thời gian kết thúc Deal <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+                <input type="datetime-local" name="deal_end_date" 
+                       value="{{ old('deal_end_date', $product->deal_end_date ? $product->deal_end_date->format('Y-m-d\TH:i') : '') }}" 
+                       class="w-full border px-3 py-2 rounded">
+                <p class="text-sm text-gray-500 mt-1">
+                    Để trống nếu deal không có thời hạn. 
+                    @if($product->deal_end_date)
+                        <span class="text-orange-600 font-semibold">
+                            Hết hạn: {{ $product->deal_end_date->format('d/m/Y H:i') }}
+                        </span>
+                    @endif
+                </p>
+            </div>
+        </div>
         <div class="mb-4">
             <label for="description" class="block text-gray-700">Mô tả sản phẩm</label>
             <textarea name="description" id="description" rows="4"

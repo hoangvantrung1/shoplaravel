@@ -40,11 +40,14 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
+            'deal_start_date' => 'nullable|date',
+            'deal_end_date' => 'nullable|date|after:deal_start_date',
             'brand_id' => 'required|exists:brands,id',
             'category_id' => 'required|exists:categories,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ], [
             'sale_price.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc.',
+            'deal_end_date.after' => 'Thời gian kết thúc phải sau thời gian bắt đầu.',
         ]);
 
         // Tạo slug tự động từ tên
@@ -70,6 +73,10 @@ class ProductController extends Controller
         } else {
             $requestData['sale_price'] = (float) $request->sale_price;
         }
+        
+        // Xử lý deal_start_date và deal_end_date
+        $requestData['deal_start_date'] = $request->deal_start_date ? $request->deal_start_date : null;
+        $requestData['deal_end_date'] = $request->deal_end_date ? $request->deal_end_date : null;
 
         Product::create($requestData);
 
@@ -95,6 +102,8 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
+            'deal_start_date' => 'nullable|date',
+            'deal_end_date' => 'nullable|date|after:deal_start_date',
             'stock' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
@@ -102,6 +111,7 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ], [
             'sale_price.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc.',
+            'deal_end_date.after' => 'Thời gian kết thúc phải sau thời gian bắt đầu.',
         ]);
 
         // is_hot checkbox
@@ -130,6 +140,10 @@ class ProductController extends Controller
         } else {
             $validated['sale_price'] = (float) $request->sale_price;
         }
+        
+        // Xử lý deal_start_date và deal_end_date
+        $validated['deal_start_date'] = $request->deal_start_date ? $request->deal_start_date : null;
+        $validated['deal_end_date'] = $request->deal_end_date ? $request->deal_end_date : null;
 
         // Lưu giá trị cũ để so sánh
         $oldPrice = $product->price;
