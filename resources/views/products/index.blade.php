@@ -344,13 +344,19 @@
                                 {{-- Price & Actions --}}
                                 <div class="flex items-center justify-between gap-1.5 sm:gap-2">
                                     <div class="flex flex-col flex-1 min-w-0">
-                                        <div class="flex items-center space-x-1 sm:space-x-2 flex-wrap">
-                                            <span class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-purple-600 whitespace-nowrap">
-                                                {{ number_format($finalPrice, 0, ',', '.') }}₫
-                                            </span>
+                                        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                             @if($hasSale)
+                                                {{-- Có giảm giá: hiển thị giá sale màu đỏ và giá gốc gạch ngang cùng hàng --}}
+                                                <span class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-red-600 whitespace-nowrap">
+                                                    {{ number_format($finalPrice, 0, ',', '.') }}₫
+                                                </span>
                                                 <span class="text-gray-400 line-through text-[10px] sm:text-xs whitespace-nowrap">
                                                     {{ number_format($product->price, 0, ',', '.') }}₫
+                                                </span>
+                                            @else
+                                                {{-- Không có giảm giá: chỉ hiển thị giá gốc --}}
+                                                <span class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-purple-600 whitespace-nowrap">
+                                                    {{ number_format($finalPrice, 0, ',', '.') }}₫
                                                 </span>
                                             @endif
                                         </div>

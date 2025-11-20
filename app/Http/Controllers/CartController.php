@@ -21,14 +21,27 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $quantity = max(1, (int) $request->quantity);
 
+        // Tính giá cuối cùng (ưu tiên sale_price nếu có)
+        $finalPrice = $product->price;
+        if (isset($product->sale_price) && $product->sale_price !== null) {
+            $salePrice = (float) $product->sale_price;
+            $price = (float) $product->price;
+            if ($salePrice > 0 && $salePrice < $price) {
+                $finalPrice = $salePrice;
+            }
+        }
+
         if (isset($cart[$request->id])) {
             $cart[$request->id]['quantity'] += $quantity;
+            // Cập nhật giá nếu có thay đổi
+            $cart[$request->id]['price'] = $finalPrice;
         } else {
             $cart[$request->id] = [
                 "id" => $product->id,
                 "name" => $product->name,
                 "quantity" => $quantity,
-                "price" => $product->price,
+                "price" => $finalPrice,
+                "original_price" => $product->price, // Lưu giá gốc để hiển thị
                 "image" => $product->image
             ];
         }

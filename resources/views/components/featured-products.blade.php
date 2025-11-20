@@ -55,13 +55,19 @@
                         </a>
 
                         <div class="flex items-center justify-between mt-auto">
-                            <div class="flex flex-col">
-                                <span class="text-sm sm:text-base md:text-lg font-bold text-purple-600">
-                                    {{ number_format($finalPrice, 0, ',', '.') }}₫
-                                </span>
+                            <div class="flex items-center gap-2 flex-wrap">
                                 @if($hasSale)
+                                    {{-- Có giảm giá: hiển thị giá sale và giá gốc cùng hàng --}}
+                                    <span class="text-sm sm:text-base md:text-lg font-bold text-red-600">
+                                        {{ number_format($finalPrice, 0, ',', '.') }}₫
+                                    </span>
                                     <span class="text-[10px] sm:text-xs text-gray-400 line-through">
                                         {{ number_format($product->price, 0, ',', '.') }}₫
+                                    </span>
+                                @else
+                                    {{-- Không có giảm giá: chỉ hiển thị giá gốc --}}
+                                    <span class="text-sm sm:text-base md:text-lg font-bold text-purple-600">
+                                        {{ number_format($finalPrice, 0, ',', '.') }}₫
                                     </span>
                                 @endif
                             </div>

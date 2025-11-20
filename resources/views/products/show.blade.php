@@ -102,16 +102,30 @@
                     </div>
 
                     {{-- Price --}}
-                    <div class="flex items-center space-x-4">
-                        <span class="text-3xl font-bold text-purple-600">
-                            {{ number_format($product->price, 0, ',', '.') }}₫
-                        </span>
-                        @if($product->original_price > $product->price)
-                            <span class="text-xl text-gray-500 line-through">
-                                {{ number_format($product->original_price, 0, ',', '.') }}₫
-                            </span>
-                            <span class="bg-red-100 text-red-800 text-sm font-semibold px-3 py-1 rounded-full">
-                                -{{ number_format(($product->original_price - $product->price) / $product->original_price * 100, 0) }}%
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+                        @php
+                            $hasSale = isset($product->hasSale) ? $product->hasSale : false;
+                            $finalPrice = isset($product->finalPrice) ? $product->finalPrice : (float) $product->price;
+                            $discount = isset($product->discount) ? $product->discount : 0;
+                        @endphp
+                        
+                        @if($hasSale && $discount > 0)
+                            {{-- Có giảm giá: hiển thị giá sale lớn, giá gốc gạch ngang, và badge --}}
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <span class="text-3xl sm:text-4xl font-bold text-red-600">
+                                    {{ number_format($finalPrice, 0, ',', '.') }}₫
+                                </span>
+                                <span class="text-xl sm:text-2xl text-gray-500 line-through">
+                                    {{ number_format($product->price, 0, ',', '.') }}₫
+                                </span>
+                                <span class="bg-red-100 text-red-800 text-sm sm:text-base font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-full">
+                                    -{{ $discount }}%
+                                </span>
+                            </div>
+                        @else
+                            {{-- Không có giảm giá: chỉ hiển thị giá gốc --}}
+                            <span class="text-3xl sm:text-4xl font-bold text-purple-600">
+                                {{ number_format($finalPrice, 0, ',', '.') }}₫
                             </span>
                         @endif
                     </div>

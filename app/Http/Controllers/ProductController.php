@@ -150,6 +150,26 @@ class ProductController extends Controller
             1 => $reviews->where('rating', 1)->count(),
         ];
 
+        // Tính discount và giá cuối cùng cho product detail
+        $hasSale = false;
+        $discount = 0;
+        $finalPrice = (float) $product->price;
+        
+        if (isset($product->sale_price) && $product->sale_price !== null) {
+            $salePrice = (float) $product->sale_price;
+            $price = (float) $product->price;
+            if ($salePrice > 0 && $salePrice < $price) {
+                $hasSale = true;
+                $finalPrice = $salePrice;
+                $discount = round((1 - $salePrice / $price) * 100);
+            }
+        }
+        
+        // Gán vào product để dùng trong view
+        $product->hasSale = $hasSale;
+        $product->discount = $discount;
+        $product->finalPrice = $finalPrice;
+
         $relatedProducts = Product::withCount('reviews')
             ->withAvg('reviews', 'rating')
             ->where('category_id', $product->category_id)

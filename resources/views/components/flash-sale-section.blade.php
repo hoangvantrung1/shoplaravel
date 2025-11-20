@@ -113,9 +113,9 @@
                                 </a>
 
                                 <div class="flex items-center justify-between mb-2">
-                                    <div class="flex flex-col">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         @if($hasSale)
-                                            {{-- Có giảm giá: hiển thị giá sale màu đỏ và giá gốc gạch ngang --}}
+                                            {{-- Có giảm giá: hiển thị giá sale và giá gốc cùng hàng --}}
                                             <span class="text-sm sm:text-base font-bold text-red-600">
                                                 {{ number_format($finalPrice, 0, ',', '.') }}₫
                                             </span>
@@ -123,7 +123,7 @@
                                                 {{ number_format($product->price, 0, ',', '.') }}₫
                                             </span>
                                         @else
-                                            {{-- Không có giảm giá: chỉ hiển thị giá gốc màu đen --}}
+                                            {{-- Không có giảm giá: chỉ hiển thị giá gốc --}}
                                             <span class="text-sm sm:text-base font-bold text-gray-900">
                                                 {{ number_format($finalPrice, 0, ',', '.') }}₫
                                             </span>

@@ -15,10 +15,12 @@
         <div id="carouselTrack" class="flex transition-transform duration-500 ease-out gap-6">
             @foreach($newProducts as $newProduct)
                 @php
-                    $hasDiscount = ($newProduct->discount ?? 0) > 0;
-                    $finalPrice = $hasDiscount ? 
-                        $newProduct->price - ($newProduct->price * $newProduct->discount / 100) : 
-                        $newProduct->price;
+                    // Tính giá sale từ sale_price (nếu có)
+                    $hasSale = isset($newProduct->sale_price) && 
+                               $newProduct->sale_price !== null && 
+                               (float) $newProduct->sale_price > 0 && 
+                               (float) $newProduct->sale_price < (float) $newProduct->price;
+                    $finalPrice = $hasSale ? (float) $newProduct->sale_price : (float) $newProduct->price;
                     $rating = $newProduct->reviews_avg_rating ?? 0;
                     $reviewCount = $newProduct->reviews_count ?? 0;
                 @endphp
@@ -31,9 +33,12 @@
                                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
                                 
                                 {{-- Discount Badge --}}
-                                @if($hasDiscount)
+                                @if($hasSale)
+                                    @php
+                                        $discount = round((1 - (float) $newProduct->sale_price / (float) $newProduct->price) * 100);
+                                    @endphp
                                     <span class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                                        -{{ $newProduct->discount }}%
+                                        -{{ $discount }}%
                                     </span>
                                 @endif
 
@@ -99,13 +104,19 @@
 
                                 {{-- Price --}}
                                 <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center space-x-2">
-                                        <p class="text-2xl font-bold text-purple-600">
-                                            {{ number_format($finalPrice, 0, ',', '.') }}₫
-                                        </p>
-                                        @if($hasDiscount)
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        @if($hasSale)
+                                            {{-- Có giảm giá: hiển thị giá sale màu đỏ và giá gốc gạch ngang cùng hàng --}}
+                                            <p class="text-2xl font-bold text-red-600">
+                                                {{ number_format($finalPrice, 0, ',', '.') }}₫
+                                            </p>
                                             <p class="text-gray-400 text-sm line-through">
                                                 {{ number_format($newProduct->price, 0, ',', '.') }}₫
+                                            </p>
+                                        @else
+                                            {{-- Không có giảm giá: chỉ hiển thị giá gốc --}}
+                                            <p class="text-2xl font-bold text-purple-600">
+                                                {{ number_format($finalPrice, 0, ',', '.') }}₫
                                             </p>
                                         @endif
                                     </div>
