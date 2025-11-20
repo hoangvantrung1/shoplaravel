@@ -1,4 +1,4 @@
-<section class="relative min-h-[60vh] sm:min-h-[65vh] md:min-h-[70vh] lg:min-h-[75vh] flex items-center justify-center overflow-hidden bg-gray-50 banner-section">
+<section class="relative min-h-[60vh] sm:min-h-[65vh] md:min-h-[70vh] lg:min-h-[75vh] flex items-center justify-center overflow-hidden bg-gray-50 banner-section pt-16 sm:pt-20">
     <!-- Elegant Background decorative elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <!-- Subtle gradient orbs -->
