@@ -39,9 +39,12 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0|lt:price',
             'brand_id' => 'required|exists:brands,id',
             'category_id' => 'required|exists:categories,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'sale_price.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc.',
         ]);
 
         // Tạo slug tự động từ tên
@@ -59,6 +62,13 @@ class ProductController extends Controller
             $imageName = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads'), $imageName);
             $requestData['image'] = 'uploads/' . $imageName;
+        }
+
+        // Xử lý sale_price: nếu để trống hoặc = 0 thì set null
+        if (empty($request->sale_price) || (float) $request->sale_price == 0) {
+            $requestData['sale_price'] = null;
+        } else {
+            $requestData['sale_price'] = (float) $request->sale_price;
         }
 
         Product::create($requestData);
@@ -84,11 +94,14 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'sale_price.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc.',
         ]);
 
         // is_hot checkbox
@@ -111,9 +124,17 @@ class ProductController extends Controller
             $validated['image'] = 'uploads/' . $imageName;
         }
 
+        // Xử lý sale_price: nếu để trống hoặc = 0 thì set null
+        if (empty($request->sale_price) || (float) $request->sale_price == 0) {
+            $validated['sale_price'] = null;
+        } else {
+            $validated['sale_price'] = (float) $request->sale_price;
+        }
+
         // Lưu giá trị cũ để so sánh
         $oldPrice = $product->price;
         $oldStock = $product->stock;
+        $oldSalePrice = $product->sale_price;
 
         // Cập nhật sản phẩm trong transaction
         DB::beginTransaction();
@@ -154,6 +175,25 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'old_stock' => $oldStock,
                     'new_stock' => $validated['stock'],
+                    'admin_id' => auth('admin')->id(),
+                ]);
+            }
+
+            // Log thay đổi giá khuyến mãi nếu có
+            if ($oldSalePrice != $validated['sale_price']) {
+                ProductLog::create([
+                    'product_id' => $product->id,
+                    'field_changed' => 'sale_price',
+                    'old_value' => $oldSalePrice ?? 0,
+                    'new_value' => $validated['sale_price'] ?? 0,
+                    'changed_by' => auth('admin')->id(),
+                    'notes' => $request->input('sale_price_note', null),
+                ]);
+
+                Log::info('Thay đổi giá khuyến mãi sản phẩm', [
+                    'product_id' => $product->id,
+                    'old_sale_price' => $oldSalePrice,
+                    'new_sale_price' => $validated['sale_price'],
                     'admin_id' => auth('admin')->id(),
                 ]);
             }

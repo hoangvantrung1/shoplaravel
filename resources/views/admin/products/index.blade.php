@@ -33,6 +33,8 @@
                                 sản phẩm</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá
                             </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá khuyến mãi
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh
                                 mục</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -67,8 +69,36 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="text-sm font-semibold text-green-600">{{ number_format($product->price, 0, ',', '.') }}₫</span>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-green-600">
+                                            {{ number_format($product->price, 0, ',', '.') }}₫
+                                        </span>
+                                        @if($product->sale_price && $product->sale_price > 0 && $product->sale_price < $product->price)
+                                            @php
+                                                $discount = round((1 - $product->sale_price / $product->price) * 100);
+                                            @endphp
+                                            <span class="text-xs text-gray-500 line-through mt-1">
+                                                Giá gốc
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($product->sale_price && $product->sale_price > 0 && $product->sale_price < $product->price)
+                                        @php
+                                            $discount = round((1 - $product->sale_price / $product->price) * 100);
+                                        @endphp
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-semibold text-red-600">
+                                                {{ number_format($product->sale_price, 0, ',', '.') }}₫
+                                            </span>
+                                            <span class="text-xs font-medium text-red-500 mt-1">
+                                                Giảm {{ $discount }}%
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-gray-400 italic">—</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="text-sm text-gray-700">

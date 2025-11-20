@@ -26,11 +26,21 @@
                 class="w-full border px-3 py-2 rounded" required>
         </div>
 
-        {{-- Giá --}}
+        {{-- Giá gốc --}}
         <div>
-            <label class="block font-semibold mb-1">Giá</label>
-            <input type="number" name="price" value="{{ old('price') }}" class="w-full border px-3 py-2 rounded" required
-                min="0">
+            <label class="block font-semibold mb-1">Giá gốc (₫)</label>
+            <input type="number" name="price" value="{{ old('price') }}" 
+                   class="w-full border px-3 py-2 rounded" required min="0" step="0.01">
+            <p class="text-sm text-gray-500 mt-1">Giá bán thông thường của sản phẩm</p>
+        </div>
+        
+        {{-- Giá khuyến mãi --}}
+        <div>
+            <label class="block font-semibold mb-1">Giá khuyến mãi (₫) <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+            <input type="number" name="sale_price" value="{{ old('sale_price') }}" 
+                   class="w-full border px-3 py-2 rounded" min="0" step="0.01" 
+                   placeholder="Để trống nếu không có khuyến mãi">
+            <p class="text-sm text-gray-500 mt-1">Giá bán khuyến mãi. Phải nhỏ hơn giá gốc để có hiệu lực.</p>
         </div>
         <div>
             <label class="block font-semibold mb-2">Số lượng tồn kho</label>

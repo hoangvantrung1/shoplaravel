@@ -12,8 +12,26 @@
             <input type="text" name="name" value="{{ $product->name }}" class="w-full border px-3 py-2 rounded">
         </div>
         <div>
-            <label class="block font-semibold mb-1">Giá</label>
-            <input type="number" name="price" value="{{ $product->price }}" class="w-full border px-3 py-2 rounded">
+            <label class="block font-semibold mb-1">Giá gốc (₫)</label>
+            <input type="number" name="price" value="{{ $product->price }}" 
+                   class="w-full border px-3 py-2 rounded" required min="0" step="0.01">
+            <p class="text-sm text-gray-500 mt-1">Giá bán thông thường của sản phẩm</p>
+        </div>
+        
+        <div>
+            <label class="block font-semibold mb-1">Giá khuyến mãi (₫) <span class="text-gray-500 text-sm">(Tùy chọn)</span></label>
+            <input type="number" name="sale_price" value="{{ old('sale_price', $product->sale_price ?? '') }}" 
+                   class="w-full border px-3 py-2 rounded" min="0" step="0.01" 
+                   placeholder="Để trống nếu không có khuyến mãi">
+            <p class="text-sm text-gray-500 mt-1">
+                Giá bán khuyến mãi. Phải nhỏ hơn giá gốc. 
+                @if($product->sale_price)
+                    <span class="text-red-600 font-semibold">
+                        Hiện tại: {{ number_format($product->sale_price, 0, ',', '.') }}₫ 
+                        (Giảm {{ round((1 - $product->sale_price / $product->price) * 100) }}%)
+                    </span>
+                @endif
+            </p>
         </div>
         <div class="mb-4">
             <label for="description" class="block text-gray-700">Mô tả sản phẩm</label>
