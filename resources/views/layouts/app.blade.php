@@ -389,20 +389,31 @@
 
     {{-- Main Content --}}
     <main id="main-content" class="flex-1 w-full" role="main">
+        {{-- Flash Sale Section - hiển thị đầu tiên, chỉ khi không có bộ lọc --}}
+        @if(isset($isHomePage) && $isHomePage)
+            @include('components.flash-sale-section', ['newProducts' => $newProducts ?? collect()])
+        @endif
+
         @yield('content')
 
-        {{-- Danh mục sản phẩm --}}
+        {{-- Thương hiệu nổi bật --}}
+        @include('components.brands-section')
 
         {{-- Sản phẩm mới - chỉ hiển thị khi không có bộ lọc --}}
         @if(isset($isHomePage) && $isHomePage)
             <section class="pt-8 pb-6 bg-gray-50">
-                <div class="max-w-7xl mx-auto px-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-3xl font-bold text-gray-800 animate-fadeUp">
-                            Sản phẩm mới
-                        </h2>
+                <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 animate-fadeUp">
+                                Sản phẩm mới
+                            </h2>
+                            <p class="text-sm sm:text-base text-gray-600 mt-1">
+                                Những sản phẩm mới nhất được thêm vào
+                            </p>
+                        </div>
                         <a href="{{ route('products.index') }}"
-                            class="text-purple-600 hover:text-purple-800 font-semibold flex items-center">
+                            class="text-purple-600 hover:text-purple-800 font-semibold flex items-center text-sm sm:text-base whitespace-nowrap">
                             Xem tất cả <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                     </div>
@@ -412,10 +423,10 @@
             </section>
         @endif
 
-        {{-- Sản phẩm bán chạy --}}
-
-        {{-- Thương hiệu nổi bật --}}
-        @include('components.brands-section')
+        {{-- Testimonials Section - chỉ hiển thị khi không có bộ lọc --}}
+        @if(isset($isHomePage) && $isHomePage)
+            @include('components.testimonials-section')
+        @endif
         {{-- Blog & Tin tức --}}
         @if(isset($posts) && $posts->count() > 0)
             <section class="pt-0 pb-6 bg-white">

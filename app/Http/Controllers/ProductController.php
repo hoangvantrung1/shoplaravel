@@ -12,7 +12,8 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = Category::all();
+        // Load categories với số lượng sản phẩm
+        $categories = Category::withCount('products')->get();
         $brands = Brand::all();
         // Eager load relationships để tránh N+1 query
         $query = Product::with(['category', 'brand']);
@@ -73,19 +74,34 @@ class ProductController extends Controller
             $brandName = $brand ? $brand->name : null;
         }
         // Eager load relationships để tránh N+1 query
+        // Lấy sản phẩm mới nhất
         $newProducts = Product::with(['category', 'brand'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
+            ->where('stock', '>', 0) // Chỉ lấy sản phẩm còn hàng
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
+        // Featured products - sản phẩm nổi bật (có thể là best sellers hoặc có rating cao)
         $featuredProducts = Product::with(['category', 'brand'])
             ->withCount('reviews')
             ->withAvg('reviews', 'rating')
+            ->where('stock', '>', 0) // Chỉ lấy sản phẩm còn hàng
+            ->orderBy('reviews_avg_rating', 'desc')
+            ->orderBy('reviews_count', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit(8)
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                // Tính discount nếu có sale_price
+                if ($product->sale_price && $product->sale_price > 0 && $product->sale_price < $product->price) {
+                    $product->discount = round((1 - $product->sale_price / $product->price) * 100);
+                } else {
+                    $product->discount = 0;
+                }
+                return $product;
+            });
 
         $isHomePage = !$request->hasAny(['q', 'category', 'brand_id', 'min_price', 'max_price']);
         $stockStats = [
