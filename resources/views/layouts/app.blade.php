@@ -427,7 +427,7 @@
     </main>
        <!-- Chatbot floating -->
     <div id="chatbot"
-        class="fixed bottom-6 right-6 w-96 bg-white shadow-2xl rounded-3xl border border-gray-200 hidden flex-col overflow-hidden z-50 transition-all duration-300"
+        class="fixed bottom-6 right-6 w-96 bg-white shadow-2xl rounded-3xl border border-gray-200 hidden flex-col overflow-hidden z-40 transition-all duration-300"
         role="dialog" aria-label="Chat hỗ trợ tự động">
         <!-- Header với gradient -->
         <div class="chat-header bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 flex justify-between items-center shadow-md">
@@ -515,7 +515,7 @@
 
     <!-- Chat bubble icon với animation -->
     <button id="openChat"
-        class="fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center text-2xl hover:from-purple-700 hover:to-purple-800 transition-all hover:scale-110 z-40 group">
+        class="fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center text-2xl hover:from-purple-700 hover:to-purple-800 transition-all hover:scale-110 z-30 group">
         <span class="group-hover:scale-110 transition-transform">💬</span>
         <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
     </button>

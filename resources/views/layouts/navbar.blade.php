@@ -1,6 +1,6 @@
 <header id="site-header"
     class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-sm shadow-md transition-all duration-300 opacity-0 transform -translate-y-4 animate-header-fade-in">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="flex justify-between items-center h-16">
 
             {{-- Logo với hiệu ứng --}}
@@ -136,11 +136,161 @@
             </nav>
 
             {{-- Mobile Menu Button --}}
-            <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all opacity-0 animate-nav-item" style="animation-delay: 0.3s;">
-                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all opacity-0 animate-nav-item z-50" style="animation-delay: 0.3s;">
+                <svg id="menu-icon" class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
+                <svg id="close-icon" class="w-6 h-6 text-gray-800 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
+        </div>
+    </div>
+</header>
+
+{{-- Mobile Menu Overlay - Đặt ngoài header để hiển thị trên toàn trang --}}
+<div id="mobile-menu" class="fixed inset-0 bg-black/50 z-[9999] hidden md:hidden -translate-x-full transition-transform duration-300" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important;">
+        <div class="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl overflow-y-auto" style="position: absolute !important; height: 100% !important;">
+            {{-- Mobile Menu Header --}}
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-500">
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center justify-center w-8 h-8 bg-white/20 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-white">SOP</span>
+                </div>
+                <button id="mobile-menu-close" class="p-2 rounded-lg hover:bg-white/20 transition-colors">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Mobile Menu Content --}}
+            <nav class="py-4">
+                {{-- Trang chủ --}}
+                <a href="{{ route('home') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                    <i class="fas fa-home mr-3 w-5"></i>
+                    Trang chủ
+                </a>
+
+                {{-- Danh mục --}}
+                <div class="mobile-dropdown">
+                    <button class="mobile-nav-link w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <span class="flex items-center">
+                            <i class="fas fa-th-large mr-3 w-5"></i>
+                            Danh mục
+                        </span>
+                        <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                    <div class="mobile-dropdown-content bg-gray-50">
+                        @foreach($categories as $category)
+                            <a href="{{ route('products.index', ['category' => $category->id]) }}" 
+                               class="block px-8 py-2 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Thương hiệu --}}
+                <div class="mobile-dropdown">
+                    <button class="mobile-nav-link w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <span class="flex items-center">
+                            <i class="fas fa-certificate mr-3 w-5"></i>
+                            Thương hiệu
+                        </span>
+                        <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                    <div class="mobile-dropdown-content bg-gray-50">
+                        @foreach($brands as $brand)
+                            <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}" 
+                               class="block px-8 py-2 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                {{ $brand->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Blog --}}
+                <a href="{{ route('blog') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 {{ request()->routeIs('blog*') ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-transparent' }}">
+                    <i class="fas fa-blog mr-3 w-5"></i>
+                    Blog
+                </a>
+
+                {{-- Liên hệ --}}
+                <a href="{{ route('contact') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 {{ request()->routeIs('contact') ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-transparent' }}">
+                    <i class="fas fa-envelope mr-3 w-5"></i>
+                    Liên hệ
+                </a>
+
+                {{-- Giỏ hàng --}}
+                <a href="{{ route('cart.index') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600 relative">
+                    <i class="fas fa-shopping-cart mr-3 w-5"></i>
+                    Giỏ hàng
+                    @php $cartCount = count(session('cart', [])); @endphp
+                    @if($cartCount > 0)
+                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{{ $cartCount }}</span>
+                    @endif
+                </a>
+
+                <div class="border-t border-gray-200 my-2"></div>
+
+                {{-- User Section --}}
+                @guest
+                    <a href="{{ route('login') }}" class="block mx-4 mt-4 px-4 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 text-white text-center font-semibold hover:from-purple-700 hover:to-blue-600 transition-all transform hover:scale-105">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Đăng nhập
+                    </a>
+                @else
+                    {{-- User Info --}}
+                    <div class="px-4 py-3 border-b border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center text-white font-semibold">
+                                {{ substr(Auth::user()->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                                <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- User Menu --}}
+                    <a href="{{ route('client.orders.index') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <i class="fas fa-shopping-bag mr-3 w-5"></i>
+                        Đơn hàng của tôi
+                    </a>
+                    <a href="{{ route('wishlist.index') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <i class="fas fa-heart mr-3 w-5"></i>
+                        Yêu thích
+                    </a>
+                    <a href="{{ route('profile.index') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <i class="fas fa-user mr-3 w-5"></i>
+                        Thông tin cá nhân
+                    </a>
+                    <a href="{{ route('addresses.index') }}" class="mobile-nav-link block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors border-l-4 border-transparent hover:border-purple-600">
+                        <i class="fas fa-map-marker-alt mr-3 w-5"></i>
+                        Địa chỉ
+                    </a>
+
+                    <div class="border-t border-gray-200 my-2"></div>
+
+                    <form action="{{ route('client.logout') }}" method="POST" class="px-4">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border-l-4 border-transparent hover:border-red-600">
+                            <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                            Đăng xuất
+                        </button>
+                    </form>
+                @endguest
+            </nav>
         </div>
     </div>
 </header>
@@ -221,6 +371,35 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+#mobile-menu > div {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile dropdown */
+.mobile-dropdown button svg {
+    transition: transform 0.3s ease;
+}
+
+.mobile-dropdown.active button svg {
+    transform: rotate(90deg);
+}
+
+.mobile-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    padding: 0 !important;
+    opacity: 0;
+    display: block !important;
+}
+
+.mobile-dropdown.active .mobile-dropdown-content {
+    max-height: 1000px !important;
+    padding: 0.5rem 0 !important;
+    opacity: 1 !important;
+    overflow: visible;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .animate-header-fade-in {
@@ -251,25 +430,33 @@ document.addEventListener("DOMContentLoaded", function() {
             header.classList.remove('header-scrolled');
         }
         
-        // Hide header on scroll down, show on scroll up
-        if (window.scrollY > lastScrollY && window.scrollY > 200) {
-            header.style.transform = 'translateY(-100%)';
-        } else {
-            header.style.transform = 'translateY(0)';
+        // Hide header on scroll down, show on scroll up (chỉ trên desktop)
+        if (window.innerWidth >= 768) {
+            if (window.scrollY > lastScrollY && window.scrollY > 200) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
         }
         
         lastScrollY = window.scrollY;
     });
 
-    // Mobile menu behavior (giữ nguyên từ code cũ)
+    // Mobile menu behavior
     const openBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('mobile-menu-close');
     const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
     const body = document.body;
+    let isMenuOpen = false;
 
     function openMenu(){
-        if(!mobileMenu) return;
+        if(!mobileMenu || isMenuOpen) return;
+        isMenuOpen = true;
         mobileMenu.classList.remove('hidden');
+        if(menuIcon) menuIcon.classList.add('hidden');
+        if(closeIcon) closeIcon.classList.remove('hidden');
         setTimeout(()=>{
             mobileMenu.classList.remove('-translate-x-full');
         }, 10);
@@ -277,18 +464,87 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     function closeMenu(){
-        if(!mobileMenu) return;
+        if(!mobileMenu || !isMenuOpen) return;
+        isMenuOpen = false;
         mobileMenu.classList.add('-translate-x-full');
+        if(menuIcon) menuIcon.classList.remove('hidden');
+        if(closeIcon) closeIcon.classList.add('hidden');
         setTimeout(()=>{
             mobileMenu.classList.add('hidden');
             body.style.overflow = '';
-        }, 250);
+        }, 300);
     }
 
-    openBtn?.addEventListener('click', openMenu);
-    closeBtn?.addEventListener('click', closeMenu);
-    mobileMenu?.addEventListener('click', (e) => {
-        if (e.target === mobileMenu) closeMenu();
+    if(openBtn) {
+        openBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isMenuOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
+    }
+    
+    if(closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeMenu();
+        });
+    }
+    
+    if(mobileMenu) {
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) {
+                closeMenu();
+            }
+        });
+    }
+
+    // Đóng menu khi resize sang desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768 && isMenuOpen) {
+            closeMenu();
+        }
+    });
+
+    // Mobile dropdown functionality - Sử dụng event delegation trên document
+    document.addEventListener('click', function(e) {
+        // Chỉ xử lý khi click vào button trong mobile dropdown
+        const button = e.target.closest('.mobile-dropdown button');
+        if (!button) return;
+        
+        // Chỉ xử lý khi mobile menu đang hiển thị
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (!mobileMenu || mobileMenu.classList.contains('hidden')) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const dropdown = button.closest('.mobile-dropdown');
+        if (!dropdown) return;
+        
+        const isActive = dropdown.classList.contains('active');
+        
+        // Close all dropdowns
+        document.querySelectorAll('.mobile-dropdown').forEach(d => {
+            d.classList.remove('active');
+        });
+        
+        // Toggle current dropdown
+        if (!isActive) {
+            dropdown.classList.add('active');
+        }
+    });
+
+    // Close menu when clicking on a link
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+            // Don't close if it's a dropdown button
+            if (!this.closest('.mobile-dropdown')) {
+                closeMenu();
+            }
+        });
     });
 
     // Flash message handling (giữ nguyên từ code cũ)

@@ -161,9 +161,7 @@
                 data-slide="{{ $i }}"></button>
         @endfor
     </div>
-</div>
-
-<script>
+</div><script>
     document.addEventListener('DOMContentLoaded', function () {
         const track = document.getElementById('carouselTrack');
         const prevBtn = document.getElementById('prevBtn');
@@ -277,3 +275,4 @@
         });
     });
 </script>
+
