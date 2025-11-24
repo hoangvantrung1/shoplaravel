@@ -136,11 +136,11 @@
                                            name="customer_name" 
                                            id="customer_name"
                                            value="{{ old('customer_name', auth()->user()->name ?? '') }}"
-                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_name') border-red-500 @enderror"
+                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_name') border-red-500 bg-red-50 @enderror"
                                            required>
                                     @error('customer_name')
-                                        <p class="mt-1 text-sm text-red-600 flex items-center">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
                                             {{ $message }}
                                         </p>
                                     @enderror
@@ -154,11 +154,11 @@
                                            name="customer_email" 
                                            id="customer_email"
                                            value="{{ old('customer_email', auth()->user()->email ?? '') }}"
-                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_email') border-red-500 @enderror"
+                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_email') border-red-500 bg-red-50 @enderror"
                                            required>
                                     @error('customer_email')
-                                        <p class="mt-1 text-sm text-red-600 flex items-center">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
                                             {{ $message }}
                                         </p>
                                     @enderror
@@ -172,11 +172,11 @@
                                            name="customer_phone" 
                                            id="customer_phone"
                                            value="{{ old('customer_phone') }}"
-                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_phone') border-red-500 @enderror"
+                                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_phone') border-red-500 bg-red-50 @enderror"
                                            required>
                                     @error('customer_phone')
-                                        <p class="mt-1 text-sm text-red-600 flex items-center">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
                                             {{ $message }}
                                         </p>
                                     @enderror
@@ -190,11 +190,11 @@
                                 <textarea name="customer_address" 
                                           id="customer_address" 
                                           rows="3"
-                                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_address') border-red-500 @enderror"
+                                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('customer_address') border-red-500 bg-red-50 @enderror"
                                           required>{{ old('customer_address') }}</textarea>
                                 @error('customer_address')
-                                    <p class="mt-1 text-sm text-red-600 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <p class="mt-2 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-2"></i>
                                         {{ $message }}
                                     </p>
                                 @enderror
@@ -247,8 +247,8 @@
                             </div>
                             
                             @error('payment_method')
-                                <p class="mt-3 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                <p class="mt-3 text-sm text-red-600 flex items-center bg-red-50 p-3 rounded-lg border border-red-200">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
                                     {{ $message }}
                                 </p>
                             @enderror
