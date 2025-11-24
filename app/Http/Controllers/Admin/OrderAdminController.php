@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Mail\OrderShipped;
 use App\Mail\OrderCompleted;
+use App\Mail\OrderDelivered;
 
 class OrderAdminController extends Controller
 {
@@ -225,6 +226,10 @@ class OrderAdminController extends Controller
                     Mail::to($order->customer_email)->send(new OrderShipped($order));
                     break;
                     
+                case 'delivered':
+                    Mail::to($order->customer_email)->send(new OrderDelivered($order));
+                    break;
+
                 case 'completed':
                     Mail::to($order->customer_email)->send(new OrderCompleted($order));
                     break;

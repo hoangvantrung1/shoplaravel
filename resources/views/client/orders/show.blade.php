@@ -26,6 +26,123 @@
                 </div>
             </div>
 
+            {{-- Timeline trạng thái --}}
+            @php
+                $statusFlow = [
+                    ['key' => 'pending', 'label' => 'Chờ xác nhận', 'desc' => 'Đơn mới tạo'],
+                    ['key' => 'confirmed', 'label' => 'Đã xác nhận', 'desc' => 'Shop xác nhận đơn'],
+                    ['key' => 'processing', 'label' => 'Đang xử lý', 'desc' => 'Đang chuẩn bị hàng'],
+                    ['key' => 'shipping', 'label' => 'Đang giao', 'desc' => 'Đơn vị vận chuyển đang giao'],
+                    ['key' => 'delivered', 'label' => 'Đã giao', 'desc' => 'Shipper đã giao cho bạn'],
+                    ['key' => 'completed', 'label' => 'Hoàn thành', 'desc' => 'Đơn hàng kết thúc'],
+                ];
+                $statusAlias = [
+                    'unpaid' => 'pending',
+                    'paid' => 'confirmed',
+                ];
+                $normalizedStatus = $statusAlias[$order->status] ?? $order->status;
+                $currentIndex = array_search($normalizedStatus, array_column($statusFlow, 'key'));
+                $currentIndex = $currentIndex === false ? -1 : $currentIndex;
+                $isCancelled = $order->status === 'cancelled';
+                $isFailed = $order->status === 'failed';
+            @endphp
+
+            <div class="mb-10">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center gap-2 text-gray-800 font-semibold text-lg">
+                        <i class="fas fa-route text-indigo-500"></i>
+                        Tiến trình vận chuyển
+                    </div>
+                    <span class="text-sm text-gray-500">
+                        Cập nhật lần cuối: {{ $order->updated_at->format('d/m/Y H:i') }}
+                    </span>
+                </div>
+
+                @if($isCancelled || $isFailed)
+                    <div class="mt-4 flex items-center gap-3 p-4 rounded-xl border
+                        {{ $isCancelled ? 'bg-red-50 border-red-100' : 'bg-yellow-50 border-yellow-100' }}">
+                        <span class="w-10 h-10 rounded-full flex items-center justify-center
+                            {{ $isCancelled ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600' }}">
+                            <i class="fas {{ $isCancelled ? 'fa-times' : 'fa-exclamation-triangle' }}"></i>
+                        </span>
+                        <div>
+                            <p class="font-semibold {{ $isCancelled ? 'text-red-700' : 'text-yellow-700' }}">
+                                {{ $isCancelled ? 'Đơn hàng đã bị hủy' : 'Thanh toán thất bại' }}
+                            </p>
+                            <p class="text-sm {{ $isCancelled ? 'text-red-500' : 'text-yellow-600' }}">
+                                {{ $isCancelled ? 'Nếu cần hỗ trợ, vui lòng liên hệ chăm sóc khách hàng.' : 'Bạn có thể thử thanh toán lại hoặc chọn phương thức khác.' }}
+                            </p>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="mt-6">
+                    <div class="relative">
+                        {{-- Container các bước --}}
+                        <div class="relative flex items-start justify-between overflow-x-auto pb-4">
+                            @foreach($statusFlow as $index => $step)
+                                @php
+                                    // Xác định trạng thái của từng bước
+                                    $isCompleted = !$isCancelled && !$isFailed && $index < $currentIndex && $currentIndex >= 0;
+                                    $isActive = !$isCancelled && !$isFailed && $index <= $currentIndex && $currentIndex >= 0;
+                                    $isCurrent = !$isCancelled && !$isFailed && $index === $currentIndex && $currentIndex >= 0;
+                                    
+                                    // Tính toán phần trăm đường nối đã hoàn thành
+                                    $totalSteps = count($statusFlow);
+                                    $progressPercent = $currentIndex >= 0 ? (($currentIndex + 1) / $totalSteps) * 100 : 0;
+                                @endphp
+                                <div class="flex flex-col items-center text-center flex-1 min-w-[120px] relative">
+                                    {{-- Đường nối phía trước (từ bước trước đến bước hiện tại) --}}
+                                    @if($index !== 0)
+                                        <div class="absolute left-0 top-6 w-1/2 h-1 z-0 {{ $index <= $currentIndex && !$isCancelled && !$isFailed ? 'bg-indigo-500' : 'bg-gray-200' }}"></div>
+                                    @endif
+                                    
+                                    {{-- Đường nối phía sau (từ bước hiện tại đến bước tiếp theo) --}}
+                                    @if(!$loop->last)
+                                        <div class="absolute right-0 top-6 w-1/2 h-1 z-0 {{ $index < $currentIndex && !$isCancelled && !$isFailed ? 'bg-indigo-500' : 'bg-gray-200' }}"></div>
+                                    @endif
+                                    
+                                    {{-- Icon bước --}}
+                                    <div class="relative z-10">
+                                        <span class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all bg-white
+                                            {{ $isCurrent ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg' : ($isCompleted ? 'border-indigo-500 bg-indigo-100 text-indigo-600' : 'border-gray-200 text-gray-400') }}">
+                                            @if($step['key'] === 'pending')
+                                                <i class="fas fa-clock text-sm"></i>
+                                            @elseif($step['key'] === 'confirmed')
+                                                <i class="fas fa-check-circle text-sm"></i>
+                                            @elseif($step['key'] === 'processing')
+                                                <i class="fas fa-box text-sm"></i>
+                                            @elseif($step['key'] === 'shipping')
+                                                <i class="fas fa-truck text-sm"></i>
+                                            @elseif($step['key'] === 'delivered')
+                                                <i class="fas fa-box-open text-sm"></i>
+                                            @elseif($step['key'] === 'completed')
+                                                <i class="fas fa-check text-sm"></i>
+                                            @else
+                                                <i class="fas fa-circle-notch text-xs"></i>
+                                            @endif
+                                        </span>
+                                    </div>
+                                    
+                                    {{-- Thông tin bước --}}
+                                    <div class="mt-3 px-2 w-full">
+                                        <p class="text-sm font-semibold {{ $isActive ? 'text-gray-900' : 'text-gray-500' }}">
+                                            {{ $step['label'] }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ $step['desc'] }}</p>
+                                        @if($isCurrent)
+                                            <span class="mt-1 inline-block text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-medium">
+                                                Trạng thái hiện tại
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Thông tin khách hàng --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div>
