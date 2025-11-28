@@ -60,15 +60,16 @@
     @endif
 
     @if($addresses->isEmpty())
-        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner">
+        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner" role="status" aria-live="polite">
             <div class="mx-auto w-20 h-20 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
-                <i class="fas fa-map-marked-alt text-2xl"></i>
+                <i class="fas fa-map-marked-alt text-2xl" aria-hidden="true"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">Chưa có địa chỉ nào</h3>
             <p class="text-gray-500 mb-6">Thêm địa chỉ mới để thanh toán thuận tiện hơn ở các đơn hàng tiếp theo.</p>
             <a href="{{ route('addresses.create') }}"
-               class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:bg-purple-700 transition">
-                <i class="fas fa-plus"></i> Thêm địa chỉ đầu tiên
+               class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:bg-purple-700 transition"
+               aria-label="Thêm địa chỉ giao hàng đầu tiên">
+                <i class="fas fa-plus" aria-hidden="true"></i> Thêm địa chỉ đầu tiên
             </a>
         </div>
     @else

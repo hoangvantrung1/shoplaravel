@@ -75,7 +75,7 @@
 
     <!-- 🛒 Danh sách đơn hàng -->
     @if($orders->count() > 0)
-        <div class="space-y-6">
+        <div class="space-y-6" role="list" aria-label="Danh sách đơn hàng đã đặt">
             @foreach($orders as $order)
             <div class="bg-white rounded-lg shadow p-5 border border-gray-200 hover:shadow-md transition-all">
 
@@ -105,7 +105,7 @@
                 </div>
 
                 <!-- Danh sách sản phẩm -->
-                <div class="divide-y">
+                <div class="divide-y" role="list" aria-label="Sản phẩm trong đơn {{ $order->order_code }}">
                     @foreach($order->orderItems as $item)
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
@@ -204,8 +204,25 @@
             </div>
         </div>
     @else
-        <div class="text-center py-12 bg-gray-50 rounded-xl">
-            <p class="text-gray-500 text-lg">Không có đơn hàng nào phù hợp.</p>
+        {{-- Empty state demo --}}
+        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner" role="status" aria-live="polite">
+            <div class="mx-auto w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-500 flex items-center justify-center mb-6 shadow-lg shadow-purple-100">
+                <i class="fas fa-box-open text-3xl" aria-hidden="true"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có đơn hàng nào</h3>
+            <p class="text-gray-500 mb-8 max-w-lg mx-auto leading-relaxed">
+                Khi bạn mua hàng, đơn sẽ xuất hiện tại đây để theo dõi toàn bộ hành trình. Hãy bắt đầu với những sản phẩm nổi bật mà chúng tôi gợi ý.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg hover:-translate-y-0.5 transition-all" aria-label="Đi tới trang sản phẩm để mua sắm">
+                    <i class="fas fa-store" aria-hidden="true"></i>
+                    Tiếp tục mua sắm
+                </a>
+                <a href="{{ route('cart.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl border border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 transition" aria-label="Xem giỏ hàng hiện tại">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                    Xem giỏ hàng
+                </a>
+            </div>
         </div>
     @endif
     </div>

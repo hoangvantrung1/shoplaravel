@@ -119,7 +119,17 @@
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500">Bạn chưa có địa chỉ nào.</p>
+                <div class="border-2 border-dashed border-gray-200 rounded-2xl py-10 px-6 text-center bg-white" role="status" aria-live="polite">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center shadow-sm">
+                        <i class="fas fa-map-marker-alt text-2xl" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-2">Bạn chưa có địa chỉ giao hàng</h4>
+                    <p class="text-gray-500 mb-6">Tạo địa chỉ mới để thanh toán nhanh hơn ở các đơn hàng tiếp theo.</p>
+                    <a href="{{ route('addresses.create') }}" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow hover:-translate-y-0.5 transition" aria-label="Thêm địa chỉ giao hàng đầu tiên">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        Thêm địa chỉ đầu tiên
+                    </a>
+                </div>
             @endif
         </div>
         {{-- ✅ Kết thúc phần địa chỉ --}}
