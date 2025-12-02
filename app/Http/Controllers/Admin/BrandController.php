@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class BrandController extends Controller
@@ -38,6 +39,9 @@ class BrandController extends Controller
             'slug' => $slug,
         ]);
 
+        // Xóa cache brands để load dữ liệu mới
+        Cache::forget('brands_all');
+
         return redirect()->route('admin.brands.index')->with('success', 'Tạo thương hiệu thành công!');
     }
 
@@ -67,6 +71,9 @@ class BrandController extends Controller
             'slug' => $slug,
         ]);
 
+        // Xóa cache brands để load dữ liệu mới
+        Cache::forget('brands_all');
+
         return redirect()->route('admin.brands.index')->with('success', 'Cập nhật thương hiệu thành công!');
     }
 
@@ -74,6 +81,9 @@ class BrandController extends Controller
     {
         $brand = Brand::findOrFail($id);
         $brand->delete();
+
+        // Xóa cache brands để load dữ liệu mới
+        Cache::forget('brands_all');
 
         return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu thành công!');
     }

@@ -1,28 +1,8 @@
 @extends('layouts.client')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 pt-20 pb-12">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-        
-        {{-- Breadcrumb --}}
-        <nav class="flex px-6 py-4 text-gray-700 border border-gray-200 rounded-2xl bg-white shadow-sm mb-8" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
-                        <i class="fa-solid fa-house mr-2"></i>
-                        Trang chủ
-                    </a>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-chevron-right text-gray-400 mx-2"></i>
-                        <span class="text-sm font-medium text-purple-600">Thông tin cá nhân</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-
-        <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-8">Thông tin cá nhân</h1>
+<div class="container mx-auto px-4 py-10 max-w-4xl">
+    <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-8 mt-10">Thông tin cá nhân</h1>
 
     <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center space-x-6 mb-6">
@@ -119,21 +99,10 @@
                     @endforeach
                 </div>
             @else
-                <div class="border-2 border-dashed border-gray-200 rounded-2xl py-10 px-6 text-center bg-white" role="status" aria-live="polite">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center shadow-sm">
-                        <i class="fas fa-map-marker-alt text-2xl" aria-hidden="true"></i>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gray-900 mb-2">Bạn chưa có địa chỉ giao hàng</h4>
-                    <p class="text-gray-500 mb-6">Tạo địa chỉ mới để thanh toán nhanh hơn ở các đơn hàng tiếp theo.</p>
-                    <a href="{{ route('addresses.create') }}" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow hover:-translate-y-0.5 transition" aria-label="Thêm địa chỉ giao hàng đầu tiên">
-                        <i class="fas fa-plus" aria-hidden="true"></i>
-                        Thêm địa chỉ đầu tiên
-                    </a>
-                </div>
+                <p class="text-gray-500">Bạn chưa có địa chỉ nào.</p>
             @endif
         </div>
         {{-- ✅ Kết thúc phần địa chỉ --}}
-    </div>
     </div>
 </div>
 @endsection

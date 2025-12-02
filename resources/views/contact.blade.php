@@ -87,16 +87,12 @@
                         </label>
                         <div class="relative">
                             <input type="text" name="name" id="name" value="{{ old('name') }}"
-                                   class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white @error('name') border-red-500 bg-red-50 @enderror"
+                                   class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white"
                                    placeholder="Nhập họ và tên của bạn" required>
                             <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        @error('name')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
+                        <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
+                        @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,16 +103,12 @@
                             </label>
                             <div class="relative">
                                 <input type="email" name="email" id="email" value="{{ old('email') }}"
-                                       class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white @error('email') border-red-500 bg-red-50 @enderror"
+                                       class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white"
                                        placeholder="example@email.com" required>
                                 <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             </div>
-                            @error('email')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-circle mr-2"></i>
-                                    {{ $message }}
-                                </p>
-                            @enderror
+                            <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
+                            @error('email')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                         </div>
                         <div class="relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -125,16 +117,12 @@
                             </label>
                             <div class="relative">
                                 <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                       class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white @error('phone') border-red-500 bg-red-50 @enderror"
+                                       class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 bg-gray-50 focus:bg-white"
                                        placeholder="0123 456 789" required>
                                 <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             </div>
-                            @error('phone')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-circle mr-2"></i>
-                                    {{ $message }}
-                                </p>
-                            @enderror
+                            <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
+                            @error('phone')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
 
@@ -145,7 +133,7 @@
                         </label>
                         <div class="relative">
                             <select name="subject" id="subject" 
-                                    class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 pr-10 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer @error('subject') border-red-500 bg-red-50 @enderror" required>
+                                    class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 pr-10 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none cursor-pointer" required>
                             <option value="">Chọn chủ đề liên hệ</option>
                             <option value="Tư vấn sản phẩm" {{ old('subject') == 'Tư vấn sản phẩm' ? 'selected' : '' }}>Tư vấn sản phẩm</option>
                             <option value="Hỗ trợ kỹ thuật" {{ old('subject') == 'Hỗ trợ kỹ thuật' ? 'selected' : '' }}>Hỗ trợ kỹ thuật</option>
@@ -156,12 +144,8 @@
                         <i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                         <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                         </div>
-                        @error('subject')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
+                        <div class="error-message text-red-600 text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
+                        @error('subject')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="relative">
@@ -171,7 +155,7 @@
                         </label>
                         <div class="relative">
                             <textarea name="message" id="message" rows="6"
-                                      class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 resize-none bg-gray-50 focus:bg-white @error('message') border-red-500 bg-red-50 @enderror"
+                                      class="w-full rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 px-4 py-3 pl-11 transition-all duration-200 resize-none bg-gray-50 focus:bg-white"
                                       placeholder="Mô tả chi tiết vấn đề hoặc câu hỏi của bạn..." required>{{ old('message') }}</textarea>
                             <i class="fas fa-comment-dots absolute left-3 top-4 text-gray-400"></i>
                         </div>
@@ -179,12 +163,7 @@
                             <div class="error-message text-red-600 text-sm hidden" role="alert" aria-live="polite"></div>
                             <span class="text-gray-400 text-xs" id="charCount">0/500 ký tự</span>
                         </div>
-                        @error('message')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
+                        @error('message')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="flex items-start p-4 bg-purple-50 rounded-xl border border-purple-100">

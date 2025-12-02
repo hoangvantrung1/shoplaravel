@@ -22,7 +22,7 @@
                                (float) $newProduct->sale_price < (float) $newProduct->price;
                     $finalPrice = $hasSale ? (float) $newProduct->sale_price : (float) $newProduct->price;
                     $rating = $newProduct->reviews_avg_rating ?? 0;
-                    $reviewCount = $newProduct->reviews_count ?? 0;
+                    $reviewCount = $newProduct->reviews_count ?? 0; 
                 @endphp
                 
                 <div class="flex-shrink-0 w-72">

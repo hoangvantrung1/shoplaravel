@@ -1,34 +1,8 @@
 @extends('layouts.client')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 pt-20 pb-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {{-- Breadcrumb --}}
-        <nav class="flex px-6 py-4 text-gray-700 border border-gray-200 rounded-2xl bg-white shadow-sm mb-8" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
-                        <i class="fa-solid fa-house mr-2"></i>
-                        Trang chủ
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-chevron-right text-gray-400 mx-2"></i>
-                        <a href="{{ route('profile.index') }}" class="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">Thông tin cá nhân</a>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-chevron-right text-gray-400 mx-2"></i>
-                        <span class="text-sm font-medium text-purple-600">Địa chỉ giao hàng</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-
-        <div class="bg-gradient-to-r from-purple-600/10 via-purple-500/5 to-blue-500/10 rounded-3xl border border-purple-100 shadow-2xl shadow-purple-100/80 p-8 mb-10">
+<div class="max-w-6xl mx-auto px-4 lg:px-0 py-12">
+    <div class="bg-gradient-to-r from-purple-600/10 via-purple-500/5 to-blue-500/10 rounded-3xl border border-purple-100 shadow-2xl shadow-purple-100/80 p-8 mb-10">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-[0.4em] text-purple-500 mb-2">Address book</p>
@@ -60,16 +34,15 @@
     @endif
 
     @if($addresses->isEmpty())
-        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner" role="status" aria-live="polite">
+        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner">
             <div class="mx-auto w-20 h-20 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
-                <i class="fas fa-map-marked-alt text-2xl" aria-hidden="true"></i>
+                <i class="fas fa-map-marked-alt text-2xl"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">Chưa có địa chỉ nào</h3>
             <p class="text-gray-500 mb-6">Thêm địa chỉ mới để thanh toán thuận tiện hơn ở các đơn hàng tiếp theo.</p>
             <a href="{{ route('addresses.create') }}"
-               class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:bg-purple-700 transition"
-               aria-label="Thêm địa chỉ giao hàng đầu tiên">
-                <i class="fas fa-plus" aria-hidden="true"></i> Thêm địa chỉ đầu tiên
+               class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow-lg hover:bg-purple-700 transition">
+                <i class="fas fa-plus"></i> Thêm địa chỉ đầu tiên
             </a>
         </div>
     @else
@@ -137,6 +110,5 @@
             @endforeach
         </div>
     @endif
-    </div>
 </div>
 @endsection

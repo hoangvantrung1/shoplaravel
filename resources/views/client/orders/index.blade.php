@@ -3,28 +3,8 @@
 @section('title', 'Đơn hàng của tôi')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 pt-20 pb-12">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        
-        {{-- Breadcrumb --}}
-        <nav class="flex px-6 py-4 text-gray-700 border border-gray-200 rounded-2xl bg-white shadow-sm mb-8" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
-                        <i class="fa-solid fa-house mr-2"></i>
-                        Trang chủ
-                    </a>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-chevron-right text-gray-400 mx-2"></i>
-                        <span class="text-sm font-medium text-purple-600">Đơn hàng của tôi</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-
-        <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-8">Đơn hàng của tôi</h1>
+<div class="container mx-auto px-4 py-10 max-w-7xl">
+    <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-8 mt-10">Đơn hàng của tôi</h1>
 
     <!-- 🔘 Tabs trạng thái -->
     <div class="flex flex-wrap justify-center gap-3 mb-8">
@@ -75,7 +55,7 @@
 
     <!-- 🛒 Danh sách đơn hàng -->
     @if($orders->count() > 0)
-        <div class="space-y-6" role="list" aria-label="Danh sách đơn hàng đã đặt">
+        <div class="space-y-6">
             @foreach($orders as $order)
             <div class="bg-white rounded-lg shadow p-5 border border-gray-200 hover:shadow-md transition-all">
 
@@ -105,7 +85,7 @@
                 </div>
 
                 <!-- Danh sách sản phẩm -->
-                <div class="divide-y" role="list" aria-label="Sản phẩm trong đơn {{ $order->order_code }}">
+                <div class="divide-y">
                     @foreach($order->orderItems as $item)
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-3">
@@ -204,27 +184,9 @@
             </div>
         </div>
     @else
-        {{-- Empty state demo --}}
-        <div class="bg-white rounded-3xl border border-dashed border-gray-200 py-16 px-6 text-center shadow-inner" role="status" aria-live="polite">
-            <div class="mx-auto w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-500 flex items-center justify-center mb-6 shadow-lg shadow-purple-100">
-                <i class="fas fa-box-open text-3xl" aria-hidden="true"></i>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có đơn hàng nào</h3>
-            <p class="text-gray-500 mb-8 max-w-lg mx-auto leading-relaxed">
-                Khi bạn mua hàng, đơn sẽ xuất hiện tại đây để theo dõi toàn bộ hành trình. Hãy bắt đầu với những sản phẩm nổi bật mà chúng tôi gợi ý.
-            </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg hover:-translate-y-0.5 transition-all" aria-label="Đi tới trang sản phẩm để mua sắm">
-                    <i class="fas fa-store" aria-hidden="true"></i>
-                    Tiếp tục mua sắm
-                </a>
-                <a href="{{ route('cart.index') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl border border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 transition" aria-label="Xem giỏ hàng hiện tại">
-                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                    Xem giỏ hàng
-                </a>
-            </div>
+        <div class="text-center py-12 bg-gray-50 rounded-xl">
+            <p class="text-gray-500 text-lg">Không có đơn hàng nào phù hợp.</p>
         </div>
     @endif
-    </div>
 </div>
 @endsection

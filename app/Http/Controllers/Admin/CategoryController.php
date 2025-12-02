@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -38,6 +39,9 @@ class CategoryController extends Controller
             'slug' => $slug,
         ]);
 
+        // Xóa cache categories để load dữ liệu mới
+        Cache::forget('categories_all');
+
         return redirect()->route('admin.categories.index')->with('success', 'Tạo danh mục thành công!');
     }
 
@@ -67,6 +71,9 @@ class CategoryController extends Controller
             'slug' => $slug,
         ]);
 
+        // Xóa cache categories để load dữ liệu mới
+        Cache::forget('categories_all');
+
         return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
 
@@ -74,6 +81,9 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $category->delete();
+
+        // Xóa cache categories để load dữ liệu mới
+        Cache::forget('categories_all');
 
         return redirect()->route('admin.categories.index')->with('success', 'Xóa danh mục thành công!');
     }

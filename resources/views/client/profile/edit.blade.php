@@ -7,17 +7,21 @@
         <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-8 mt-10">Chỉnh sửa thông tin cá nhân</h1>
 
         <div class="bg-white rounded-lg shadow-md p-6">
-            @if ($errors->any() && !$errors->has('name') && !$errors->has('email') && !$errors->has('phone'))
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6 shadow-sm">
-                    <div class="flex items-start">
+            @if ($errors->any())
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-6">
+                    <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
                         </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-semibold text-red-800 mb-1">
-                                Có lỗi xảy ra
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Có lỗi xảy ra:
                             </h3>
-                            <div class="text-sm text-red-700">
+                            <div class="mt-2 text-sm text-red-700">
                                 <ul class="list-disc list-inside space-y-1">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -36,47 +40,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user text-purple-600 mr-1"></i>
                             Họ và tên <span class="text-red-500">*</span>
                         </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   id="name" 
-                                   name="name" 
-                                   value="{{ old('name', $user->name) }}"
-                                   class="w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('name') border-red-500 bg-red-50 @enderror"
-                                   placeholder="Nhập họ và tên" 
-                                   required>
-                            <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 @error('name') text-red-500 @enderror"></i>
-                        </div>
+                        <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 @error('name') border-red-300 @enderror"
+                            placeholder="Nhập họ và tên" required>
                         @error('name')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-envelope text-purple-600 mr-1"></i>
                             Địa chỉ email <span class="text-red-500">*</span>
                         </label>
-                        <div class="relative">
-                            <input type="email" 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email', $user->email) }}"
-                                   class="w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('email') border-red-500 bg-red-50 @enderror"
-                                   placeholder="Nhập địa chỉ email" 
-                                   required>
-                            <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 @error('email') text-red-500 @enderror"></i>
-                        </div>
+                        <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 @error('email') border-red-300 @enderror"
+                            placeholder="Nhập địa chỉ email" required>
                         @error('email')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -84,23 +66,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-phone text-purple-600 mr-1"></i>
                             Số điện thoại
                         </label>
-                        <div class="relative">
-                            <input type="tel" 
-                                   id="phone" 
-                                   name="phone" 
-                                   value="{{ old('phone', $user->phone) }}"
-                                   class="w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('phone') border-red-500 bg-red-50 @enderror"
-                                   placeholder="Nhập số điện thoại">
-                            <i class="fas fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 @error('phone') text-red-500 @enderror"></i>
-                        </div>
+                        <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 @error('phone') border-red-300 @enderror"
+                            placeholder="Nhập số điện thoại">
                         @error('phone')
-                            <p class="mt-2 text-sm text-red-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                {{ $message }}
-                            </p>
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 

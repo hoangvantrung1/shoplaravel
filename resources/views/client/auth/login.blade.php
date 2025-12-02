@@ -25,19 +25,27 @@
         <form class="mt-8 space-y-6" action="{{ route('login.submit') }}" method="POST">
             @csrf
 
-            {{-- Lỗi đăng nhập tổng --}}
-            @if ($errors->has('email') || $errors->has('password'))
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
-                    <div class="flex items-start">
+            {{-- lỗi đăng nhập --}}
+            @if ($errors->any())
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                    <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 
+                                      1.414L8.586 10l-1.293 1.293a1 1 0 101.414 
+                                      1.414L10 11.414l1.293 1.293a1 1 0 
+                                      001.414-1.414L11.414 10l1.293-1.293a1 
+                                      1 0 00-1.414-1.414L10 8.586 
+                                      8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
                         </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-semibold text-red-800 mb-1">
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
                                 Đăng nhập thất bại
                             </h3>
-                            <div class="text-sm text-red-700">
-                                {{ $errors->first('email') ?: $errors->first('password') }}
+                            <div class="mt-2 text-sm text-red-700">
+                                {{ $errors->first() }}
                             </div>
                         </div>
                     </div>
@@ -46,48 +54,17 @@
 
             <div class="space-y-4">
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-purple-600 mr-1"></i>
-                        Địa chỉ email <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="email" 
-                               name="email" 
-                               type="email" 
-                               required 
-                               value="{{ old('email') }}"
-                               class="w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('email') border-red-500 bg-red-50 @enderror"
-                               placeholder="Nhập địa chỉ email">
-                        <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 @error('email') text-red-500 @enderror"></i>
-                    </div>
-                    @error('email')
-                        <p class="mt-2 text-sm text-red-600 flex items-center">
-                            <i class="fas fa-exclamation-circle mr-2"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
+                    <label for="email" class="block text-sm font-medium text-gray-700">Địa chỉ email</label>
+                    <input id="email" name="email" type="email" required value="{{ old('email') }}"
+                           class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                           placeholder="Nhập địa chỉ email">
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-lock text-purple-600 mr-1"></i>
-                        Mật khẩu <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="password" 
-                               name="password" 
-                               type="password" 
-                               required
-                               class="w-full px-4 py-3 pl-11 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all @error('password') border-red-500 bg-red-50 @enderror"
-                               placeholder="Nhập mật khẩu">
-                        <i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 @error('password') text-red-500 @enderror"></i>
-                    </div>
-                    @error('password')
-                        <p class="mt-2 text-sm text-red-600 flex items-center">
-                            <i class="fas fa-exclamation-circle mr-2"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
+                    <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                    <input id="password" name="password" type="password" required
+                           class="w-full px-3 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                           placeholder="Nhập mật khẩu">
                 </div>
             </div>
 
