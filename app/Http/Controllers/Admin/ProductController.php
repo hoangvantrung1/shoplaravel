@@ -91,7 +91,10 @@ class ProductController extends Controller
         // Upload ảnh
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $imageName = time() . '_' . $file->getClientOriginalName();
+            // Sanitize filename để tránh path traversal attack
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $imageName = time() . '_' . Str::slug($originalName) . '.' . $extension;
             $file->move(public_path('uploads'), $imageName);
             $requestData['image'] = 'uploads/' . $imageName;
         }
@@ -158,7 +161,10 @@ class ProductController extends Controller
         // Upload ảnh nếu có
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $imageName = time() . '_' . $file->getClientOriginalName();
+            // Sanitize filename để tránh path traversal attack
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $imageName = time() . '_' . Str::slug($originalName) . '.' . $extension;
             $file->move(public_path('uploads'), $imageName);
             $validated['image'] = 'uploads/' . $imageName;
         }

@@ -5,8 +5,8 @@ namespace App\Providers;
 use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use View;
 
 class AppServiceProvider extends ServiceProvider
 {
